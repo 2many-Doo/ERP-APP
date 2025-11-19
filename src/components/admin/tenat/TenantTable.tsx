@@ -1,0 +1,77 @@
+"use client";
+
+import React from "react";
+import { Tenant } from "./types";
+import { TenantTableRow } from "./TenantTableRow";
+
+interface TenantTableProps {
+  tenants: Tenant[];
+  loading: boolean;
+  statusOptions: { [key: string]: string };
+  onTenantClick?: (tenantId: number) => void;
+  onStatusChange?: (tenantId: number, newStatus: string) => void;
+  onApprove?: (tenantId: number) => void;
+  onReject?: (tenantId: number) => void;
+  filterType?: "new" | "renewal" | "rejected";
+  processingIds?: Set<number>;
+}
+
+export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, statusOptions, onTenantClick, onStatusChange, onApprove, onReject, filterType, processingIds }) => {
+  const isRenewal = filterType === "renewal";
+  
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
+                {isRenewal ? "Лангуу" : "Үйл ажиллагааны төрөл"}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Харилцагчийн нэр</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Утасны дугаар</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Имэйл</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Тайлбар</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Төлөв</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Үйлдэл</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200">
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center">
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-16 bg-slate-200 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            ) : tenants.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                  Түрээслэх хүсэлт олдсонгүй
+                </td>
+              </tr>
+            ) : (
+              tenants.map((tenant) => (
+                <TenantTableRow
+                  key={tenant.id}
+                  tenant={tenant}
+                  statusOptions={statusOptions}
+                  onTenantClick={onTenantClick}
+                  onApprove={onApprove}
+                  onReject={onReject}
+                  isProcessing={processingIds?.has(tenant.id) || false}
+                />
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
