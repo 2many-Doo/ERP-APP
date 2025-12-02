@@ -679,7 +679,7 @@ export const rejectLeaseRequest = async (id: number): Promise<ApiResponse<any>> 
  * Get product types API function
  */
 export const getProductTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/product-types");
+  return get("/v1/properties/product-types");
 };
 
 /**
@@ -761,9 +761,9 @@ export const getPropertyAnnualRates = async (propertyId: number): Promise<ApiRes
 /**
  * Get property types API function
  */
-export const getPropertyTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/property-types");
-};
+// export const getPropertyTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
+//   return get("/v1/property/types");
+// };
 
 /**
  * Get service categories API function
@@ -777,6 +777,40 @@ export const getServiceCategories = async (): Promise<ApiResponse<{ data: any[] 
  */
 export const getBlocks = async (): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/properties/blocks");
+};
+
+/**
+ * Get merchants API function
+ */
+export const getMerchants = async (
+  page: number = 1,
+  perPage: number = 50,
+  orderby: string = "name",
+  order: string = "asc",
+  search?: string | null
+): Promise<ApiResponse<{ data: any[] }>> => {
+  const params: Record<string, string | number> = {
+    page,
+    per_page: perPage,
+    orderby,
+    order,
+  };
+  
+  // Add search query parameter
+  if (search !== null && search !== undefined && search.trim() !== "") {
+    params.q = search.trim();
+  }
+  
+  return get("/v1/merchants", {
+    params,
+  });
+};
+
+/**
+ * Get single merchant by ID API function
+ */
+export const getMerchant = async (merchantId: number): Promise<ApiResponse<any>> => {
+  return get(`/v1/merchants/${merchantId}`);
 };
 
 /**

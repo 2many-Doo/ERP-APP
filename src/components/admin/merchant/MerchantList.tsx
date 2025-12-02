@@ -1,92 +1,57 @@
 "use client";
 
 import React from "react";
-import { Store, Search, Plus, Edit, Trash2, MoreVertical, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "../../ui/button";
+import { Pagination } from "../../ui/pagination";
+import { useMerchantManagement } from "@/hooks/useMerchantManagement";
+import { Store, Search, Plus, Edit, Trash2, MoreVertical, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 interface MerchantListProps {
   onMerchantClick?: (merchantId: number) => void;
 }
 
 const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
-  // Mock data
-  const merchants = [
-    {
-      id: 1,
-      name: "ABC Худалдааны төв",
-      code: "MER001",
-      contact: "99112233",
-      email: "info@abc.mn",
-      address: "Улаанбаатар хот, СБД, 1-р хороо",
-      status: "Идэвхтэй",
-      registeredDate: "2024-01-15",
-      totalTransactions: 1250,
-      revenue: "₮ 15,500,000",
-    },
-    {
-      id: 2,
-      name: "XYZ Дэлгүүр",
-      code: "MER002",
-      contact: "99112234",
-      email: "info@xyz.mn",
-      address: "Улаанбаатар хот, ХДД, 5-р хороо",
-      status: "Идэвхтэй",
-      registeredDate: "2024-02-20",
-      totalTransactions: 890,
-      revenue: "₮ 10,200,000",
-    },
-    {
-      id: 3,
-      name: "DEF Ресторан",
-      code: "MER003",
-      contact: "99112235",
-      email: "info@def.mn",
-      address: "Улаанбаатар хот, БГД, 3-р хороо",
-      status: "Идэвхгүй",
-      registeredDate: "2024-03-10",
-      totalTransactions: 450,
-      revenue: "₮ 5,800,000",
-    },
-    {
-      id: 4,
-      name: "GHI Кафе",
-      code: "MER004",
-      contact: "99112236",
-      email: "info@ghi.mn",
-      address: "Улаанбаатар хот, СХД, 2-р хороо",
-      status: "Идэвхтэй",
-      registeredDate: "2024-04-05",
-      totalTransactions: 320,
-      revenue: "₮ 3,900,000",
-    },
-    {
-      id: 5,
-      name: "JKL Супермаркет",
-      code: "MER005",
-      contact: "99112237",
-      email: "info@jkl.mn",
-      address: "Улаанбаатар хот, БЗД, 4-р хороо",
-      status: "Идэвхтэй",
-      registeredDate: "2024-05-12",
-      totalTransactions: 2100,
-      revenue: "₮ 28,500,000",
-    },
-  ];
+  const {
+    merchants,
+    loading,
+    error,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    totalPages,
+    totalItems,
+    activeMerchants,
+    inactiveMerchants,
+    handlePageChange,
+    handleSort,
+    orderby,
+    order,
+  } = useMerchantManagement();
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const getStatusDisplay = (status: string | undefined): string => {
+    if (!status) return "Тодорхойгүй";
+    if (status === "active" || status === "Идэвхтэй") return "Идэвхтэй";
+    if (status === "inactive" || status === "Идэвхгүй") return "Идэвхгүй";
+    return status;
+  };
 
-  const filteredMerchants = merchants.filter((merchant) =>
-    merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    merchant.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    merchant.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isStatusActive = (status: string | undefined): boolean => {
+    return status === "active" || status === "Идэвхтэй";
+  };
 
-  const activeMerchants = merchants.filter((m) => m.status === "Идэвхтэй").length;
-  const inactiveMerchants = merchants.filter((m) => m.status === "Идэвхгүй").length;
-  const totalRevenue = merchants.reduce((sum, m) => {
-    const revenue = parseInt(m.revenue.replace(/[₮ ,]/g, ""));
-    return sum + revenue;
-  }, 0);
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Store className="h-8 w-8 text-blue-600" />
+          <h1 className="text-3xl font-bold text-slate-800">Мерчант жагсаалт</h1>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+          <p className="text-red-800">Алдаа: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -102,22 +67,18 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Нийт мерчант</p>
-          <p className="text-3xl font-bold text-slate-800">{merchants.length}</p>
+          <p className="text-3xl font-bold text-slate-800">{loading ? "..." : totalItems}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Идэвхтэй мерчант</p>
-          <p className="text-3xl font-bold text-green-600">{activeMerchants}</p>
+          <p className="text-3xl font-bold text-green-600">{loading ? "..." : activeMerchants}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Идэвхгүй мерчант</p>
-          <p className="text-3xl font-bold text-red-600">{inactiveMerchants}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <p className="text-sm text-slate-600 mb-2">Нийт орлого</p>
-          <p className="text-3xl font-bold text-blue-600">₮ {totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-red-600">{loading ? "..." : inactiveMerchants}</p>
         </div>
       </div>
 
@@ -144,10 +105,21 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Мерчант код
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Нэр
+                  <button
+                    onClick={() => handleSort("name")}
+                    className="flex items-center gap-1 hover:text-blue-600"
+                  >
+                    Нэр
+                    {orderby === "name" ? (
+                      order === "asc" ? (
+                        <ArrowUp className="h-3 w-3" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3" />
+                      )
+                    ) : (
+                      <ArrowUpDown className="h-3 w-3 opacity-50" />
+                    )}
+                  </button>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Холбоо барих
@@ -155,12 +127,7 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Хаяг
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Гүйлгээ
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                  Орлого
-                </th>
+
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Төлөв
                 </th>
@@ -170,52 +137,51 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
-              {filteredMerchants.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                    Уншиж байна...
+                  </td>
+                </tr>
+              ) : merchants.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                     Мерчант олдсонгүй
                   </td>
                 </tr>
               ) : (
-                filteredMerchants.map((merchant) => (
+                merchants.map((merchant) => (
                   <tr
                     key={merchant.id}
                     className="hover:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => onMerchantClick?.(merchant.id)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-slate-900">{merchant.code}</span>
-                    </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-slate-900">{merchant.name}</div>
-                      <div className="text-xs text-slate-500 mt-1">{merchant.email}</div>
+                      {merchant.email && (
+                        <div className="text-xs text-slate-500 mt-1">{merchant.email}</div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-slate-600">{merchant.contact}</div>
+                      <div className="text-sm text-slate-600">{merchant.contact || merchant.phone || "-"}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-slate-600 max-w-xs truncate">{merchant.address}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-slate-900">{merchant.totalTransactions}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-green-600">{merchant.revenue}</div>
+                      <div className="text-sm text-slate-600 max-w-xs truncate">{merchant.address || "-"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                          merchant.status === "Идэвхтэй"
+                          isStatusActive(merchant.status)
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {merchant.status === "Идэвхтэй" ? (
+                        {isStatusActive(merchant.status) ? (
                           <CheckCircle2 className="h-3 w-3" />
                         ) : (
                           <XCircle className="h-3 w-3" />
                         )}
-                        {merchant.status}
+                        {getStatusDisplay(merchant.status)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -240,21 +206,13 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
       </div>
 
       {/* Pagination */}
-      {filteredMerchants.length > 0 && (
-        <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-slate-200 px-6 py-4">
-          <div className="text-sm text-slate-600">
-            Нийт <span className="font-medium">{filteredMerchants.length}</span> мерчант
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled>
-              Өмнөх
-            </Button>
-            <span className="text-sm text-slate-600">1 / 1</span>
-            <Button variant="outline" size="sm" disabled>
-              Дараах
-            </Button>
-          </div>
-        </div>
+      {!loading && merchants.length > 0 && totalPages > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          loading={loading}
+        />
       )}
     </div>
   );

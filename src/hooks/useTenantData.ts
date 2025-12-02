@@ -1,11 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
-import { getProductTypes, getProperties, getServiceCategories } from "@/lib/api";
+import { getProductTypes, getProperties } from "@/lib/api";
 import { Tenant } from "@/components/admin/tenat/types";
 
 export const useTenantData = (leaseRequests: any[]) => {
   const [productTypes, setProductTypes] = useState<Record<number, string>>({});
   const [properties, setProperties] = useState<Record<number, string>>({});
-  const [serviceCategories, setServiceCategories] = useState<Record<number, string>>({});
 
   useEffect(() => {
     getProductTypes()
@@ -39,22 +38,6 @@ export const useTenantData = (leaseRequests: any[]) => {
       .catch(() => {
         // Silently fail - will show ID if properties not available
       });
-
-    getServiceCategories()
-      .then((response) => {
-        if (response.data?.data) {
-          const categoriesMap: Record<number, string> = {};
-          response.data.data.forEach((category: any) => {
-            if (category.id) {
-              categoriesMap[category.id] = category.name || category.title || category.label || `Ангилал #${category.id}`;
-            }
-          });
-          setServiceCategories(categoriesMap);
-        }
-      })
-      .catch(() => {
-        // Silently fail - will show ID if categories not available
-      });
   }, []);
 
   const tenants: Tenant[] = useMemo(() => {
@@ -69,26 +52,11 @@ export const useTenantData = (leaseRequests: any[]) => {
       if (request.category_name) {
         categoryValue = request.category_name;
       } else if (request.service_category && typeof request.service_category === "object" && request.service_category !== null) {
-        const categoryId = request.service_category.id || request.service_category_id;
-        if (categoryId && serviceCategories[categoryId]) {
-          categoryValue = serviceCategories[categoryId];
-        } else {
-          categoryValue = request.service_category.name || request.service_category.title || request.service_category.label || "-";
-        }
+        categoryValue = request.service_category.name || request.service_category.title || request.service_category.label || "-";
       } else if (request.service_category_id !== null && request.service_category_id !== undefined) {
-        // Try to get category from service_category_id
-        if (serviceCategories[request.service_category_id]) {
-          categoryValue = serviceCategories[request.service_category_id];
-        } else {
-          categoryValue = `Ангилал #${request.service_category_id}`;
-        }
+        categoryValue = `Ангилал #${request.service_category_id}`;
       } else if (request.category_id !== null && request.category_id !== undefined) {
-        // Try to get category from category_id
-        if (serviceCategories[request.category_id]) {
-          categoryValue = serviceCategories[request.category_id];
-        } else {
-          categoryValue = `Ангилал #${request.category_id}`;
-        }
+        categoryValue = `Ангилал #${request.category_id}`;
       } else if (request.service_category && typeof request.service_category === "string") {
         // Handle service_category as string
         categoryValue = request.service_category;
@@ -97,12 +65,7 @@ export const useTenantData = (leaseRequests: any[]) => {
         if (typeof request.category === "string") {
           categoryValue = request.category;
         } else if (typeof request.category === "object" && request.category !== null) {
-          const categoryId = request.category.id || request.category_id;
-          if (categoryId && serviceCategories[categoryId]) {
-            categoryValue = serviceCategories[categoryId];
-          } else {
-            categoryValue = request.category.name || request.category.title || request.category.label || "-";
-          }
+          categoryValue = request.category.name || request.category.title || request.category.label || "-";
         }
       }
 
@@ -204,7 +167,7 @@ export const useTenantData = (leaseRequests: any[]) => {
         status: request.status || null,
       };
     });
-  }, [leaseRequests, productTypes, properties, serviceCategories]);
+  }, [leaseRequests, productTypes, properties]);
 
   return tenants;
 };

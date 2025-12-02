@@ -5,6 +5,7 @@ import { useMainLayout } from "@/contexts/MainLayoutContext";
 import UserManagement from "@/components/admin/user-management/UserManagement";
 import PermissionManagement from "@/components/admin/permission-management/PermissionManagement";
 import MerchantList from "@/components/admin/merchant/MerchantList";
+import MerchantDetail from "@/components/admin/merchant/MerchantDetail";
 import TenantList from "@/components/admin/tenat/TenantList";
 import TenantDetail from "@/components/admin/tenat/TenantDetail";
 import { ContractFormDetail } from "@/components/admin/tenat/contract-tenant";
@@ -17,11 +18,19 @@ import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHis
 const MainPage = () => {
   const { activeComponent } = useMainLayout();
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
+  const [selectedMerchantId, setSelectedMerchantId] = useState<number | null>(null);
 
   // Reset selected tenant when switching away from tenant-list or approved-tenant-list
   useEffect(() => {
     if (activeComponent !== "tenant-list" && activeComponent !== "approved-tenant-list") {
       setSelectedTenantId(null);
+    }
+  }, [activeComponent]);
+
+  // Reset selected merchant when switching away from merchant-list
+  useEffect(() => {
+    if (activeComponent !== "merchant-list") {
+      setSelectedMerchantId(null);
     }
   }, [activeComponent]);
 
@@ -33,7 +42,20 @@ const MainPage = () => {
     setSelectedTenantId(null);
   };
 
+  const handleMerchantClick = (merchantId: number) => {
+    setSelectedMerchantId(merchantId);
+  };
+
+  const handleBackToMerchantList = () => {
+    setSelectedMerchantId(null);
+  };
+
   const renderComponent = () => {
+    // If merchant is selected, show detail view
+    if (selectedMerchantId !== null && activeComponent === "merchant-list") {
+      return <MerchantDetail merchantId={selectedMerchantId} onBack={handleBackToMerchantList} />;
+    }
+
     // If tenant is selected, show detail view
     if (selectedTenantId !== null) {
       if (activeComponent === "tenant-list") {
@@ -50,7 +72,7 @@ const MainPage = () => {
       case "permission-management":
         return <PermissionManagement />;
       case "merchant-list":
-        return <MerchantList />;
+        return <MerchantList onMerchantClick={handleMerchantClick} />;
       case "tenant-list":
         return <TenantList onTenantClick={handleTenantClick} />;
       case "approved-tenant-list":

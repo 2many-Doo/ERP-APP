@@ -2,33 +2,27 @@
 
 import React from "react";
 import PropertyTableRow from "./PropertyTableRow";
-import { Property, PropertyType, ProductType, ServiceCategory } from "./types";
+import { Property, ProductType } from "./types";
 import { X } from "lucide-react";
 
 interface PropertyTableProps {
   properties: Property[];
-  propertyTypes: PropertyType[];
   productTypes: ProductType[];
-  serviceCategories: ServiceCategory[];
   getPropertyTypeName: (property: Property) => string;
   selectedTypeId: number | null;
   selectedProductTypeId: number | null;
-  selectedServiceCategoryId: number | null;
   searchQuery: string;
-  onClearFilter: (filterType: 'type' | 'productType' | 'serviceCategory' | 'search') => void;
+  onClearFilter: (filterType: 'type' | 'productType' | 'search') => void;
   onRateClick: (property: Property) => void;
   onDetailClick: (property: Property) => void;
 }
 
 const PropertyTable: React.FC<PropertyTableProps> = ({
   properties,
-  propertyTypes,
   productTypes,
-  serviceCategories,
   getPropertyTypeName,
   selectedTypeId,
   selectedProductTypeId,
-  selectedServiceCategoryId,
   searchQuery,
   onClearFilter,
   onRateClick,
@@ -37,25 +31,17 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   const hasActiveFilters = 
     selectedTypeId !== null || 
     selectedProductTypeId !== null || 
-    selectedServiceCategoryId !== null || 
     searchQuery.trim() !== "";
 
-  const getTypeName = (typeId: number | null, types: PropertyType[]) => {
+  const getTypeName = (typeId: number | null) => {
     if (typeId === null) return null;
-    const type = types.find((t) => t.id === typeId);
-    return type?.name || `Төрөл #${typeId}`;
+    return `Төрөл #${typeId}`;
   };
 
   const getProductTypeName = (productTypeId: number | null, productTypes: ProductType[]) => {
     if (productTypeId === null) return null;
     const type = productTypes.find((t) => t.id === productTypeId);
     return type?.name || `Барааны төрөл #${productTypeId}`;
-  };
-
-  const getServiceCategoryName = (categoryId: number | null, categories: ServiceCategory[]) => {
-    if (categoryId === null) return null;
-    const category = categories.find((c) => c.id === categoryId);
-    return category?.name || `Ангилал #${categoryId}`;
   };
 
   return (
@@ -81,7 +67,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
             
             {selectedTypeId !== null && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-md">
-                Төрөл: {getTypeName(selectedTypeId, propertyTypes)}
+                Төрөл: {getTypeName(selectedTypeId)}
                 <button
                   onClick={() => onClearFilter('type')}
                   className="hover:bg-green-200 rounded-full p-0.5 transition-colors"
@@ -105,24 +91,10 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
               </span>
             )}
             
-            {selectedServiceCategoryId !== null && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-md">
-                Үйлчилгээний ангилал: {getServiceCategoryName(selectedServiceCategoryId, serviceCategories)}
-                <button
-                  onClick={() => onClearFilter('serviceCategory')}
-                  className="hover:bg-orange-200 rounded-full p-0.5 transition-colors"
-                  aria-label="Үйлчилгээний ангилал шүүлтийг арилгах"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            
             <button
               onClick={() => {
                 onClearFilter('type');
                 onClearFilter('productType');
-                onClearFilter('serviceCategory');
                 onClearFilter('search');
               }}
               className="ml-auto text-xs text-slate-600 hover:text-slate-900 font-medium underline"
@@ -178,7 +150,6 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
                 <PropertyTableRow
                   key={property.id}
                   property={property}
-                  propertyTypes={propertyTypes}
                   getPropertyTypeName={getPropertyTypeName}
                   onRateClick={onRateClick}
                   onDetailClick={onDetailClick}

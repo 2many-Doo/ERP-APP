@@ -26,7 +26,6 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
     length: property.length ?? null,
     width: property.width ?? null,
     block_id: property.block_id ?? null,
-    type_id: property.type_id ?? null,
     product_type_id: property.product_type_id ?? null,
   });
   const [updating, setUpdating] = useState(false);
@@ -40,7 +39,6 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
       length: property.length ?? null,
       width: property.width ?? null,
       block_id: property.block_id ?? null,
-      type_id: property.type_id ?? null,
       product_type_id: property.product_type_id ?? null,
     });
   }, [property]);
@@ -52,7 +50,6 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
     length?: number | null;
     width?: number | null;
     block_id?: number | null;
-    type_id?: number | null;
     product_type_id?: number | null;
   }) => {
     setFormData((prev) => ({
@@ -77,7 +74,6 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
         length?: number | null;
         width?: number | null;
         block_id?: number | null;
-        type_id?: number | null;
         product_type_id?: number | null;
       } = {};
 
@@ -108,11 +104,6 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
         propertyData.block_id = formData.block_id;
       } else {
         propertyData.block_id = null;
-      }
-      if (formData.type_id !== null && formData.type_id !== undefined) {
-        propertyData.type_id = formData.type_id;
-      } else {
-        propertyData.type_id = null;
       }
       if (formData.product_type_id !== null && formData.product_type_id !== undefined) {
         propertyData.product_type_id = formData.product_type_id;

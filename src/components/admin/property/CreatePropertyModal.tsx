@@ -23,7 +23,6 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
     length: null as number | null,
     width: null as number | null,
     block_id: null as number | null,
-    type_id: null as number | null,
     product_type_id: null as number | null,
   });
   const [creating, setCreating] = useState(false);
@@ -35,7 +34,6 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
     length?: number | null;
     width?: number | null;
     block_id?: number | null;
-    type_id?: number | null;
     product_type_id?: number | null;
   }) => {
     setFormData((prev) => ({
@@ -60,7 +58,6 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
         length?: number | null;
         width?: number | null;
         block_id?: number | null;
-        type_id?: number | null;
         product_type_id?: number | null;
       } = {};
 
@@ -91,11 +88,6 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
         propertyData.block_id = formData.block_id;
       } else {
         propertyData.block_id = null;
-      }
-      if (formData.type_id !== null && formData.type_id !== undefined) {
-        propertyData.type_id = formData.type_id;
-      } else {
-        propertyData.type_id = null;
       }
       if (formData.product_type_id !== null && formData.product_type_id !== undefined) {
         propertyData.product_type_id = formData.product_type_id;

@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getPropertyTypes, getProductTypes, getBlocks } from "@/lib/api";
-import { PropertyType, ProductType, Block } from "./types";
+import { getProductTypes, getBlocks } from "@/lib/api";
+import { ProductType, Block } from "./types";
 
 interface CreatePropertyFormProps {
   formData: {
@@ -20,7 +20,6 @@ interface CreatePropertyFormProps {
     length?: number | null;
     width?: number | null;
     block_id?: number | null;
-    type_id?: number | null;
     product_type_id?: number | null;
   };
   onFormDataChange: (data: {
@@ -30,7 +29,6 @@ interface CreatePropertyFormProps {
     length?: number | null;
     width?: number | null;
     block_id?: number | null;
-    type_id?: number | null;
     product_type_id?: number | null;
   }) => void;
 }
@@ -39,7 +37,6 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
   formData,
   onFormDataChange,
 }) => {
-  const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loadingTypes, setLoadingTypes] = useState(false);
@@ -47,15 +44,10 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
   useEffect(() => {
     setLoadingTypes(true);
     Promise.all([
-      getPropertyTypes(),
       getProductTypes(),
       getBlocks(),
     ])
-      .then(([typesResponse, productTypesResponse, blocksResponse]) => {
-        if (typesResponse.data) {
-          const typesData = typesResponse.data.data || typesResponse.data;
-          setPropertyTypes(Array.isArray(typesData) ? typesData : []);
-        }
+      .then(([productTypesResponse, blocksResponse]) => {
         if (productTypesResponse.data) {
           const productTypesData = productTypesResponse.data.data || productTypesResponse.data;
           setProductTypes(Array.isArray(productTypesData) ? productTypesData : []);
@@ -177,7 +169,7 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Блок
@@ -203,38 +195,6 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
                 {blocks.map((block) => (
                   <SelectItem key={block.id} value={block.id.toString()}>
                     {block.name || `Блок #${block.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Талбайн төрөл
-          </label>
-          {loadingTypes ? (
-            <div className="flex items-center justify-center py-8 border border-slate-300 rounded-lg">
-              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
-            </div>
-          ) : (
-            <Select
-              value={formData.type_id?.toString() || undefined}
-              onValueChange={(value) =>
-                onFormDataChange({
-                  ...formData,
-                  type_id: value ? parseInt(value) : null,
-                })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Талбайн төрөл сонгох" />
-              </SelectTrigger>
-              <SelectContent className="z-[100]">
-                {propertyTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id.toString()}>
-                    {type.name || `Төрөл #${type.id}`}
                   </SelectItem>
                 ))}
               </SelectContent>

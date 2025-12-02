@@ -1,19 +1,16 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import { getProperties, getPropertyTypes, getProductTypes, getServiceCategories, getBlocks, updatePropertyRate } from "@/lib/api";
-import { Property, PropertyType, ProductType, ServiceCategory, Block } from "@/components/admin/property/types";
+import { getProperties,  getProductTypes, getBlocks, updatePropertyRate } from "@/lib/api";
+import { Property, ProductType, Block } from "@/components/admin/property/types";
 
 export const usePropertyManagement = () => {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
-  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
   const [selectedProductTypeId, setSelectedProductTypeId] = useState<number | null>(null);
-  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState<number | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState<string | null>(null);
   const [selectedRelationshipId, setSelectedRelationshipId] = useState<number | null>(null);
   const isInitialMount = useRef(true);
@@ -74,48 +71,26 @@ export const usePropertyManagement = () => {
     }
   };
 
-  const fetchPropertyTypes = async () => {
-    try {
-      const typesResponse = await getPropertyTypes();
-      if (typesResponse.error) {
-        toast.error(`Талбайн төрөл татахад алдаа гарлаа: ${typesResponse.error}`);
-      } else if (typesResponse.data) {
-        const typesData = typesResponse.data.data || typesResponse.data;
-        setPropertyTypes(Array.isArray(typesData) ? typesData : []);
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Талбайн төрөл татахад алдаа гарлаа";
-      toast.error(errorMsg);
-    }
-  };
-
   const fetchProductTypes = async () => {
     try {
       const typesResponse = await getProductTypes();
       if (typesResponse.error) {
-        toast.error(`Бүтээгдэхүүний төрөл татахад алдаа гарлаа: ${typesResponse.error}`);
+        // Don't show error toast for 404 - endpoint might not exist
+        if (typesResponse.status !== 404) {
+          toast.error(`Бүтээгдэхүүний төрөл татахад алдаа гарлаа: ${typesResponse.error}`);
+        }
+        setProductTypes([]);
       } else if (typesResponse.data) {
         const typesData = typesResponse.data.data || typesResponse.data;
         setProductTypes(Array.isArray(typesData) ? typesData : []);
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Бүтээгдэхүүний төрөл татахад алдаа гарлаа";
-      toast.error(errorMsg);
-    }
-  };
-
-  const fetchServiceCategories = async () => {
-    try {
-      const categoriesResponse = await getServiceCategories();
-      if (categoriesResponse.error) {
-        toast.error(`Үйлчилгээний ангилал татахад алдаа гарлаа: ${categoriesResponse.error}`);
-      } else if (categoriesResponse.data) {
-        const categoriesData = categoriesResponse.data.data || categoriesResponse.data;
-        setServiceCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      // Only show toast for non-404 errors
+      if (!errorMsg.includes('404')) {
+        toast.error(errorMsg);
       }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Үйлчилгээний ангилал татахад алдаа гарлаа";
-      toast.error(errorMsg);
+      setProductTypes([]);
     }
   };
 
@@ -144,9 +119,7 @@ export const usePropertyManagement = () => {
   }, [searchQuery]);
 
   useEffect(() => {
-    fetchPropertyTypes();
     fetchProductTypes();
-    fetchServiceCategories();
     fetchBlocks();
     fetchProperties(1, null, null, null);
     isInitialMount.current = false;
@@ -211,14 +184,6 @@ export const usePropertyManagement = () => {
     fetchWithFilter();
   }, [selectedTypeId, selectedProductTypeId, debouncedSearchQuery, selectedRelationship, selectedRelationshipId]);
 
-  // Filter product types based on selected service category
-  const filteredProductTypes = useMemo(() => {
-    if (!selectedServiceCategoryId) {
-      return productTypes;
-    }
-    return productTypes.filter((productType) => productType.category_id === selectedServiceCategoryId);
-  }, [productTypes, selectedServiceCategoryId]);
-
   // Filter properties by filters (client-side filtering for filters that aren't supported server-side)
   const filteredProperties = useMemo(() => {
     let filtered = properties;
@@ -231,22 +196,15 @@ export const usePropertyManagement = () => {
       filtered = filtered.filter((property) => property.product_type_id === selectedProductTypeId);
     }
 
-    if (selectedServiceCategoryId !== null) {
-      filtered = filtered.filter((property) => {
-        return property.product_type?.category_id === selectedServiceCategoryId;
-      });
-    }
-
     return filtered;
-  }, [properties, selectedTypeId, selectedProductTypeId, selectedServiceCategoryId]);
+  }, [properties, selectedTypeId, selectedProductTypeId]);
 
   const getPropertyTypeName = (property: Property): string => {
     if (property.type?.name) {
       return property.type.name;
     }
     if (property.type_id) {
-      const type = propertyTypes.find((t) => t.id === property.type_id);
-      return type?.name || `Төрөл #${property.type_id}`;
+      return `Төрөл #${property.type_id}`;
     }
     return "-";
   };
@@ -256,16 +214,13 @@ export const usePropertyManagement = () => {
     fetchProperties(page, selectedTypeId, selectedProductTypeId, debouncedSearchQuery);
   };
 
-  const handleClearFilter = (filterType: 'type' | 'productType' | 'serviceCategory' | 'search') => {
+  const handleClearFilter = (filterType: 'type' | 'productType' | 'search') => {
     switch (filterType) {
       case 'type':
         setSelectedTypeId(null);
         break;
       case 'productType':
         setSelectedProductTypeId(null);
-        break;
-      case 'serviceCategory':
-        setSelectedServiceCategoryId(null);
         break;
       case 'search':
         setSearchQuery("");
@@ -360,15 +315,12 @@ export const usePropertyManagement = () => {
   return {
     // State
     properties,
-    propertyTypes,
     productTypes,
-    serviceCategories,
     blocks,
     loading,
     error,
     selectedTypeId,
     selectedProductTypeId,
-    selectedServiceCategoryId,
     selectedRelationship,
     selectedRelationshipId,
     searchQuery,
@@ -376,12 +328,10 @@ export const usePropertyManagement = () => {
     totalPages,
     totalItems,
     filteredProperties,
-    filteredProductTypes,
     
     // Setters
     setSelectedTypeId,
     setSelectedProductTypeId,
-    setSelectedServiceCategoryId,
     setSelectedRelationship,
     setSelectedRelationshipId,
     setSearchQuery,

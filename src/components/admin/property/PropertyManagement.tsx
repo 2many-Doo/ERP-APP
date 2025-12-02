@@ -23,23 +23,18 @@ const PropertyManagement: React.FC = () => {
 
   const {
     properties,
-    propertyTypes,
     productTypes,
-    serviceCategories,
     loading,
     error,
     selectedTypeId,
     selectedProductTypeId,
-    selectedServiceCategoryId,
     searchQuery,
     currentPage,
     totalPages,
     totalItems,
     filteredProperties,
-    filteredProductTypes,
     setSelectedTypeId,
     setSelectedProductTypeId,
-    setSelectedServiceCategoryId,
     setSearchQuery,
     fetchProperties,
     handlePageChange,
@@ -96,7 +91,7 @@ const PropertyManagement: React.FC = () => {
           <PropertyStatistics
             totalItems={totalItems || properties.length}
             currentPageItems={filteredProperties.length}
-            propertyTypesCount={propertyTypes.length}
+            propertyTypesCount={0}
           />
 
           <PropertySearchAndFilter
@@ -106,26 +101,15 @@ const PropertyManagement: React.FC = () => {
         onTypeChange={setSelectedTypeId}
         selectedProductTypeId={selectedProductTypeId}
         onProductTypeChange={setSelectedProductTypeId}
-        selectedServiceCategoryId={selectedServiceCategoryId}
-        onServiceCategoryChange={(categoryId) => {
-          setSelectedServiceCategoryId(categoryId);
-          // Reset product type selection when service category changes
-          setSelectedProductTypeId(null);
-        }}
-        propertyTypes={propertyTypes}
-        productTypes={filteredProductTypes}
-        serviceCategories={serviceCategories}
+        productTypes={productTypes}
       />
 
       <PropertyTable
         properties={filteredProperties}
-        propertyTypes={propertyTypes}
         productTypes={productTypes}
-        serviceCategories={serviceCategories}
         getPropertyTypeName={getPropertyTypeName}
         selectedTypeId={selectedTypeId}
         selectedProductTypeId={selectedProductTypeId}
-        selectedServiceCategoryId={selectedServiceCategoryId}
         searchQuery={searchQuery}
         onClearFilter={handleClearFilter}
         onRateClick={handleRateClick}

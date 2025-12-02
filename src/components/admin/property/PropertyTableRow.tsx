@@ -3,11 +3,10 @@
 import React from "react";
 import { Button } from "../../ui/button";
 import { Star } from "lucide-react";
-import { Property, PropertyType } from "./types";
+import { Property } from "./types";
 
 interface PropertyTableRowProps {
   property: Property;
-  propertyTypes: PropertyType[];
   getPropertyTypeName: (property: Property) => string;
   onRateClick: (property: Property) => void;
   onDetailClick: (property: Property) => void;
@@ -74,35 +73,77 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
         </div>
       </td>
       <td className="px-6 py-4">
-        {property.status ? (
-          <span
-            className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
-              (() => {
-                const statusText = (property.status.description || property.status.name || "").toLowerCase();
-                if (statusText.includes('идэвхтэй')) {
-                  return "bg-green-100 text-green-800";
-                }
-                if (statusText.includes('идэвхгүй')) {
-                  return "bg-red-100 text-red-800";
-                }
-                if (statusText.includes('хүлээгдэж') || statusText.includes('хүлээж')) {
-                  return "bg-yellow-100 text-yellow-800";
-                }
-                if (statusText.includes('түр') || statusText.includes('түрээслэгдсэн')) {
-                  return "bg-orange-100 text-orange-800";
-                }
-                if (property.status.style && typeof property.status.style === 'string' && property.status.style.includes('bg-')) {
-                  return property.status.style;
-                }
-                return "bg-blue-100 text-blue-800";
-              })()
-            }`}
-          >
-            {property.status.description || property.status.name || "-"}
-          </span>
-        ) : (
-          <span className="text-sm text-slate-500">-</span>
-        )}
+        {(() => {
+          // status_select мэдээлэл байвал түүнийг ашиглах
+          if (property.status?.name && property.status?.style) {
+            const statusConfig: Record<string, { label: string; style: string }> = {
+              available: {
+                label: "Түрээслэх боломжтой",
+                style: "bg-green-100 text-green-800",
+              },
+              rented: {
+                label: "Түрээслэгдсэн",
+                style: "bg-blue-100 text-blue-800",
+              },
+              pending: {
+                label: "Түрээсийн үйл явц үргэлжилж байна",
+                style: "bg-amber-100 text-amber-800",
+              },
+              maintenance: {
+                label: "Засвартай",
+                style: "bg-red-100 text-red-800",
+              },
+              waiting: {
+                label: "Хүлээж буй",
+                style: "bg-yellow-100 text-yellow-800",
+              },
+            };
+
+            const status = statusConfig[property.status?.name || ""];
+            if (status) {
+              return (
+                <span
+                  className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${status.style}`}
+                >
+                  {status.label}
+                </span>
+              );
+            }
+          }
+
+          // status_select байхгүй бол хуучин status ашиглах
+          if (property.status) {
+            return (
+              <span
+                className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
+                  (() => {
+                    const statusText = (property.status?.description || property.status?.name || "").toLowerCase();
+                    if (statusText.includes('идэвхтэй')) {
+                      return "bg-green-100 text-green-800";
+                    }
+                    if (statusText.includes('идэвхгүй')) {
+                      return "bg-red-100 text-red-800";
+                    }
+                    if (statusText.includes('хүлээгдэж') || statusText.includes('хүлээж')) {
+                      return "bg-yellow-100 text-yellow-800";
+                    }
+                    if (statusText.includes('түр') || statusText.includes('түрээслэгдсэн')) {
+                      return "bg-orange-100 text-orange-800";
+                    }
+                    if (property.status.style && typeof property.status.style === 'string' && property.status.style.includes('bg-')) {
+                      return property.status.style;
+                    }
+                    return "bg-blue-100 text-blue-800";
+                  })()
+                }`}
+              >
+                {property.status.description || property.status.name || "-"}
+              </span>
+            );
+          }
+
+          return <span className="text-sm text-slate-500">-</span>;
+        })()}
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
