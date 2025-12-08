@@ -175,7 +175,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="back"
             size="sm"
             onClick={onBack}
             className="flex items-center gap-2"
@@ -184,9 +184,6 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
             Буцах
           </Button>
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-lg">
-              {tenant.name.charAt(0)}
-            </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">{tenant.name}</h1>
               <p className="text-sm text-slate-500">{tenant.email}</p>

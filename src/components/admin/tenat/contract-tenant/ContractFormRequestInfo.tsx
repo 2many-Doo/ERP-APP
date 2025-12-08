@@ -14,11 +14,10 @@ export const ContractFormRequestInfo: React.FC<ContractFormRequestInfoProps> = (
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">Хүсэлтийн мэдээлэл</h2>
+    <div className="bg-white p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium text-slate-600">Холбоо барих нэр</label>
+          <label className="text-sm font-medium text-slate-600 ">Холбоо барих нэр</label>
           <p className="text-sm text-slate-800 mt-1">{requestData.contact_name || "-"}</p>
         </div>
         <div>

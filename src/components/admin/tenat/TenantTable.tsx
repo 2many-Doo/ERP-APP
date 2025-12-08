@@ -23,7 +23,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
   const isRenewal = tenants.length > 0 && tenants.every((tenant) => tenant.propertyId !== null && tenant.propertyId !== undefined);
   
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">

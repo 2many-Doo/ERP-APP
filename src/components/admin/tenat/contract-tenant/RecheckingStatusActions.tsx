@@ -17,22 +17,26 @@ export const RecheckingStatusActions: React.FC<RecheckingStatusActionsProps> = (
 }) => {
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleStatusChange = async (newStatus: "incomplete" | "in_contract_process") => {
+  const handleStatusChange = async (
+    newStatus: "incomplete" | "in_contract_process"
+  ) => {
     setLoading(newStatus);
     try {
       const response = await updateLeaseRequestStatus(requestId, newStatus);
-      
+
       if (response.status === 200 || response.status === 201) {
         const statusName = newStatus === "incomplete" ? "Дутуу" : "Гэрээ байгуулах";
         toast.success(`Төлөв '${statusName}' болгож шинэчлэгдлээ`);
         onStatusUpdate?.();
       } else {
-        const errorMessage = response.error || response.message || "Төлөв шинэчлэхэд алдаа гарлаа";
+        const errorMessage =
+          response.error || response.message || "Төлөв шинэчлэхэд алдаа гарлаа";
         toast.error(errorMessage);
       }
     } catch (error: any) {
       console.error("Error updating status:", error);
-      const errorMessage = error?.message || error?.error || "Төлөв шинэчлэхэд алдаа гарлаа";
+      const errorMessage =
+        error?.message || error?.error || "Төлөв шинэчлэхэд алдаа гарлаа";
       toast.error(errorMessage);
     } finally {
       setLoading(null);
@@ -40,13 +44,7 @@ export const RecheckingStatusActions: React.FC<RecheckingStatusActionsProps> = (
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Төлөв өөрчлөх
-      </h2>
-      <p className="text-sm text-slate-600 mb-4">
-        Хүсэлтийн төлөвийг өөрчлөх
-      </p>
+    <div className="bg-white flex justify-end py-5 border-t border-gray-300 mt-5">
       <div className="flex flex-wrap gap-3">
         <Button
           variant="outline"
@@ -59,8 +57,9 @@ export const RecheckingStatusActions: React.FC<RecheckingStatusActionsProps> = (
           ) : (
             <XCircle className="h-4 w-4" />
           )}
-          Дутуу болгох
+          Материал дутуу
         </Button>
+
         <Button
           variant="default"
           onClick={() => handleStatusChange("in_contract_process")}
@@ -78,4 +77,3 @@ export const RecheckingStatusActions: React.FC<RecheckingStatusActionsProps> = (
     </div>
   );
 };
-

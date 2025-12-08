@@ -8,46 +8,47 @@ import { CheckingStatusActions } from "./CheckingStatusActions";
 import { RecheckingStatusActions } from "./RecheckingStatusActions";
 import { useContractFormData } from "@/hooks/useContractFormData";
 import { getAllUrls } from "./utils/attachmentUtils";
-import { FileText, Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import { FileText, Eye, CheckCircle, XCircle, Clock, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+// ✅ shadcn dialog
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ContractFormDetailProps {
   tenantId: number;
   onBack: () => void;
 }
 
-const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
-  tenantId,
-  onBack,
-}) => {
+const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+
+const safeFileName = (name: string) =>
+  name
+    .trim()
+    .replace(/[\/\\?%*:|"<>]/g, "-")
+    .replace(/\s+/g, "_");
+
+const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBack }) => {
   const {
     loading,
     tenantName,
     requestData,
     attachmentMap,
     refreshData,
+    getAttachmentLabelMn,
   } = useContractFormData({ tenantId });
-  
+
   const [failedImages, setFailedImages] = React.useState<Set<string>>(new Set());
+  const [openInfo, setOpenInfo] = React.useState(false); // ✅ modal state
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <ContractFormHeader tenantName="..." onBack={onBack} />
-        <ContractFormLoading />
-      </div>
-    );
-  }
-
-  const handleDownload = (url: string, fileName: string) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const handlePreview = React.useCallback((url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, []);
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
@@ -71,80 +72,111 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
     }
   };
 
+  const attachmentGroups = React.useMemo(() => {
+    return Object.entries(attachmentMap).map(([attachmentName, attachments]) => {
+      const allUrls: string[] = [];
+      attachments.forEach((att) => allUrls.push(...getAllUrls(att)));
+
+      return {
+        attachmentName,
+        label: getAttachmentLabelMn ? getAttachmentLabelMn(attachmentName) : attachmentName.replace(/_/g, " "),
+        attachments,
+        allUrls,
+        status: attachments?.[0]?.status as string | undefined,
+        note: attachments?.[0]?.note as string | undefined,
+      };
+    });
+  }, [attachmentMap, getAttachmentLabelMn]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <ContractFormHeader tenantName="..." onBack={onBack} />
+        <ContractFormLoading />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <ContractFormHeader tenantName={tenantName} onBack={onBack} />
-      
-      {requestData && <ContractFormRequestInfo requestData={requestData} />}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex flex-col gap-5 text-lg font-semibold text-slate-800 pb-4 mb-6 border-b border-gray-300">
+          <ContractFormHeader tenantName={tenantName} onBack={onBack} />
+          <div className="flex items-center justify-between gap-3">
+            <h2>Хавсралтууд</h2>
 
-      {/* Status Actions - Show based on request status */}
-      {requestData?.status === "checking" && requestData?.id && (
-        <CheckingStatusActions 
-          requestId={requestData.id} 
-          onStatusUpdate={refreshData}
-        />
-      )}
-      {requestData?.status === "under_review" && requestData?.id && (
-        <RecheckingStatusActions 
-          requestId={requestData.id} 
-          onStatusUpdate={refreshData}
-        />
-      )}
+            {/* ✅ Request info modal trigger */}
+            {requestData && (
+              <Dialog open={openInfo} onOpenChange={setOpenInfo}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Info className="h-4 w-4" />
+                    Хүсэлтийн мэдээлэл
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Хүсэлтийн мэдээлэл</DialogTitle>
+                  </DialogHeader>
 
-      {/* Attachments Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-800 mb-6">
-          Хавсралтууд
-        </h2>
-
-        {Object.keys(attachmentMap).length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            Хавсралт олдсонгүй
+                  {/* ✅ ContractFormRequestInfo modal дотор */}
+                  <div className="max-h-[70vh] overflow-auto pr-1">
+                    <ContractFormRequestInfo requestData={requestData} />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
+        </div>
+
+        {attachmentGroups.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">Хавсралт олдсонгүй</div>
         ) : (
           <div className="space-y-6">
-            {Object.entries(attachmentMap).map(([attachmentName, attachments]) => {
-              const allUrls: string[] = [];
-              attachments.forEach((att) => {
-                allUrls.push(...getAllUrls(att));
-              });
-
-              return (
-                <div key={attachmentName} className="border-b border-slate-200 pb-6 last:border-b-0 last:pb-0">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-slate-600" />
-                      <h3 className="text-base font-semibold text-slate-800 capitalize">
-                        {attachmentName.replace(/_/g, " ")}
-                      </h3>
-                    </div>
-                    {attachments[0]?.status && (
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(attachments[0].status)}
-                        <span className="text-sm text-slate-600">
-                          {getStatusText(attachments[0].status)}
-                        </span>
-                      </div>
-                    )}
+            {attachmentGroups.map((group) => (
+              <div
+                key={group.attachmentName}
+                className="border-b border-slate-200 pb-6 last:border-b-0 last:pb-0"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-slate-600" />
+                    <h3 className="text-base font-semibold text-slate-800">{group.label}</h3>
                   </div>
 
-                  {allUrls.length === 0 ? (
-                    <p className="text-sm text-slate-500">Хавсралт олдсонгүй</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {allUrls.map((url, index) => (
+                  {group.status && (
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(group.status)}
+                      <span className="text-sm text-slate-600">{getStatusText(group.status)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {group.allUrls.length === 0 ? (
+                  <p className="text-sm text-slate-500">Хавсралт олдсонгүй</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {group.allUrls.map((url, index) => {
+                      const isImg = isImageUrl(url);
+                      safeFileName(`${group.label}_${index + 1}`);
+
+                      return (
                         <div
-                          key={index}
+                          key={`${group.attachmentName}-${index}`}
                           className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
                           <div className="aspect-video bg-slate-100 rounded-lg mb-3 overflow-hidden">
-                            {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && !failedImages.has(url) ? (
+                            {isImg && !failedImages.has(url) ? (
                               <img
                                 src={url}
-                                alt={`${attachmentName} ${index + 1}`}
+                                alt={`${group.label} ${index + 1}`}
                                 className="w-full h-full object-cover"
                                 onError={() => {
-                                  setFailedImages((prev) => new Set(prev).add(url));
+                                  setFailedImages((prev) => {
+                                    const next = new Set(prev);
+                                    next.add(url);
+                                    return next;
+                                  });
                                 }}
                               />
                             ) : (
@@ -153,37 +185,47 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-600 truncate flex-1">
-                              {url.split("/").pop() || `Хавсралт ${index + 1}`}
-                            </span>
+
+                          <div className="flex items-center justify-center border border-gray-300 rounded-xl text-black">
                             <Button
-                              variant="ghost"
+                              variant="download"
                               size="sm"
-                              onClick={() => handleDownload(url, `${attachmentName}_${index + 1}`)}
-                              className="ml-2"
+                              onClick={() => handlePreview(url)}
+                              className="gap-2"
                             >
-                              <Download className="h-4 w-4" />
+                              <Eye className="h-4 w-4" />
+                              Харах
                             </Button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
+                )}
 
-                  {attachments[0]?.note && (
-                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-800">
-                        <span className="font-semibold">Тэмдэглэл:</span> {attachments[0].note}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                {group.note && (
+                  <div className="mt-3 p-3 rounded-lg bg-slate-50">
+                    <p className="text-sm text-gray-700">
+                      <span className="font-semibold">Тэмдэглэл:</span> {group.note}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
+
+        {/* Status Actions */}
+        {requestData?.status === "checking" && requestData?.id && (
+          <CheckingStatusActions requestId={requestData.id} onStatusUpdate={refreshData} />
+        )}
+        {requestData?.status === "under_review" && requestData?.id && (
+          <RecheckingStatusActions requestId={requestData.id} onStatusUpdate={refreshData} />
+        )}
       </div>
+
+      {/* ✅ Доорх inline харуулдгийг болиулна */}
+      {/* {requestData && <ContractFormRequestInfo requestData={requestData} />} */}
     </div>
   );
 };

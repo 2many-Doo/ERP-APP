@@ -73,21 +73,6 @@ const ContractProcess: React.FC<ContractProcessProps> = ({ onTenantClick }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Гэрээний процесс</h1>
-          <p className="text-sm text-slate-500 mt-1">Гэрээний процесс-ийн хяналт ба удирдлага</p>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Нэр, утас, имэйл эсвэл бизнесийн төрлөөр хайх..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
         </div>
       </div>
 

@@ -31,13 +31,11 @@ const UserManagement = () => {
   }, [users]);
 
   const filteredUsers = users.filter((user) => {
-    // Search filter
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone && user.phone.includes(searchQuery));
 
-    // Role filter
     const matchesRole =
       selectedRole === null ||
       (selectedRole === "Эрхгүй"
@@ -62,7 +60,6 @@ const UserManagement = () => {
     return counts;
   }, [users]);
 
-  // Role-уудыг тоогоор эрэмбэлэх
   const sortedRoles = Object.entries(roleCounts).sort((a, b) => b[1] - a[1]);
 
   return (
@@ -79,7 +76,7 @@ const UserManagement = () => {
         </Button>
       </div>
 
-      {/* Statistics Cards - Role бүрт хэдэн хүн байгаа */}
+      {/* Statistics Cards */}
       {loading ? (
         <UserManagementStatisticsSkeleton />
       ) : (
@@ -128,11 +125,7 @@ const UserManagement = () => {
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <p className="text-red-800 font-medium">Алдаа: {error}</p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={fetchUsers}
-          >
+          <Button variant="outline" className="mt-4" onClick={fetchUsers}>
             Дахин оролдох
           </Button>
         </div>
@@ -151,9 +144,6 @@ const UserManagement = () => {
                     Хэрэглэгч
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                    Имэйл
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                     Утас
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
@@ -164,6 +154,7 @@ const UserManagement = () => {
                   </th>
                 </tr>
               </thead>
+
               <tbody className="bg-white divide-y divide-slate-200">
                 {filteredUsers.length === 0 ? (
                   <tr>
@@ -172,26 +163,18 @@ const UserManagement = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
-                    <tr
-                      key={user.id}
-                      className="hover:bg-slate-50 transition-colors"
-                    >
+                  filteredUsers.map((user, index) => (
+                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-                            {user.name.charAt(0).toUpperCase()}
+                          {/* ✅ Дэс дугаар */}
+                          <div className="w-7 h-7 flex items-center justify-center text-xs font-semibold text-slate-700">
+                            {index + 1}
                           </div>
+
                           <div>
                             <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                            <div className="text-xs text-slate-500">ID: {user.id}</div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-slate-400" />
-                          <span className="text-sm text-slate-600">{user.email}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -204,6 +187,7 @@ const UserManagement = () => {
                           <span className="text-sm text-slate-400">-</span>
                         )}
                       </td>
+
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
                           {user.roles && user.roles.length > 0 ? (
@@ -221,6 +205,7 @@ const UserManagement = () => {
                           )}
                         </div>
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

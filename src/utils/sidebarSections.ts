@@ -62,7 +62,7 @@ export const sidebarSections: NavSection[] = [
       },
       {
         id: "layout",
-        label: "Гэрээний бүрдүүлбэр",
+        label: "Гэрээний материал",
         componentKey: "approved-tenant-list",
       },
       {

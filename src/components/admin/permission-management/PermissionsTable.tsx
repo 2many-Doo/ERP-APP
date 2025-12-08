@@ -54,9 +54,7 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Эрх
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
-                Тайлбар
-              </th>
+          
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Зөвшөөрөл
               </th>
@@ -82,9 +80,7 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <span className="text-sm text-slate-600">{permission.description}</span>
-                </td>
+
                 <td className="px-6 py-4">
                   <PermissionList
                     permissions={permission.permissions}

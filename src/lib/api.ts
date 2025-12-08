@@ -652,7 +652,7 @@ export const updateLeaseRequestStatus = async (
   id: number,
   status: string
 ): Promise<ApiResponse<any>> => {
-  return put(`/v1/lease-requests/${id}/approve`, { status });
+  return post(`/v1/lease-requests/checking/requests/:${id}`,);
 };
 
 /**

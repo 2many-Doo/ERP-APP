@@ -40,13 +40,7 @@ export const CheckingStatusActions: React.FC<CheckingStatusActionsProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Төлөв өөрчлөх
-      </h2>
-      <p className="text-sm text-slate-600 mb-4">
-        Хүсэлтийн төлөвийг өөрчлөх
-      </p>
+    <div className="bg-white flex justify-end py-5 border-t border-gray-300 mt-5">
       <div className="flex flex-wrap gap-3">
         <Button
           variant="outline"
@@ -59,7 +53,7 @@ export const CheckingStatusActions: React.FC<CheckingStatusActionsProps> = ({
           ) : (
             <XCircle className="h-4 w-4" />
           )}
-          Дутуу болгох
+          Материал дутуу
         </Button>
         <Button
           variant="default"

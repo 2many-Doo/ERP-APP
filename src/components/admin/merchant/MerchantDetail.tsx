@@ -75,7 +75,7 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="back"
             size="sm"
             onClick={onBack}
             className="flex items-center gap-2"
@@ -96,7 +96,7 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="back"
             size="sm"
             onClick={onBack}
             className="flex items-center gap-2"

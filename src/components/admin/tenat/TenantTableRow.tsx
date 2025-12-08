@@ -85,9 +85,6 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-            {tenant.customerName.charAt(0).toUpperCase()}
-          </div>
           <div>
             <p className="text-sm font-medium text-slate-900">{tenant.customerName}</p>
           </div>
@@ -116,7 +113,7 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
               variant="outline"
               size="sm"
               disabled={isProcessing}
-              className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 hover:border-green-700 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 hover:border-green-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => onApprove?.(tenant.id)}
             >
               <Check className="h-4 w-4" />
@@ -125,7 +122,7 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
               variant="outline"
               size="sm"
               disabled={isProcessing}
-              className="h-8 w-8 p-0 text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-8 w-8 p-0 text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => onReject?.(tenant.id)}
             >
               <X className="h-4 w-4" />

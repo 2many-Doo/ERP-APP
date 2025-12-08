@@ -1,4 +1,5 @@
 "use client";
+
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -76,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {sidebarSections.map((section) => {
           const isSectionOpen = openSection === section.title;
           return (
-            <div key={section.title} className="space-y-2">
+            <div key={section.title} className="space-y-2 ">
               <SectionHeader
                 title={section.title}
                 icon={section.icon}
@@ -115,7 +116,7 @@ const SectionHeader: React.FC<{
     type="button"
     onClick={onToggle}
     variant="ghost"
-    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-start text-xs font-semibold uppercase tracking-[0.28em] text-neutral-600 transition hover:bg-slate-50"
+    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-start text-s  text-neutral-600 transition hover:bg-slate-50 "
     aria-expanded={isOpen}
   >
     <span className="flex items-center gap-2">
