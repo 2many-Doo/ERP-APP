@@ -45,13 +45,43 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const getStatusLabelMn = (status: string): string => {
+  const statusMap: Record<string, string> = {
+    pending: "Хүлээгдэж буй",
+    property_selected: "Талбай сонгогдсон",
+    approved: "Зөвшөөрсөн",
+    checking: "Шалгагдаж байна",
+    under_review: "Дахин шалгагдаж байна",
+    incomplete: "Дутуу",
+    in_contract_process: "Гэрээ байгуулах",
+    rejected: "Татгалзсан",
+    cancelled: "Цуцлагдсан",
+    submitted: "Илгээсэн",
+    dept_approved: "Хэлтэс зөвшөөрсөн",
+    director_approved: "Захирал зөвшөөрсөн",
+    deposit_invoiced: "Хадгаламжийн нэхэмжлэх",
+    deposit_paid: "Хадгаламж төлсөн",
+    ready_for_agreement: "Гэрээ байгуулахад бэлэн",
+    draft: "Ноорог",
+    needs_director: "Захирлын шийдвэр шаардлагатай",
+    director_rejected: "Захирал татгалзсан",
+    reject: "Татгалзсан",
+    cancel: "Цуцлагдсан",
+  };
+  
+  return statusMap[status] || status || "Тодорхойгүй";
+};
+
 export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOptions, onTenantClick, onApprove, onReject, isProcessing = false, showActions = true }) => {
   // Handle statusOptions that might be an object with {name, style, description} or a simple string
   const getStatusLabel = () => {
     if (!tenant.status) return "-";
     
     const statusValue = statusOptions[tenant.status];
-    if (!statusValue) return tenant.status;
+    if (!statusValue) {
+      // If no statusOptions, use Mongolian translation
+      return getStatusLabelMn(tenant.status);
+    }
     
     // If statusValue is an object with a 'name' property, use that
     if (typeof statusValue === 'object' && statusValue !== null && 'name' in statusValue) {
@@ -63,8 +93,8 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
       return statusValue;
     }
     
-    // Fallback to tenant.status
-    return tenant.status;
+    // Fallback to Mongolian translation
+    return getStatusLabelMn(tenant.status);
   };
   
   const statusLabel = getStatusLabel();

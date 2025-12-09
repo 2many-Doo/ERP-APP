@@ -814,6 +814,52 @@ export const getMerchant = async (merchantId: number): Promise<ApiResponse<any>>
 };
 
 /**
+ * Create merchant API function
+ */
+export const createMerchant = async (merchantData: {
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  family_name?: string;
+  email?: string;
+  phone?: string;
+  contact?: string;
+  address?: string;
+  status?: string;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
+  return post("/v1/merchants", merchantData);
+};
+
+/**
+ * Update merchant API function
+ */
+export const updateMerchant = async (
+  merchantId: number,
+  merchantData: {
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    family_name?: string;
+    email?: string;
+    phone?: string;
+    contact?: string;
+    address?: string;
+    status?: string;
+    [key: string]: any;
+  }
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/merchants/${merchantId}`, merchantData);
+};
+
+/**
+ * Delete merchant API function
+ */
+export const deleteMerchant = async (merchantId: number): Promise<ApiResponse<any>> => {
+  return del(`/v1/merchants/${merchantId}`);
+};
+
+/**
  * Update property rate API function
  */
 export const updatePropertyRate = async (

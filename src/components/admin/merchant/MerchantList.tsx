@@ -1,10 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import { Pagination } from "../../ui/pagination";
 import { useMerchantManagement } from "@/hooks/useMerchantManagement";
 import { Store, Search, Plus, Edit, Trash2, MoreVertical, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { CreateMerchantModal } from "./CreateMerchantModal";
+import { EditMerchantModal } from "./EditMerchantModal";
+import { deleteMerchant } from "@/lib/api";
+import { Merchant } from "@/hooks/useMerchantManagement";
 
 interface MerchantListProps {
   onMerchantClick?: (merchantId: number) => void;
@@ -26,7 +31,12 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     handleSort,
     orderby,
     order,
+    fetchMerchants,
   } = useMerchantManagement();
+  
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
+  const [deletingMerchantId, setDeletingMerchantId] = useState<number | null>(null);
 
   const getStatusDisplay = (status: string | undefined): string => {
     if (!status) return "Тодорхойгүй";
@@ -37,6 +47,23 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
 
   const isStatusActive = (status: string | undefined): boolean => {
     return status === "active" || status === "Идэвхтэй";
+  };
+
+  const handleDelete = async (merchantId: number) => {
+    setDeletingMerchantId(merchantId);
+    try {
+      const response = await deleteMerchant(merchantId);
+      if (response.error) {
+        toast.error(response.error || "Алдаа гарлаа");
+      } else {
+        toast.success("Мерчант амжилттай устгагдлаа");
+        handlePageChange(currentPage);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Алдаа гарлаа");
+    } finally {
+      setDeletingMerchantId(null);
+    }
   };
 
   if (error) {
@@ -59,7 +86,12 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
           <Store className="h-8 w-8 text-gray-600" />
           <h1 className="text-3xl font-bold text-slate-800">Мерчант жагсаалт</h1>
         </div>
-        <Button type="button" variant="secondary" className="flex items-center gap-2">
+        <Button 
+          type="button" 
+          variant="secondary" 
+          className="flex items-center gap-2"
+          onClick={() => setShowCreateModal(true)}
+        >
           <Plus className="h-4 w-4" />
           Шинэ мерчант нэмэх
         </Button>
@@ -181,14 +213,26 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0"
+                          onClick={() => setEditingMerchant(merchant)}
+                        >
                           <Edit className="h-4 w-4 text-blue-600" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0"
+                          onClick={() => {
+                            if (window.confirm("Энэ мерчантыг устгахдаа итгэлтэй байна уу?")) {
+                              handleDelete(merchant.id);
+                            }
+                          }}
+                          disabled={deletingMerchantId === merchant.id}
+                        >
                           <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4 text-slate-600" />
                         </Button>
                       </div>
                     </td>
@@ -207,6 +251,29 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
           totalPages={totalPages}
           onPageChange={handlePageChange}
           loading={loading}
+        />
+      )}
+
+      {/* Create Merchant Modal */}
+      {showCreateModal && (
+        <CreateMerchantModal
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            handlePageChange(currentPage);
+          }}
+        />
+      )}
+
+      {/* Edit Merchant Modal */}
+      {editingMerchant && (
+        <EditMerchantModal
+          merchant={editingMerchant}
+          onClose={() => setEditingMerchant(null)}
+          onSuccess={() => {
+            setEditingMerchant(null);
+            handlePageChange(currentPage);
+          }}
         />
       )}
     </div>

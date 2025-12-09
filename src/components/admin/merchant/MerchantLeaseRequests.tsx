@@ -7,6 +7,33 @@ interface MerchantLeaseRequestsProps {
   leaseRequests: any[];
 }
 
+const getStatusLabel = (status: string): string => {
+  const statusMap: Record<string, string> = {
+    pending: "Хүлээгдэж буй",
+    property_selected: "Талбай сонгогдсон",
+    approved: "Зөвшөөрсөн",
+    checking: "Шалгагдаж байна",
+    under_review: "Дахин шалгагдаж байна",
+    incomplete: "Дутуу",
+    in_contract_process: "Гэрээ байгуулах",
+    rejected: "Татгалзсан",
+    cancelled: "Цуцлагдсан",
+    submitted: "Илгээсэн",
+    dept_approved: "Хэлтэс зөвшөөрсөн",
+    director_approved: "Захирал зөвшөөрсөн",
+    deposit_invoiced: "Хадгаламжийн нэхэмжлэх",
+    deposit_paid: "Хадгаламж төлсөн",
+    ready_for_agreement: "Гэрээ байгуулахад бэлэн",
+    draft: "Ноорог",
+    needs_director: "Захирлын шийдвэр шаардлагатай",
+    director_rejected: "Захирал татгалзсан",
+    reject: "Татгалзсан",
+    cancel: "Цуцлагдсан",
+  };
+  
+  return statusMap[status] || status || "Тодорхойгүй";
+};
+
 export const MerchantLeaseRequests: React.FC<MerchantLeaseRequestsProps> = ({ leaseRequests }) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -39,10 +66,11 @@ export const MerchantLeaseRequests: React.FC<MerchantLeaseRequestsProps> = ({ le
                   <td className="px-4 py-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       request.status === "approved" ? "bg-green-100 text-green-800" :
-                      request.status === "rejected" ? "bg-red-100 text-red-800" :
+                      request.status === "rejected" || request.status === "director_rejected" || request.status === "reject" ? "bg-red-100 text-red-800" :
+                      request.status === "cancelled" || request.status === "cancel" ? "bg-gray-100 text-gray-800" :
                       "bg-yellow-100 text-yellow-800"
                     }`}>
-                      {request.status || "Тодорхойгүй"}
+                      {getStatusLabel(request.status)}
                     </span>
                   </td>
                   <td className="px-4 py-4">
