@@ -15,7 +15,7 @@ const PropertyStatistics: React.FC<PropertyStatisticsProps> = ({
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Нийт талбай</p>
@@ -23,7 +23,7 @@ const PropertyStatistics: React.FC<PropertyStatisticsProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Одоогийн хуудас</p>
@@ -33,7 +33,7 @@ const PropertyStatistics: React.FC<PropertyStatisticsProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Талбайн төрөл</p>

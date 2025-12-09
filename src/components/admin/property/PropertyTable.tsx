@@ -45,7 +45,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       {/* Active Filters */}
       {hasActiveFilters && (
         <div className="px-6 py-3 bg-slate-50 border-b border-slate-200">

@@ -5,7 +5,7 @@ import { useLeaseRequests } from "@/hooks/useLeaseRequests";
 import { useTenantData } from "@/hooks/useTenantData";
 import { FilterType } from "../types";
 import { TenantError } from "../TenantError";
-import { TenantStatistics } from "../TenantStatistics";
+// import { TenantStatistics } from "../TenantStatistics";
 import { TenantFilterTabs } from "../TenantFilterTabs";
 import { TenantTable } from "../TenantTable";
 import { Pagination } from "../../../ui/pagination";
@@ -80,7 +80,7 @@ const ContractProcess: React.FC<ContractProcessProps> = ({ onTenantClick }) => {
       {error && !loading && <TenantError error={error} onRetry={fetchLeaseRequests} />}
 
       {/* Statistics */}
-      {!error && <TenantStatistics tenants={filteredTenants} loading={loading} />}
+      {/* {!error && <TenantStatistics tenants={filteredTenants} loading={loading} />} */}
 
       {/* Filter Tabs */}
       <TenantFilterTabs 

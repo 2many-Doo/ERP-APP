@@ -7,7 +7,6 @@ import { useCreateRole } from "@/hooks/useCreateRole";
 import { useUpdateRole } from "@/hooks/useUpdateRole";
 import { deleteRole } from "@/lib/api";
 import { PermissionHeader } from "./PermissionHeader";
-import { PermissionStatistics } from "./PermissionStatistics";
 import { PermissionsTable } from "./PermissionsTable";
 import { PermissionError } from "./PermissionError";
 import { PermissionsModal } from "./PermissionsModal";
@@ -110,7 +109,6 @@ const PermissionManagement = () => {
       
       {activeTab === "roles" ? (
         <>
-          <PermissionStatistics permissions={permissions} loading={loading} />
           {error && !loading && <PermissionError error={error} onRetry={fetchPermissions} />}
           {!error && (
             <PermissionsTable

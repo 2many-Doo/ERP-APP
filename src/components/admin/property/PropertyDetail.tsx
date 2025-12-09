@@ -203,7 +203,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
           </Button>
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
-              Талбайн дэлгэрэнгүй мэдээлэл - #{property?.number || property?.id || propertyId}
+             {property?.number || property?.id || propertyId}
             </h1>
           </div>
         </div>
@@ -224,7 +224,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">

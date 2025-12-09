@@ -41,9 +41,9 @@ const UserManagementSearchAndFilter: React.FC<UserManagementSearchAndFilterProps
   const selectedRoleLabel = selectedRole === null ? "Бүгд" : selectedRole;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+    <div className="bg-white rounded-xl  border border-slate-200 p-4 ">
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
-        <div className="flex-1 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-blue-300 focus-within:bg-white">
+        <div className="flex-1 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
           <Search className="h-4 w-4 text-slate-400" />
           <input
             type="text"
@@ -56,7 +56,7 @@ const UserManagementSearchAndFilter: React.FC<UserManagementSearchAndFilterProps
         </div>
         <div className="relative" ref={dropdownRef}>
           <Button
-            variant={selectedRole === null ? "default" : "outline"}
+            variant={selectedRole === null ? "secondary" : "outline"}
             size="sm"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="whitespace-nowrap min-w-[150px] justify-between"

@@ -25,7 +25,7 @@ export const MerchantStatistics: React.FC<MerchantStatisticsProps> = ({ merchant
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl  border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Мерчант ID</p>
@@ -34,7 +34,7 @@ export const MerchantStatistics: React.FC<MerchantStatisticsProps> = ({ merchant
           <FileText className="h-8 w-8 text-blue-500 opacity-50" />
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl  border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Төлөв</p>
@@ -49,7 +49,7 @@ export const MerchantStatistics: React.FC<MerchantStatisticsProps> = ({ merchant
           )}
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl  border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">Төрөл</p>

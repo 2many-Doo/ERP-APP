@@ -84,7 +84,7 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
             Буцах
           </Button>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div className="bg-white rounded-xl border border-slate-200 p-12">
           <div className="text-center text-slate-500">Уншиж байна...</div>
         </div>
       </div>

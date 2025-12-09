@@ -18,7 +18,7 @@ const PropertyHeader: React.FC<PropertyHeaderProps> = ({ onExportExcel, onAddCli
       </div>
       <div className="flex items-center gap-3">
         {onAddClick && (
-          <Button className="flex items-center gap-2" onClick={onAddClick}>
+          <Button type="button" variant="secondary" className="flex items-center gap-2" onClick={onAddClick}>
             <Plus className="h-4 w-4" />
             Талбай нэмэх
           </Button>

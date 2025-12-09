@@ -178,9 +178,6 @@ const InsuranceManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Даатгалын мэдээлэл</h1>
             <p className="text-sm text-slate-500">Даатгалын гэрээний мэдээлэл, баримтууд</p>
@@ -198,7 +195,7 @@ const InsuranceManagement = () => {
           onClick={() => setFilterType("all")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             filterType === "all"
-              ? "border-blue-500 text-blue-600"
+              ? "text-black border-b-2 border-gray-600"
               : "border-transparent text-slate-600 hover:text-slate-800"
           }`}
         >
@@ -208,7 +205,7 @@ const InsuranceManagement = () => {
           onClick={() => setFilterType("liability")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
             filterType === "liability"
-              ? "border-blue-500 text-blue-600"
+              ? "text-black border-b-2 border-gray-600"
               : "border-transparent text-slate-600 hover:text-slate-800"
           }`}
         >
@@ -219,7 +216,7 @@ const InsuranceManagement = () => {
           onClick={() => setFilterType("property")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
             filterType === "property"
-              ? "border-purple-500 text-purple-600"
+              ? "text-black border-b-2 border-gray-600"
               : "border-transparent text-slate-600 hover:text-slate-800"
           }`}
         >

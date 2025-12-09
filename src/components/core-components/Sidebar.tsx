@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`flex h-full w-72 flex-col border border-slate-100 bg-white shadow-xl ${className ?? ""}`}
+      className={`flex h-full w-72 flex-col border border-slate-100 bg-white ${className ?? ""}`}
     >
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
         {sidebarSections.map((section) => {
@@ -116,7 +116,7 @@ const SectionHeader: React.FC<{
     type="button"
     onClick={onToggle}
     variant="ghost"
-    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-start text-s  text-neutral-600 transition hover:bg-slate-50 "
+    className="flex w-full items-center justify-between  px-3 py-2 text-start text-s  text-neutral-600 transition hover:bg-slate-50 "
     aria-expanded={isOpen}
   >
     <span className="flex items-center gap-2">
@@ -141,11 +141,11 @@ function SidebarLink({
   onSelect?: SidebarSelectionHandler;
 }) {
   const baseClasses =
-    "group flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
+    "group flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
   const isActive = item.id === activeItemId || item.active;
   const activeClasses = isActive
-    ? "bg-blue-50 text-blue-600 shadow-sm"
-    : "hover:bg-slate-100 hover:text-slate-800";
+    ? "bg-white text-black scale-110 md:w-50"
+    : "hover:bg-slate-100 hover:text-slate-800 md:w-50";
 
   if (item.children?.length) {
     return (
@@ -232,7 +232,7 @@ function SidebarGroup({
   }, [hasActiveChild]);
 
   const baseClasses =
-    "group flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
+    "group flex items-center justify-between  px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
 
   return (
     <div className="space-y-1">

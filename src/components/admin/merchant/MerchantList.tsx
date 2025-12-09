@@ -43,7 +43,6 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Store className="h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-slate-800">Мерчант жагсаалт</h1>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
@@ -57,10 +56,10 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Store className="h-8 w-8 text-blue-600" />
+          <Store className="h-8 w-8 text-gray-600" />
           <h1 className="text-3xl font-bold text-slate-800">Мерчант жагсаалт</h1>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button type="button" variant="secondary" className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Шинэ мерчант нэмэх
         </Button>
@@ -68,22 +67,22 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Нийт мерчант</p>
           <p className="text-3xl font-bold text-slate-800">{loading ? "..." : totalItems}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Идэвхтэй мерчант</p>
           <p className="text-3xl font-bold text-green-600">{loading ? "..." : activeMerchants}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
           <p className="text-sm text-slate-600 mb-2">Идэвхгүй мерчант</p>
           <p className="text-3xl font-bold text-red-600">{loading ? "..." : inactiveMerchants}</p>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center gap-4">
           <div className="flex-1 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-blue-300 focus-within:bg-white">
             <Search className="h-4 w-4 text-slate-400" />
@@ -99,7 +98,7 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
       </div>
 
       {/* Merchant List Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
@@ -127,7 +126,6 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Хаяг
                 </th>
-
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Төлөв
                 </th>
@@ -158,9 +156,6 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
                   >
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-slate-900">{merchant.name}</div>
-                      {merchant.email && (
-                        <div className="text-xs text-slate-500 mt-1">{merchant.email}</div>
-                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-slate-600">{merchant.contact || merchant.phone || "-"}</div>

@@ -251,9 +251,6 @@ export const PropertyRateHistory: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Үнэлгээний түүх</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Бүх талбайн үнэлгээний түүх
-          </p>
         </div>
       </div>
 
@@ -265,7 +262,7 @@ export const PropertyRateHistory: React.FC = () => {
           <p className="text-sm text-slate-500">Үнэлгээний түүх олдсонгүй</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl  border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 border-b border-slate-200">

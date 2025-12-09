@@ -18,7 +18,7 @@ export const PermissionTabs: React.FC<PermissionTabsProps> = ({
           onClick={() => onTabChange("roles")}
           className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === "roles"
-              ? "border-blue-600 text-blue-600"
+              ? "border-gray-600 text-black"
               : "border-transparent text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -28,7 +28,7 @@ export const PermissionTabs: React.FC<PermissionTabsProps> = ({
           onClick={() => onTabChange("permissions")}
           className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === "permissions"
-              ? "border-blue-600 text-blue-600"
+              ? "border-gray-600 text-balck"
               : "border-transparent text-slate-600 hover:text-slate-900"
           }`}
         >

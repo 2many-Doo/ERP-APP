@@ -25,7 +25,7 @@ export const PermissionList: React.FC<PermissionListProps> = ({
       {visiblePermissions.map((perm, index) => (
         <span
           key={index}
-          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-300 text-black"
         >
           <Key className="h-3 w-3" />
           {perm}

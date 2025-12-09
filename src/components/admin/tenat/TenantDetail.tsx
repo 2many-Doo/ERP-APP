@@ -250,7 +250,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
           </div>
 
           {/* Current Contract Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">Одоогийн гэрээний мэдээлэл</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-1">
@@ -283,7 +283,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
           </div>
 
           {/* Contact Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">Холбоо барих мэдээлэл</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
@@ -311,7 +311,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
           </div>
 
           {/* Lease History */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-800">Түрээсийн түүх</h2>
               <div className="flex items-center gap-2 text-sm text-slate-500">

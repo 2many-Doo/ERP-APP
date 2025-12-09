@@ -22,7 +22,7 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-slate-200 bg-white px-8 py-5">
 
       <div className="flex items-center gap-3 rounded-2xl mr-auto  py-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-sm font-semibold">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-500 to-black-500 text-black text-sm font-semibold">
             MN
           </div>
           <div className="hidden text-right leading-tight sm:block">

@@ -8,7 +8,7 @@ import { approveLeaseRequest, rejectLeaseRequest } from "@/lib/api";
 import { FilterType } from "./types";
 import { TenantHeader } from "./TenantHeader";
 import { TenantError } from "./TenantError";
-import { TenantStatistics } from "./TenantStatistics";
+// import { TenantStatistics } from "./TenantStatistics";
 import { TenantFilterTabs } from "./TenantFilterTabs";
 import { TenantTable } from "./TenantTable";
 import { Pagination } from "../../ui/pagination";
@@ -131,7 +131,6 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
     <div className="space-y-6">
       <TenantHeader />
       {error && !loading && <TenantError error={error} onRetry={fetchLeaseRequests} />}
-      {!error && <TenantStatistics tenants={tenantsWithoutSubmitted} loading={loading} />}
       <TenantFilterTabs 
         filterType={filterType} 
         onFilterChange={setFilterType} 

@@ -8,8 +8,10 @@ import { CheckingStatusActions } from "./CheckingStatusActions";
 import { RecheckingStatusActions } from "./RecheckingStatusActions";
 import { useContractFormData } from "@/hooks/useContractFormData";
 import { getAllUrls } from "./utils/attachmentUtils";
-import { FileText, Eye, CheckCircle, XCircle, Clock, Info } from "lucide-react";
+import { FileText, Eye, CheckCircle, XCircle, Clock, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { updateApprovedLeaseRequestAttachments } from "@/lib/api";
+import { toast } from "sonner";
 
 // ✅ shadcn dialog
 import {
@@ -45,10 +47,87 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBac
 
   const [failedImages, setFailedImages] = React.useState<Set<string>>(new Set());
   const [openInfo, setOpenInfo] = React.useState(false); // ✅ modal state
+  const [processingAttachments, setProcessingAttachments] = React.useState<Set<string>>(new Set());
 
   const handlePreview = React.useCallback((url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   }, []);
+
+  const handleApproveAttachment = React.useCallback(async (attachmentName: string) => {
+    if (!requestData?.id) {
+      toast.error("Хүсэлтийн ID олдсонгүй");
+      return;
+    }
+
+    setProcessingAttachments((prev) => new Set(prev).add(attachmentName));
+    try {
+      const response = await updateApprovedLeaseRequestAttachments(requestData.id, [
+        {
+          name: attachmentName,
+          status: "approved",
+        },
+      ]);
+
+      if (response.error) {
+        toast.error(`Алдаа: ${response.error}`);
+      } else if (response.status === 200 || response.status === 201) {
+        toast.success("Хавсралт амжилттай зөвшөөрлөө");
+        refreshData?.();
+      } else {
+        toast.error("Хавсралт зөвшөөрөхөд алдаа гарлаа");
+      }
+    } catch (error: any) {
+      console.error("Error approving attachment:", error);
+      toast.error(error?.message || "Алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setProcessingAttachments((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(attachmentName);
+        return newSet;
+      });
+    }
+  }, [requestData?.id, refreshData]);
+
+  const handleRejectAttachment = React.useCallback(async (attachmentName: string) => {
+    if (!requestData?.id) {
+      toast.error("Хүсэлтийн ID олдсонгүй");
+      return;
+    }
+
+    const note = prompt("Татгалзсан шалтгаан оруулна уу:");
+    if (note === null) {
+      return; // User cancelled
+    }
+
+    setProcessingAttachments((prev) => new Set(prev).add(attachmentName));
+    try {
+      const response = await updateApprovedLeaseRequestAttachments(requestData.id, [
+        {
+          name: attachmentName,
+          status: "rejected",
+          note: note || undefined,
+        },
+      ]);
+
+      if (response.error) {
+        toast.error(`Алдаа: ${response.error}`);
+      } else if (response.status === 200 || response.status === 201) {
+        toast.success("Хавсралт амжилттай татгалзлаа");
+        refreshData?.();
+      } else {
+        toast.error("Хавсралт татгалзахдаа алдаа гарлаа");
+      }
+    } catch (error: any) {
+      console.error("Error rejecting attachment:", error);
+      toast.error(error?.message || "Алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setProcessingAttachments((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(attachmentName);
+        return newSet;
+      });
+    }
+  }, [requestData?.id, refreshData]);
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
@@ -200,6 +279,40 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBac
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Approve/Reject buttons - below images */}
+                {requestData?.id && group.status !== "approved" && group.status !== "rejected" && (
+                  <div className="flex items-center justify-start gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleApproveAttachment(group.attachmentName)}
+                      disabled={processingAttachments.has(group.attachmentName)}
+                      className="h-8 bg-white-50 text-green-700 border-green-200 hover:bg-green-100 disabled:opacity-50"
+                    >
+                      {processingAttachments.has(group.attachmentName) ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                      )}
+                      Зөвшөөрөх
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRejectAttachment(group.attachmentName)}
+                      disabled={processingAttachments.has(group.attachmentName)}
+                      className="h-8 bg-white text-red-700 border-red-200 hover:bg-red-100 disabled:opacity-50"
+                    >
+                      {processingAttachments.has(group.attachmentName) ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <XCircle className="h-3 w-3 mr-1" />
+                      )}
+                      Татгалзах
+                    </Button>
                   </div>
                 )}
 

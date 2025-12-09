@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from "react";
 import { Users, Plus, Edit, Trash2, Mail, Phone, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import UserManagementStatisticsSkeleton from "@/components/skeletons/UserManagementStatisticsSkeleton";
 import UserManagementTableSkeleton from "@/components/skeletons/UserManagementTableSkeleton";
 import { useUserManagement, type User } from "@/hooks/useUserManagement";
 import UserManagementSearchAndFilter from "./UserManagementSearchAndFilter";
@@ -63,53 +62,18 @@ const UserManagement = () => {
   const sortedRoles = Object.entries(roleCounts).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Users className="h-8 w-8 text-blue-600" />
+          <Users className="h-8 w-8 text-black" />
           <h1 className="text-3xl font-bold text-slate-800">Хэрэглэгчийн удирдлага</h1>
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setShowCreateModal(true)}>
+        <Button type="button" variant="secondary" className="flex items-center gap-2" onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4" />
           Шинэ хэрэглэгч нэмэх
         </Button>
       </div>
-
-      {/* Statistics Cards */}
-      {loading ? (
-        <UserManagementStatisticsSkeleton />
-      ) : (
-        <div className="flex flex-row justify-between items-center gap-4">
-          {sortedRoles.length > 0 ? (
-            sortedRoles.map(([roleName, count], index) => {
-              const colors = [
-                "text-blue-600",
-                "text-green-600",
-                "text-purple-600",
-                "text-orange-600",
-                "text-pink-600",
-                "text-indigo-600",
-              ];
-              const color = colors[index % colors.length];
-              return (
-                <div key={roleName} className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="h-4 w-4 text-slate-600" />
-                    <p className="text-sm text-slate-600">{roleName}</p>
-                  </div>
-                  <p className={`text-3xl font-bold ${color}`}>{count}</p>
-                </div>
-              );
-            })
-          ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <p className="text-sm text-slate-600 mb-2">Нийт хэрэглэгч</p>
-              <p className="text-3xl font-bold text-slate-800">{users.length}</p>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Search Bar and Role Filter */}
       <UserManagementSearchAndFilter
@@ -135,7 +99,7 @@ const UserManagement = () => {
       {loading ? (
         <UserManagementTableSkeleton />
       ) : !error && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 border-b border-slate-200">
@@ -194,7 +158,7 @@ const UserManagement = () => {
                             user.roles.map((role) => (
                               <span
                                 key={role.id}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-white"
                               >
                                 <Shield className="h-3 w-3" />
                                 {role.title}
@@ -227,7 +191,7 @@ const UserManagement = () => {
 
       {/* Pagination */}
       {!loading && !error && filteredUsers.length > 0 && (
-        <div className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-slate-200 px-6 py-4">
+        <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-6 py-4">
           <div className="text-sm text-slate-600">
             Нийт <span className="font-medium">{filteredUsers.length}</span> хэрэглэгч
           </div>

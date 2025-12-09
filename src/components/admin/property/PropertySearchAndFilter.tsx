@@ -25,7 +25,7 @@ const PropertySearchAndFilter: React.FC<PropertySearchAndFilterProps> = ({
   productTypes,
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+    <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex flex-col md:flex-row gap-4">
         {/* Search */}
         <div className="flex-1">

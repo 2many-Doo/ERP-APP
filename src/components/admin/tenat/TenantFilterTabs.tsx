@@ -81,7 +81,7 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
           onClick={() => onFilterChange("all" as FilterType)}
           className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
             filterType === "all"
-              ? "text-blue-600 border-b-2 border-blue-600"
+              ? "text-black border-b-2 border-gray-600"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
@@ -98,7 +98,7 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
             onClick={() => onFilterChange(status as FilterType)}
             className={`px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
               filterType === status
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-black border-b-2 border-gray-600"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >

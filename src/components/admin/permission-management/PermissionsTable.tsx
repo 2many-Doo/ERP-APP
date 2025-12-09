@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Shield, Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Permission } from "@/hooks/usePermissionManagement";
 import { PermissionList } from "./PermissionList";
@@ -23,11 +23,11 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="p-8 space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="h-16 bg-slate-200 rounded"></div>
+              <div className="h-16 bg-slate-200 rounded" />
             </div>
           ))}
         </div>
@@ -37,7 +37,7 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
 
   if (permissions.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-6 py-12 text-center text-slate-500">
           Эрх олдсонгүй
         </div>
@@ -46,37 +46,45 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
+              {/* ✅ Дэс дугаар */}
+              <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider w-16">
+                №
+              </th>
+
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Эрх
               </th>
-          
+
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Зөвшөөрөл
               </th>
+
               <th className="px-6 py-4 text-right text-xs font-medium text-slate-700 uppercase tracking-wider">
                 Үйлдэл
               </th>
             </tr>
           </thead>
+
           <tbody className="bg-white divide-y divide-slate-200">
-            {permissions.map((permission) => (
+            {permissions.map((permission, index) => (
               <tr
                 key={permission.id}
                 className="hover:bg-slate-50 transition-colors"
               >
+                {/* ✅ Дэс дугаар */}
+                <td className="px-6 py-4 text-sm text-slate-600">
+                  {index + 1}
+                </td>
+
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-                      <Shield className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-900">{permission.name}</div>
-                      <div className="text-xs text-slate-500">ID: {permission.id}</div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {permission.name}
                     </div>
                   </div>
                 </td>
@@ -88,9 +96,11 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
                     roleName={permission.name}
                   />
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-2">
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
@@ -99,7 +109,9 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
                     >
                       <Eye className="h-4 w-4 text-blue-600" />
                     </Button>
+
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
@@ -108,7 +120,9 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
                     >
                       <Edit className="h-4 w-4 text-blue-600" />
                     </Button>
+
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
@@ -127,4 +141,3 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
     </div>
   );
 };
-

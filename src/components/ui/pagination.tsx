@@ -102,7 +102,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 disabled={loading}
                 className={`min-w-[2.5rem] ${
                   isActive
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-slate-800 text-white hover:opacity-80"
                     : "hover:bg-slate-50"
                 }`}
               >

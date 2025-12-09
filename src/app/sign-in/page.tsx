@@ -92,23 +92,23 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-500 via-white to-gray-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-500 to-brown-800 mb-4">
             <Building2 className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Нэвтрэх
+            Сутайн буяант
           </h1>
           <p className="text-slate-500">
-            Системд нэвтрэх
+            Энэ систем нь Сутайн буяант захын дотоод систем юм.
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8">
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -120,7 +120,7 @@ const SignInPage = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
                 Имэйл хаяг
               </label>
               <div className="relative">
@@ -132,7 +132,7 @@ const SignInPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg"
                   placeholder="name@example.com"
                 />
               </div>
@@ -152,7 +152,7 @@ const SignInPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-lg "
                   placeholder="••••••••"
                 />
                 <button
@@ -182,7 +182,7 @@ const SignInPage = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full py-3 text-base font-semibold"
+              className="w-full py-3 text-base bg-slate-800 font-semibold"
               disabled={isLoading}
             >
               {isLoading ? "Нэвтэрч байна..." : "Нэвтрэх"}

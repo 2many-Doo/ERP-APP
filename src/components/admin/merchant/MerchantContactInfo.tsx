@@ -10,7 +10,7 @@ interface MerchantContactInfoProps {
 
 export const MerchantContactInfo: React.FC<MerchantContactInfoProps> = ({ merchant }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
       <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
         <User className="h-5 w-5" />
         Холбоо барих мэдээлэл

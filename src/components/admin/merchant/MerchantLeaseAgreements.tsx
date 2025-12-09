@@ -9,7 +9,7 @@ interface MerchantLeaseAgreementsProps {
 
 export const MerchantLeaseAgreements: React.FC<MerchantLeaseAgreementsProps> = ({ leaseAgreements }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
           <FileText className="h-5 w-5" />

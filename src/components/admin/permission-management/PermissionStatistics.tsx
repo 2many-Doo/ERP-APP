@@ -14,7 +14,7 @@ export const PermissionStatistics: React.FC<PermissionStatisticsProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between">
           <div className="animate-pulse">
             <div className="h-4 w-24 bg-slate-200 rounded mb-2"></div>
@@ -30,7 +30,7 @@ export const PermissionStatistics: React.FC<PermissionStatisticsProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-600 mb-2">Нийт эрх</p>

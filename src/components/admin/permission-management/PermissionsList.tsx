@@ -9,10 +9,14 @@ import { CreatePermissionModal } from "./CreatePermissionModal";
 import { EditPermissionModal } from "./EditPermissionModal";
 
 export const PermissionsList: React.FC = () => {
-  const { permissions, loading, error, fetchPermissions, deletePermission } = usePermissions();
+  const { permissions, loading, error, fetchPermissions, deletePermission } =
+    usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingPermission, setEditingPermission] = useState<{ id: number; title: string } | null>(null);
+  const [editingPermission, setEditingPermission] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
 
   const filteredPermissions = useMemo(() => {
     return permissions.filter((perm) =>
@@ -34,9 +38,12 @@ export const PermissionsList: React.FC = () => {
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse h-16 bg-slate-200 rounded"></div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="animate-pulse h-24 bg-slate-200 rounded-xl"
+            />
           ))}
         </div>
       </div>
@@ -56,9 +63,14 @@ export const PermissionsList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold text-slate-800">Зөвшөөрлүүд</h2>
-        <Button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" />
           Шинэ зөвшөөрөл нэмэх
         </Button>
@@ -77,47 +89,62 @@ export const PermissionsList: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
         {filteredPermissions.length === 0 ? (
           <div className="px-6 py-12 text-center text-slate-500">
             Зөвшөөрөл олдсонгүй
           </div>
         ) : (
-          <div className="divide-y divide-slate-200">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredPermissions.map((permission) => (
               <div
                 key={permission.id}
-                className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                className="group rounded-xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition-all"
               >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
-                    <Key className="h-5 w-5" />
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center text-white">
+                      <Key className="h-4 w-4" />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-slate-900 truncate">
+                        {permission.title}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-slate-900">{permission.title}</div>
-                    <div className="text-xs text-slate-500">ID: {permission.id}</div>
+
+                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => setEditingPermission(permission)}
+                      title="Засварлах"
+                    >
+                      <Edit className="h-4 w-4 text-blue-600" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleDelete(permission.id)}
+                      title="Устгах"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => setEditingPermission(permission)}
-                    title="Засварлах"
-                  >
-                    <Edit className="h-4 w-4 text-blue-600" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => handleDelete(permission.id)}
-                    title="Устгах"
-                  >
-                    <Trash2 className="h-4 w-4 text-red-600" />
-                  </Button>
-                </div>
+
+                {/* жижиг "footer" мөр (optional) */}
+                {/* <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-1">
+                    Permission
+                  </span>
+                  <span className="hidden sm:inline">⋯</span>
+                </div> */}
               </div>
             ))}
           </div>
@@ -147,4 +174,3 @@ export const PermissionsList: React.FC = () => {
     </div>
   );
 };
-
