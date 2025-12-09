@@ -2,13 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { User, Mail, Lock, Shield, Phone } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getRoles } from "@/lib/api";
 
 interface Role {

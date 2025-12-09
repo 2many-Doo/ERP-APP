@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css";
 import { ToasterProvider } from "@/components/core-components/ToasterProvider";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         {children}
         <ToasterProvider />
+        <SpeedInsights/>
       </body>
     </html>
   );
