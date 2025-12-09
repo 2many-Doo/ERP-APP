@@ -1,18 +1,23 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Users, Plus, Edit, Trash2, Mail, Phone, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserManagementTableSkeleton from "@/components/skeletons/UserManagementTableSkeleton";
 import { useUserManagement, type User } from "@/hooks/useUserManagement";
 import UserManagementSearchAndFilter from "./UserManagementSearchAndFilter";
 import { CreateUserModal } from "./CreateUserModal";
+import { EditUserModal } from "./EditUserModal";
+import { deleteUser } from "@/lib/api";
 
 const UserManagement = () => {
   const { users, loading, error, fetchUsers } = useUserManagement();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
 
   // Бүх role-уудыг цуглуулах
   const allRoles = useMemo(() => {
@@ -61,6 +66,23 @@ const UserManagement = () => {
 
   const sortedRoles = Object.entries(roleCounts).sort((a, b) => b[1] - a[1]);
 
+  const handleDelete = async (userId: number) => {
+    setDeletingUserId(userId);
+    try {
+      const response = await deleteUser(userId);
+      if (response.error) {
+        toast.error(response.error || "Алдаа гарлаа");
+      } else {
+        toast.success("Хэрэглэгч амжилттай устгагдлаа");
+        fetchUsers();
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Алдаа гарлаа");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   return (
     <div className="space-y-6 ">
       {/* Header */}
@@ -105,6 +127,9 @@ const UserManagement = () => {
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                     Хэрэглэгч
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
@@ -130,16 +155,10 @@ const UserManagement = () => {
                   filteredUsers.map((user, index) => (
                     <tr key={user.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {/* ✅ Дэс дугаар */}
-                          <div className="w-7 h-7 flex items-center justify-center text-xs font-semibold text-slate-700">
-                            {index + 1}
-                          </div>
-
-                          <div>
-                            <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                          </div>
-                        </div>
+                        <span className="text-sm font-medium text-slate-900">#{user.id}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-slate-900">{user.name}</div>
                       </td>
                       <td className="px-6 py-4">
                         {user.phone ? (
@@ -172,10 +191,25 @@ const UserManagement = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => setEditingUser(user)}
+                          >
                             <Edit className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              if (window.confirm("Энэ хэрэглэгчийг устгахдаа итгэлтэй байна уу?")) {
+                                handleDelete(user.id);
+                              }
+                            }}
+                            disabled={deletingUserId === user.id}
+                          >
                             <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>
                         </div>
@@ -212,6 +246,18 @@ const UserManagement = () => {
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
+            fetchUsers();
+          }}
+        />
+      )}
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onSuccess={() => {
+            setEditingUser(null);
             fetchUsers();
           }}
         />

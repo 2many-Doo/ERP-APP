@@ -492,6 +492,29 @@ export const createUser = async (userData: {
 };
 
 /**
+ * Update user API function
+ */
+export const updateUser = async (
+  userId: number,
+  userData: {
+    name?: string;
+    email?: string;
+    password?: string;
+    phone?: string;
+    roles?: number[];
+  }
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/users/${userId}`, userData);
+};
+
+/**
+ * Delete user API function
+ */
+export const deleteUser = async (userId: number): Promise<ApiResponse<any>> => {
+  return del(`/v1/users/${userId}`);
+};
+
+/**
  * Get permissions API function
  */
 export const getPermissions = async (): Promise<ApiResponse<{ data: Array<{ id: number; title: string }> }>> => {

@@ -107,6 +107,9 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
       onClick={() => onTenantClick?.(tenant.id)}
     >
       <td className="px-6 py-4">
+        <span className="text-sm font-medium text-slate-900">#{tenant.id}</span>
+      </td>
+      <td className="px-6 py-4">
         <span className="text-sm text-slate-900">
           {tenant.isRenewal 
             ? (tenant.propertyNumber || "-")

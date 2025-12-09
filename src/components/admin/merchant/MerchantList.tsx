@@ -136,6 +136,9 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort("name")}
                     className="flex items-center gap-1 hover:text-blue-600"
@@ -169,13 +172,13 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
             <tbody className="bg-white divide-y divide-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                     Уншиж байна...
                   </td>
                 </tr>
               ) : merchants.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                     Мерчант олдсонгүй
                   </td>
                 </tr>
@@ -186,6 +189,9 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
                     className="hover:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => onMerchantClick?.(merchant.id)}
                   >
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium text-slate-900">#{merchant.id}</span>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-slate-900">{merchant.name}</div>
                     </td>

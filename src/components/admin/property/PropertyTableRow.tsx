@@ -33,7 +33,7 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
       onClick={handleRowClick}
     >
       <td className="px-6 py-4">
-        <span className="text-sm font-medium text-slate-900">{property.id}</span>
+        <span className="text-sm font-medium text-slate-900">#{property.id}</span>
       </td>
       <td className="px-6 py-4">
         <span className="text-sm font-medium text-slate-900">

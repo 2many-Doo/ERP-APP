@@ -29,6 +29,9 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
                 {isRenewal ? "Лангуу" : "Үйл ажиллагааны төрөл"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Харилцагчийн нэр</th>
@@ -41,7 +44,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
           <tbody className="divide-y divide-slate-200">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center">
+                <td colSpan={8} className="px-6 py-12 text-center">
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="animate-pulse">
@@ -53,7 +56,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
               </tr>
             ) : tenants.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                   Түрээслэх хүсэлт олдсонгүй
                 </td>
               </tr>

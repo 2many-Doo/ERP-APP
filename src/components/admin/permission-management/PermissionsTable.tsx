@@ -51,6 +51,9 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
+              <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
+                ID
+              </th>
               {/* ✅ Дэс дугаар */}
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider w-16">
                 №
@@ -76,6 +79,9 @@ export const PermissionsTable: React.FC<PermissionsTableProps> = ({
                 key={permission.id}
                 className="hover:bg-slate-50 transition-colors"
               >
+                <td className="px-6 py-4">
+                  <span className="text-sm font-medium text-slate-900">#{permission.id}</span>
+                </td>
                 {/* ✅ Дэс дугаар */}
                 <td className="px-6 py-4 text-sm text-slate-600">
                   {index + 1}

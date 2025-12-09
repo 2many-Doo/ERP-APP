@@ -24,11 +24,13 @@ interface CreateUserFormProps {
     phone: string;
     role_ids: number[];
   }) => void;
+  isEditMode?: boolean; // If true, password is optional
 }
 
 export const CreateUserForm: React.FC<CreateUserFormProps> = ({
   formData,
   onFormDataChange,
+  isEditMode = false,
 }) => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
@@ -85,7 +87,8 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
       </div>
       <div>
         <label htmlFor="user-password" className="block text-sm font-medium text-slate-700 mb-2">
-          Нууц үг <span className="text-red-500">*</span>
+          Нууц үг {!isEditMode && <span className="text-red-500">*</span>}
+          {isEditMode && <span className="text-xs text-slate-500">(Өөрчлөхгүй бол хоосон үлдээнэ)</span>}
         </label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -94,11 +97,11 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
             type="password"
             value={formData.password}
             onChange={(e) => onFormDataChange({ ...formData, password: e.target.value })}
-            placeholder="Хамгийн багадаа 6 тэмдэгт"
+            placeholder={isEditMode ? "Шинэ нууц үг (сонголттой)" : "Хамгийн багадаа 6 тэмдэгт"}
             className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <p className="mt-1 text-xs text-slate-500">Хамгийн багадаа 6 тэмдэгт</p>
+        {!isEditMode && <p className="mt-1 text-xs text-slate-500">Хамгийн багадаа 6 тэмдэгт</p>}
       </div>
       <div>
         <label htmlFor="user-phone" className="block text-sm font-medium text-slate-700 mb-2">
