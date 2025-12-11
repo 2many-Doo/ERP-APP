@@ -24,10 +24,13 @@ const PropertyManagement: React.FC = () => {
   const {
     properties,
     productTypes,
+    blocks,
     loading,
     error,
     selectedTypeId,
     selectedProductTypeId,
+    selectedRelationship,
+    selectedRelationshipId,
     searchQuery,
     currentPage,
     totalPages,
@@ -35,6 +38,8 @@ const PropertyManagement: React.FC = () => {
     filteredProperties,
     setSelectedTypeId,
     setSelectedProductTypeId,
+    setSelectedRelationship,
+    setSelectedRelationshipId,
     setSearchQuery,
     fetchProperties,
     handlePageChange,
@@ -97,6 +102,17 @@ const PropertyManagement: React.FC = () => {
           <PropertySearchAndFilter
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        blocks={blocks}
+        selectedBlockId={selectedRelationship === "block" ? selectedRelationshipId : null}
+        onBlockChange={(blockId) => {
+          if (blockId === null) {
+            setSelectedRelationship(null);
+            setSelectedRelationshipId(null);
+          } else {
+            setSelectedRelationship("block");
+            setSelectedRelationshipId(blockId);
+          }
+        }}
         selectedTypeId={selectedTypeId}
         onTypeChange={setSelectedTypeId}
         selectedProductTypeId={selectedProductTypeId}

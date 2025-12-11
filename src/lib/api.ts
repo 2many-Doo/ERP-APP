@@ -798,6 +798,31 @@ export const getProperties = async (
 };
 
 /**
+ * Get property relationships (for search/filter helpers)
+ */
+export const getPropertyRelationships = async (
+  search?: string | null,
+  relationship?: string | null,
+  page: number = 1,
+  perPage: number = 50
+): Promise<ApiResponse<{ data: any[] }>> => {
+  const params: Record<string, string | number> = {
+    page,
+    per_page: perPage,
+  };
+
+  if (search && search.trim() !== "") {
+    params.q = search.trim();
+  }
+
+  if (relationship && relationship.trim() !== "") {
+    params.relationship = relationship.trim();
+  }
+
+  return get("/v1/properties/relationships", { params });
+};
+
+/**
  * Get single property by ID API function
  */
 export const getProperty = async (propertyId: number): Promise<ApiResponse<any>> => {

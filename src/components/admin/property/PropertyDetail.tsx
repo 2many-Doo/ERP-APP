@@ -182,7 +182,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
   if (error || !property) {
     return (
-      <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+      <div className="flex items-center justify-center h-[100%] rounded-lg  p-4">
         <p className="text-sm text-red-600">{error || "Талбай олдсонгүй"}</p>
         <Button variant="back" onClick={onBack} className="mt-4">
           <ArrowLeft className="h-4 w-4 mr-2" />

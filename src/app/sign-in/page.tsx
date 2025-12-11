@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { login, getAuthUser, getUserById } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const SignInPage = () => {
   const router = useRouter();
@@ -99,8 +100,17 @@ const SignInPage = () => {
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-500 to-brown-800 mb-4">
-            <Building2 className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center ">
+          <div className="flex justify-center py-6">
+        <Image
+          src="/Sutailogo.jpg"
+          alt="Сутайн буяант лого"
+          width={160}
+          height={160}
+          priority
+          className="h-28 w-28 rounded-2xl object-cover"
+        />
+      </div>
           </div>
           <h1 className="text-3xl font-bold text-slate-800 mb-2">
             Сутайн буяант

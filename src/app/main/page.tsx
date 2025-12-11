@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useMainLayout } from "@/contexts/MainLayoutContext";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import UserManagement from "@/components/admin/user-management/UserManagement";
 import PermissionManagement from "@/components/admin/permission-management/PermissionManagement";
 import MerchantList from "@/components/admin/merchant/MerchantList";
@@ -17,8 +18,52 @@ import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHis
 
 const MainPage = () => {
   const { activeComponent } = useMainLayout();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const tenantIdParam = searchParams.get("tenantId");
+  const merchantIdParam = searchParams.get("merchantId");
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
   const [selectedMerchantId, setSelectedMerchantId] = useState<number | null>(null);
+
+  // When switching main menu, reset detail selections and strip query params so list is default
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    let changed = false;
+    if (params.has("tenantId")) {
+      params.delete("tenantId");
+      changed = true;
+    }
+    if (params.has("merchantId")) {
+      params.delete("merchantId");
+      changed = true;
+    }
+    if (changed) {
+      const next = params.toString();
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    }
+    setSelectedTenantId(null);
+    setSelectedMerchantId(null);
+  }, [activeComponent, pathname, router, searchParams]);
+
+  // Sync tenantId from URL only when in tenant-related screens
+  useEffect(() => {
+    const isTenantScreen =
+      activeComponent === "tenant-list" || activeComponent === "approved-tenant-list";
+    if (!isTenantScreen) {
+      setSelectedTenantId(null);
+      return;
+    }
+
+    if (tenantIdParam) {
+      const num = Number(tenantIdParam);
+      if (!Number.isNaN(num)) {
+        setSelectedTenantId(num);
+        return;
+      }
+    }
+    setSelectedTenantId(null);
+  }, [tenantIdParam, activeComponent]);
 
   // Reset selected tenant when switching away from tenant-list or approved-tenant-list
   useEffect(() => {
@@ -27,27 +72,61 @@ const MainPage = () => {
     }
   }, [activeComponent]);
 
+  // Sync merchantId from URL
+  useEffect(() => {
+    if (merchantIdParam) {
+      const num = Number(merchantIdParam);
+      if (!Number.isNaN(num)) {
+        setSelectedMerchantId(num);
+        return;
+      }
+    }
+    setSelectedMerchantId(null);
+  }, [merchantIdParam]);
+
   // Reset selected merchant when switching away from merchant-list
   useEffect(() => {
     if (activeComponent !== "merchant-list") {
       setSelectedMerchantId(null);
+      const params = new URLSearchParams(searchParams.toString());
+      if (params.has("merchantId")) {
+        params.delete("merchantId");
+        const next = params.toString();
+        router.replace(next ? `${pathname}?${next}` : pathname);
+      }
     }
-  }, [activeComponent]);
+  }, [activeComponent, pathname, router, searchParams]);
 
   const handleTenantClick = (tenantId: number) => {
     setSelectedTenantId(tenantId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tenantId", String(tenantId));
+    const next = params.toString();
+    router.push(next ? `${pathname}?${next}` : pathname);
   };
 
   const handleBackToList = () => {
     setSelectedTenantId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("tenantId");
+    const next = params.toString();
+    router.push(next ? `${pathname}?${next}` : pathname);
   };
 
   const handleMerchantClick = (merchantId: number) => {
     setSelectedMerchantId(merchantId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("merchantId", String(merchantId));
+    const next = params.toString();
+    router.push(next ? `${pathname}?${next}` : pathname);
   };
 
   const handleBackToMerchantList = () => {
     setSelectedMerchantId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("merchantId");
+    const next = params.toString();
+    router.push(next ? `${pathname}?${next}` : pathname);
   };
 
   const renderComponent = () => {

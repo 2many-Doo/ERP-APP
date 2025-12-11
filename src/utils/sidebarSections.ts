@@ -96,19 +96,19 @@ export const sidebarSections: NavSection[] = [
   {
     title: "Талбай менежмент",
     icon: PanelsTopLeft,
-    permission: "property_menu_show",
+    permission: "porperty_menu_show",
     items: [
       {
         id: "field-dashboard",
         label: "Талбай бүртгэл",
         componentKey: "property-management",
-        permission: "property_menu_show",
+        permission: "porperty_menu_show",
       },
       {
         id: "rate-history",
         label: "Үнэлгээний түүх",
         componentKey: "property-rate-history",
-        permission: "property_menu_show",
+        permission: "porperty_menu_show",
       },
     ],
   },

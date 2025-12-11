@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useLeaseRequests } from "@/hooks/useLeaseRequests";
 import { useTenantData } from "@/hooks/useTenantData";
@@ -18,7 +19,32 @@ interface TenantListProps {
 }
 
 const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
-  const [filterType, setFilterType] = React.useState<FilterType>("all");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const validFilters = useMemo<Set<string>>(
+    () =>
+      new Set<FilterType>([
+        "pending",
+        "property_selected",
+        "checking",
+        "under_review",
+        "incomplete",
+        "rejected",
+        "cancelled",
+        "approved",
+        "in_contract_process",
+        "all",
+      ]),
+    []
+  );
+  const [filterType, setFilterType] = useState<FilterType>(() => {
+    const status = searchParams.get("tenantStatus");
+    if (status && validFilters.has(status)) {
+      return status as FilterType;
+    }
+    return "all";
+  });
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
   const { leaseRequests, loading, error, statusOptions, currentPage, totalPages, fetchLeaseRequests, handlePageChange } = useLeaseRequests();
   const tenants = useTenantData(leaseRequests);
@@ -68,6 +94,29 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
       return originalRequest.status === filterType;
     });
   }, [tenants, filterType, leaseRequests, tenantsWithoutSubmitted]);
+
+  // Keep filterType in sync with URL tenantStatus
+  useEffect(() => {
+    const status = searchParams.get("tenantStatus");
+    if (status && validFilters.has(status) && status !== filterType) {
+      setFilterType(status as FilterType);
+    }
+    if (!status && filterType !== "all") {
+      setFilterType("all");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const updateFilterInUrl = (type: FilterType) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (type === "all") {
+      params.delete("tenantStatus");
+    } else {
+      params.set("tenantStatus", type);
+    }
+    const next = params.toString();
+    router.push(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  };
 
   const handleStatusChange = async (tenantId: number, newStatus: string) => {
     // TODO: Implement status update API call
@@ -133,7 +182,10 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
       {error && !loading && <TenantError error={error} onRetry={fetchLeaseRequests} />}
       <TenantFilterTabs 
         filterType={filterType} 
-        onFilterChange={setFilterType} 
+        onFilterChange={(type) => {
+          setFilterType(type);
+          updateFilterInUrl(type);
+        }} 
         tenants={tenantsWithoutSubmitted} 
         leaseRequests={leaseRequests}
         allowedStatuses={["pending", "property_selected"]}
