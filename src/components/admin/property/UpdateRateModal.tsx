@@ -40,12 +40,18 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [approving, setApproving] = useState(false);
 
+  const computeFee = (rate: number | null | undefined) => {
+    if (!rate || rate <= 0) return 0;
+    return Number((rate * 0.2).toFixed(2));
+  };
+
   useEffect(() => {
     if (property?.rate) {
+      const rate = property.rate.rate || 0;
       setFormData({
         year: property.rate.year || new Date().getFullYear(),
-        rate: property.rate.rate || 0,
-        fee: property.rate.fee || 0,
+        rate,
+        fee: property.rate.fee ?? computeFee(rate),
         start_date: property.rate.start_date
           ? property.rate.start_date.split(" ")[0]
           : "",
@@ -90,10 +96,11 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
     setUpdating(true);
     try {
       // Ensure all required fields are properly formatted
+      const fee = computeFee(formData.rate);
       const rateDataToSend = {
         year: formData.year,
         rate: Number(formData.rate),
-        fee: Number(formData.fee),
+        fee,
         start_date: formData.start_date,
         end_date: formData.end_date,
       };
@@ -216,12 +223,14 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
               <Input
                 type="number"
                 value={formData.rate || ""}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newRate = parseFloat(e.target.value) || 0;
                   setFormData({
                     ...formData,
-                    rate: parseFloat(e.target.value) || 0,
-                  })
-                }
+                    rate: newRate,
+                    fee: computeFee(newRate),
+                  });
+                }}
                 className="w-full"
                 placeholder="Жишээ: 600000"
                 required
@@ -237,13 +246,10 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
               <Input
                 type="number"
                 value={formData.fee || ""}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    fee: parseFloat(e.target.value) || 0,
-                  })
-                }
+                readOnly
+                tabIndex={-1}
                 className="w-full"
+                disabled={true}
                 placeholder="Жишээ: 120000"
                 required
                 min="0"
@@ -291,18 +297,6 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
             >
               Цуцлах
             </Button>
-            {isRatePending && property.rate?.id && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleApprove}
-                disabled={updating || approving}
-                className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {approving ? "Баталгаажуулж байна..." : "Баталгаажуулах"}
-              </Button>
-            )}
             <Button type="submit" disabled={updating || approving}>
               {updating ? "Илгээж байна..." : "Хүсэлт илгээх"}
             </Button>

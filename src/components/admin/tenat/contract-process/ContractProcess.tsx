@@ -11,9 +11,7 @@ import { TenantTable } from "../TenantTable";
 import { Pagination } from "../../../ui/pagination";
 import { 
   FileText, 
-  Search
 } from "lucide-react";
-import { Input } from "../../../ui/input";
 
 interface ContractProcessProps {
   onTenantClick?: (tenantId: number) => void;
@@ -104,6 +102,7 @@ const ContractProcess: React.FC<ContractProcessProps> = ({ onTenantClick }) => {
             onStatusChange={handleStatusChange}
             filterType={filterType}
             processingIds={processingIds}
+            showActions={false}
           />
           {totalPages > 1 && (
             <Pagination

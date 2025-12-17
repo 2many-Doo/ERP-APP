@@ -12,6 +12,7 @@ import { FileText, Eye, CheckCircle, XCircle, Clock, Info, Loader2 } from "lucid
 import { Button } from "@/components/ui/button";
 import { updateApprovedLeaseRequestAttachments } from "@/lib/api";
 import { toast } from "sonner";
+import { ContractFileUploader } from "./ContractFileUploader";
 
 // ✅ shadcn dialog
 import {
@@ -25,6 +26,7 @@ import {
 interface ContractFormDetailProps {
   tenantId: number;
   onBack: () => void;
+  useApprovedEndpoint?: boolean;
 }
 
 const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
@@ -35,7 +37,7 @@ const safeFileName = (name: string) =>
     .replace(/[\/\\?%*:|"<>]/g, "-")
     .replace(/\s+/g, "_");
 
-const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBack }) => {
+const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBack, useApprovedEndpoint = true }) => {
   const {
     loading,
     tenantName,
@@ -43,7 +45,7 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBac
     attachmentMap,
     refreshData,
     getAttachmentLabelMn,
-  } = useContractFormData({ tenantId });
+  } = useContractFormData({ tenantId, useApprovedEndpoint });
 
   const [failedImages, setFailedImages] = React.useState<Set<string>>(new Set());
   const [openInfo, setOpenInfo] = React.useState(false); // ✅ modal state
@@ -207,6 +209,13 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({ tenantId, onBac
             )}
           </div>
         </div>
+
+        {/* File upload for contract-process flow */}
+        {!useApprovedEndpoint && (
+          <div className="mb-6">
+            <ContractFileUploader />
+          </div>
+        )}
 
         {attachmentGroups.length === 0 ? (
           <div className="text-center py-8 text-slate-500">Хавсралт олдсонгүй</div>

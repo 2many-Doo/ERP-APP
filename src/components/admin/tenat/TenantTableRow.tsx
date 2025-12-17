@@ -139,7 +139,7 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
           </span>
         )}
       </td>
-      {showActions && hasPropertyId && (
+      {showActions && (
         <td className="px-6 py-4">
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
@@ -163,7 +163,6 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
           </div>
         </td>
       )}
-      {(!showActions || !hasPropertyId) && <td className="px-6 py-4"></td>}
     </tr>
   );
 };

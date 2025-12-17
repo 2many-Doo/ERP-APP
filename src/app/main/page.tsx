@@ -28,7 +28,21 @@ const MainPageContent = () => {
 
   // When switching main menu, reset detail selections and strip query params so list is default
   useEffect(() => {
+    // When switching main menu, reset selections ONLY when leaving current context
+    // Avoid reacting to searchParams changes (tenantId/merchantId) to prevent auto-clearing detail view
     const params = new URLSearchParams(searchParams.toString());
+
+    const isTenantContext =
+      activeComponent === "tenant-list" ||
+      activeComponent === "approved-tenant-list" ||
+      activeComponent === "contract-process";
+    const isMerchantContext = activeComponent === "merchant-list";
+
+    // If staying in tenant or merchant contexts, keep selections/params
+    if (isTenantContext || isMerchantContext) {
+      return;
+    }
+
     let changed = false;
     if (params.has("tenantId")) {
       params.delete("tenantId");
@@ -49,7 +63,9 @@ const MainPageContent = () => {
   // Sync tenantId from URL only when in tenant-related screens
   useEffect(() => {
     const isTenantScreen =
-      activeComponent === "tenant-list" || activeComponent === "approved-tenant-list";
+      activeComponent === "tenant-list" ||
+      activeComponent === "approved-tenant-list" ||
+      activeComponent === "contract-process";
     if (!isTenantScreen) {
       setSelectedTenantId(null);
       return;
@@ -65,9 +81,13 @@ const MainPageContent = () => {
     setSelectedTenantId(null);
   }, [tenantIdParam, activeComponent]);
 
-  // Reset selected tenant when switching away from tenant-list or approved-tenant-list
+  // Reset selected tenant when switching away from tenant/contract contexts
   useEffect(() => {
-    if (activeComponent !== "tenant-list" && activeComponent !== "approved-tenant-list") {
+    const isTenantContext =
+      activeComponent === "tenant-list" ||
+      activeComponent === "approved-tenant-list" ||
+      activeComponent === "contract-process";
+    if (!isTenantContext) {
       setSelectedTenantId(null);
     }
   }, [activeComponent]);
@@ -142,6 +162,15 @@ const MainPageContent = () => {
       }
       if (activeComponent === "approved-tenant-list") {
         return <ContractFormDetail tenantId={selectedTenantId} onBack={handleBackToList} />;
+      }
+      if (activeComponent === "contract-process") {
+        return (
+          <ContractFormDetail
+            tenantId={selectedTenantId}
+            onBack={handleBackToList}
+            useApprovedEndpoint={false}
+          />
+        );
       }
     }
 

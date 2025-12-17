@@ -21,6 +21,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
   // Determine if we should show "Лангуу" based on whether tenants have propertyId
   // If all tenants have propertyId, show "Лангуу", otherwise show "Үйл ажиллагааны төрөл"
   const isRenewal = tenants.length > 0 && tenants.every((tenant) => tenant.propertyId !== null && tenant.propertyId !== undefined);
+  const colSpan = showActions ? 7 : 6;
   
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -38,13 +39,15 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Утасны дугаар</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Тайлбар</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Төлөв</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Үйлдэл</th>
+              {showActions && (
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Үйлдэл</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center">
+                <td colSpan={colSpan} className="px-6 py-12 text-center">
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="animate-pulse">
@@ -56,7 +59,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
               </tr>
             ) : tenants.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={colSpan} className="px-6 py-12 text-center text-slate-500">
                   Түрээслэх хүсэлт олдсонгүй
                 </td>
               </tr>

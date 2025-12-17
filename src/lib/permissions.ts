@@ -53,15 +53,6 @@ export const getPermissions = (): string[] => {
     
     const permissionArray = Array.from(permissions);
     // Debug: show signed-in user summary and permissions
-    if (typeof window !== "undefined") {
-      console.log("[Permissions] Current user:", {
-        id: user?.id,
-        name: user?.name,
-        email: user?.email,
-        roles: roles.map((r) => r.title),
-      });
-      console.log("[Permissions] Permission titles:", permissionArray);
-    }
     
     return permissionArray;
   } catch (error) {

@@ -36,12 +36,16 @@ export const ContractFormRequestInfo: React.FC<ContractFormRequestInfoProps> = (
               requestData.status === "approved" ? "bg-success text-white" :
               requestData.status === "rejected" ? "bg-danger text-white" :
               requestData.status === "pending" ? "bg-warning text-white" :
+              requestData.status === "in_contract_process" ? "bg-blue-100 text-blue-700" :
+              requestData.status === "property_selected" ? "bg-teal-100 text-teal-700" :
               "bg-slate-200 text-slate-800"
             }`}>
               {requestData.status === "checking" ? "Шалгагдаж байна" :
                requestData.status === "approved" ? "Зөвшөөрсөн" :
                requestData.status === "rejected" ? "Татгалзсан" :
                requestData.status === "pending" ? "Хүлээгдэж буй" :
+               requestData.status === "in_contract_process" ? "Гэрээ байгуулах" :
+               requestData.status === "property_selected" ? "Талбай сонгогдсон" :
                requestData.status}
             </span>
           </p>

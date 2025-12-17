@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { getApprovedLeaseRequestById } from "@/lib/api";
+import { getApprovedLeaseRequestById, getLeaseRequestById } from "@/lib/api";
 import {
   extractAttachments,
   buildAttachmentMap,
@@ -10,9 +10,10 @@ import {
 
 interface UseContractFormDataProps {
   tenantId: number;
+  useApprovedEndpoint?: boolean; // when false, use regular lease-request endpoint
 }
 
-export const useContractFormData = ({ tenantId }: UseContractFormDataProps) => {
+export const useContractFormData = ({ tenantId, useApprovedEndpoint = true }: UseContractFormDataProps) => {
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState(`Tenant ${tenantId}`);
   const [requestData, setRequestData] = useState<any>(null);
@@ -29,6 +30,10 @@ export const useContractFormData = ({ tenantId }: UseContractFormDataProps) => {
       id_doc: "Иргэний үнэмлэх хуулбар",
       organization_certificate: "Улсын бүртгэлийн гэрчилгээ",
       business_regulations: "Компанийн дүрэм",
+      org_rules: "Байгууллагын дүрэм",
+      ceo_id_doc: "Захирлын иргэний үнэмлэх",
+      org_request: "Байгууллагын хүсэлт",
+      org_certificate: "Байгууллагын бүртгэлийн гэрчилгээ",
       // шаардлагатай бол нэмээд явна
     }),
     []
@@ -40,7 +45,9 @@ export const useContractFormData = ({ tenantId }: UseContractFormDataProps) => {
     const fetchLeaseRequest = async () => {
       setLoading(true);
       try {
-        const response = await getApprovedLeaseRequestById(tenantId);
+        const response = useApprovedEndpoint
+          ? await getApprovedLeaseRequestById(tenantId)
+          : await getLeaseRequestById(tenantId);
 
         if (response.data) {
           const responseData = response.data;
@@ -107,11 +114,13 @@ export const useContractFormData = ({ tenantId }: UseContractFormDataProps) => {
     };
 
     if (tenantId) fetchLeaseRequest();
-  }, [tenantId, attachmentLabels]);
+  }, [tenantId, attachmentLabels, useApprovedEndpoint]);
 
   const refreshData = async () => {
     try {
-      const response = await getApprovedLeaseRequestById(tenantId);
+      const response = useApprovedEndpoint
+        ? await getApprovedLeaseRequestById(tenantId)
+        : await getLeaseRequestById(tenantId);
       if (response.data) {
         const responseData = response.data;
         const data = responseData.data || responseData;

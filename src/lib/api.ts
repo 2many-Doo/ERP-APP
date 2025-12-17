@@ -635,6 +635,43 @@ export const getLeaseRequests = async (
 };
 
 /**
+ * Upload temp media file
+ */
+export const uploadTempMedia = async (
+  file: File,
+  meta?: { name?: string; product_types?: number[] }
+): Promise<ApiResponse<any>> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (meta?.name) {
+    formData.append("name", meta.name);
+  }
+  if (meta?.product_types && Array.isArray(meta.product_types)) {
+    meta.product_types.forEach((pt) => formData.append("product_types[]", String(pt)));
+  }
+
+  try {
+    const url = buildUrl("/tmp/media");
+    // Use default headers but remove Content-Type so browser sets multipart boundary
+    const headers = getDefaultHeaders({}, true);
+    delete headers["Content-Type"];
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+      credentials: "same-origin",
+    });
+    return handleResponse<any>(response);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Upload error",
+      status: 0,
+    };
+  }
+};
+
+/**
  * Get lease request by ID API function
  */
 export const getLeaseRequestById = async (id: number): Promise<ApiResponse<any>> => {
@@ -705,7 +742,7 @@ export const updateLeaseRequestStatus = async (
   id: number,
   status: string
 ): Promise<ApiResponse<any>> => {
-  return post(`/v1/lease-requests/checking/requests/:${id}`,);
+  return post(`/v1/lease-requests/checking/requests/${id}`, { status });
 };
 
 /**

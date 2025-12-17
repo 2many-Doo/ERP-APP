@@ -203,6 +203,7 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
             onReject={handleReject}
             filterType={filterType}
             processingIds={processingIds}
+            showActions={filterType === "property_selected"}
           />
           {totalPages > 1 && (
             <Pagination
