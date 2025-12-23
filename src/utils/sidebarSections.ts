@@ -31,25 +31,6 @@ export type NavSection = {
 
 export const sidebarSections: NavSection[] = [
   {
-    title: "Удирдлага",
-    icon: Settings,
-    permission: "user_menu_show",
-    items: [
-      {
-        id: "management-users",
-        label: "Хэрэглэгчийн удирдлага",
-        componentKey: "user-management",
-        permission: "user_menu_show",
-      },
-      {
-        id: "management-permissions",
-        label: "Эрхийн удирдлага",
-        componentKey: "permission-management",
-        permission: "role_show",
-      },
-    ],
-  },
-  {
     title: "Мерчант цэс",
     icon: Store,
     permission: "merchant_menu_show",
@@ -163,6 +144,25 @@ export const sidebarSections: NavSection[] = [
         id: "other-about",
         label: "Системийн тухай",
         href: "#other-about",
+      },
+    ],
+  },
+  {
+    title: "Удирдлага",
+    icon: Settings,
+    permission: "user_menu_show",
+    items: [
+      {
+        id: "management-users",
+        label: "Хэрэглэгчийн удирдлага",
+        componentKey: "user-management",
+        permission: "user_menu_show",
+      },
+      {
+        id: "management-permissions",
+        label: "Эрхийн удирдлага",
+        componentKey: "permission-management",
+        permission: "role_show",
       },
     ],
   },
