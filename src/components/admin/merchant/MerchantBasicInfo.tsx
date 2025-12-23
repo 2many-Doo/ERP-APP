@@ -33,12 +33,11 @@ export const MerchantBasicInfo: React.FC<MerchantBasicInfoProps> = ({ merchant }
     return "bg-slate-100 text-slate-800";
   };
 
-  const getMerchantName = () => {
-    if (merchant.name) return merchant.name;
-    if (merchant.first_name && merchant.last_name && merchant.family_name) {
-      return `${merchant.family_name} ${merchant.last_name} ${merchant.first_name}`;
-    }
-    return merchant.first_name || merchant.last_name || merchant.family_name || "-";
+  const getGenderDisplay = (gender: string | undefined): string => {
+    if (!gender) return "Тодорхойгүй";
+    if (gender === "male") return "Эрэгтэй";
+    if (gender === "female") return "Эмэгтэй";
+    return gender;
   };
 
   return (
@@ -48,22 +47,28 @@ export const MerchantBasicInfo: React.FC<MerchantBasicInfoProps> = ({ merchant }
         Үндсэн мэдээлэл
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="space-y-1">
-          <p className="text-sm text-slate-500">Нэр</p>
-          <p className="text-sm font-medium text-slate-900">{getMerchantName()}</p>
-        </div>
+        {merchant.family_name && (
+          <div className="space-y-1">
+            <p className="text-sm text-slate-500">Ургийн овог</p>
+            <p className="text-sm font-medium text-slate-900">{merchant.family_name}</p>
+          </div>
+        )}
+        {merchant.last_name && (
+          <div className="space-y-1">
+            <p className="text-sm text-slate-500">Эцэг/эхийн нэр</p>
+            <p className="text-sm font-medium text-slate-900">{merchant.last_name}</p>
+          </div>
+        )}
         {merchant.first_name && (
           <div className="space-y-1">
-            <p className="text-sm text-slate-500">Нэр (Монгол)</p>
-            <p className="text-sm font-medium text-slate-900">
-              {merchant.family_name} {merchant.last_name} {merchant.first_name}
-            </p>
+            <p className="text-sm text-slate-500">Өөрийн нэр</p>
+            <p className="text-sm font-medium text-slate-900">{merchant.first_name}</p>
           </div>
         )}
         {(merchant as any).gender && (
           <div className="space-y-1">
             <p className="text-sm text-slate-500">Хүйс</p>
-            <p className="text-sm font-medium text-slate-900">{(merchant as any).gender}</p>
+            <p className="text-sm font-medium text-slate-900">{getGenderDisplay((merchant as any).gender)}</p>
           </div>
         )}
         {(merchant as any).created_at && (
@@ -86,18 +91,6 @@ export const MerchantBasicInfo: React.FC<MerchantBasicInfoProps> = ({ merchant }
             <p className="text-sm font-medium text-slate-900">{merchant.code}</p>
           </div>
         )}
-        <div className="space-y-1">
-          <p className="text-sm text-slate-500">Төрөл</p>
-          <p className="text-sm font-medium text-slate-900">
-            {getTypeDisplay((merchant as any).type)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-sm text-slate-500">Төлөв</p>
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(merchant.status)}`}>
-            {getStatusDisplay(merchant.status)}
-          </span>
-        </div>
         {(merchant as any).owner_id && (
           <div className="space-y-1">
             <p className="text-sm text-slate-500">Эзэмшлийн ID</p>

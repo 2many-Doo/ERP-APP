@@ -13,6 +13,7 @@ export interface Merchant {
   phone?: string;
   contact?: string;
   address?: string;
+  address_description?: string;
   status?: string;
   registeredDate?: string;
   totalTransactions?: number;

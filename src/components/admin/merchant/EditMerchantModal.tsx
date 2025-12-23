@@ -31,6 +31,7 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({
     phone: merchant.phone || merchant.contact || "",
     address: merchant.address || "",
     address_description: "",
+    status: merchant.status || "active",
     // Organization fields
     company_rd: "",
     company_name: merchant.name || "",
@@ -53,7 +54,8 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({
       email: merchant.email || "",
       phone: merchant.phone || merchant.contact || "",
       address: merchant.address || "",
-      address_description: "",
+      address_description: merchant.address_description || "",
+      status: merchant.status || "active",
       company_rd: "",
       company_name: merchant.name || "",
       company_email: "",
@@ -80,6 +82,7 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({
     try {
       const merchantData: any = {
         type: formData.type,
+        status: formData.status || undefined,
       };
 
       if (formData.type === "individual") {
@@ -282,6 +285,24 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({
                   placeholder="99112233"
                   className="w-full"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Төлөв
+                </label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Төлөв сонгох" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[200] bg-white">
+                    <SelectItem value="active">Идэвхтэй</SelectItem>
+                    <SelectItem value="inactive">Идэвхгүй</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

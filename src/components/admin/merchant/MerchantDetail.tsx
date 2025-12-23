@@ -14,6 +14,7 @@ import { MerchantContactInfo } from "./MerchantContactInfo";
 import { MerchantLeaseRequests } from "./MerchantLeaseRequests";
 import { MerchantLeaseAgreements } from "./MerchantLeaseAgreements";
 import { MerchantVehicleAccessRequests } from "./MerchantVehicleAccessRequests";
+import { EditMerchantModal } from "./EditMerchantModal";
 
 interface MerchantDetailProps {
   merchantId: number;
@@ -33,6 +34,7 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
   const [merchant, setMerchant] = useState<Merchant | null>(propMerchant || null);
   const [loading, setLoading] = useState(!propMerchant);
   const [error, setError] = useState<string | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const fetchMerchantData = async () => {
     setLoading(true);
@@ -117,7 +119,10 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
       <MerchantHeader
         merchant={merchant}
         onBack={onBack}
-        onEdit={onEdit}
+        onEdit={() => {
+          setIsEditOpen(true);
+          onEdit?.(merchant);
+        }}
         onDelete={onDelete}
       />
 
@@ -134,6 +139,17 @@ const MerchantDetail: React.FC<MerchantDetailProps> = ({
       <MerchantVehicleAccessRequests vehicleAccessRequests={(merchant as any).vehicle_access_requests || []} />
 
       <MerchantProperties properties={(merchant as any).properties || []} />
+
+      {isEditOpen && merchant && (
+        <EditMerchantModal
+          merchant={merchant}
+          onClose={() => setIsEditOpen(false)}
+          onSuccess={async () => {
+            setIsEditOpen(false);
+            await fetchMerchantData();
+          }}
+        />
+      )}
     </div>
   );
 };

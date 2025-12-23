@@ -21,13 +21,12 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
   allowedStatuses,
   showAllTab = true,
 }) => {
-  // Status definitions with names
+  // Status definitions with names (merge checking + under_review)
   const statusConfig: Record<string, { name: string; count: number }> = {
-    pending: { name: "Хүлээгдэж буй", count: 0 },
-    property_selected: { name: "Талбай сонгогдсон", count: 0 },
+    property_selected: { name: "Түрээс сунгах", count: 0 },
+    pending: { name: "Шинээр түрээслэх", count: 0 },
     approved: { name: "Зөвшөөрсөн", count: 0 },
-    checking: { name: "Шалгагдаж байна", count: 0 },
-    under_review: { name: "Дахин шалгагдаж байна", count: 0 },
+    checking: { name: "Шалгагдаж байна", count: 0 }, // includes under_review
     incomplete: { name: "Дутуу", count: 0 },
     in_contract_process: { name: "Гэрээ байгуулах", count: 0 },
     rejected: { name: "Татгалзсан", count: 0 },
@@ -46,8 +45,13 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
 
     leaseRequests.forEach((req: any) => {
       const status = req.status;
-      if (status && statusConfig[status]) {
-        counts[status] = (counts[status] || 0) + 1;
+      if (!status) return;
+
+      // Merge under_review into checking
+      const normalizedStatus = status === "under_review" ? "checking" : status;
+
+      if (statusConfig[normalizedStatus]) {
+        counts[normalizedStatus] = (counts[normalizedStatus] || 0) + 1;
       }
     });
 
@@ -59,7 +63,7 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
     });
 
     return counts;
-  }, [leaseRequests]);
+  }, [leaseRequests, statusConfig]);
 
   // Get statuses to display
   let statuses = Object.keys(statusConfig);
