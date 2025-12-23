@@ -49,16 +49,11 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
   const { leaseRequests, loading, error, statusOptions, currentPage, totalPages, fetchLeaseRequests, handlePageChange } = useLeaseRequests();
   const tenants = useTenantData(leaseRequests);
 
-  // Exclude "submitted" status only for tenants with propertyId (renewal), exclude "approved", "rejected", and "cancelled" statuses
+  // Exclude "submitted" status only for tenants with propertyId (renewal), exclude rejected/cancelled statuses
   const tenantsWithoutSubmitted = useMemo(() => {
     return tenants.filter((tenant) => {
       const originalRequest = leaseRequests.find((req: any) => req.id === tenant.id);
       if (!originalRequest) return true;
-      
-      // Exclude approved status
-      if (originalRequest.status === "approved") {
-        return false;
-      }
       
       // Exclude rejected and cancelled statuses (they should only appear in "rejected" tab)
       const rejectedStatuses = ["rejected", "cancelled", "reject", "cancel", "director_rejected"];
@@ -81,14 +76,9 @@ const TenantList: React.FC<TenantListProps> = ({ onTenantClick }) => {
     }
     
     // Filter by specific status
-      return tenants.filter((tenant) => {
-        const originalRequest = leaseRequests.find((req: any) => req.id === tenant.id);
-        if (!originalRequest) return false;
-      
-      // Exclude approved status from main list (unless specifically filtering for it)
-      if (filterType !== "approved" && originalRequest.status === "approved") {
-        return false;
-      }
+    return tenants.filter((tenant) => {
+      const originalRequest = leaseRequests.find((req: any) => req.id === tenant.id);
+      if (!originalRequest) return false;
       
       // Match the selected status
       return originalRequest.status === filterType;

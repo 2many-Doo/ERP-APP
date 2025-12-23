@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import { Pagination } from "../../ui/pagination";
 import { useMerchantManagement } from "@/hooks/useMerchantManagement";
-import { Store, Search, Plus, Edit, Trash2, MoreVertical, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Store, Search, Plus, Edit, Trash2, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { CreateMerchantModal } from "./CreateMerchantModal";
 import { EditMerchantModal } from "./EditMerchantModal";
 import { deleteMerchant } from "@/lib/api";
@@ -21,7 +21,6 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     loading,
     error,
     searchQuery,
-    setSearchQuery,
     currentPage,
     totalPages,
     totalItems,
@@ -32,7 +31,13 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     orderby,
     order,
     fetchMerchants,
+    searchMerchants,
   } = useMerchantManagement();
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
@@ -66,18 +71,7 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-slate-800">Мерчант жагсаалт</h1>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-          <p className="text-red-800">Алдаа: {error}</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="space-y-6">
@@ -121,8 +115,14 @@ const MerchantList = ({ onMerchantClick }: MerchantListProps) => {
             <input
               type="text"
               placeholder="Мерчант хайх..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  searchMerchants(localSearch);
+                }
+              }}
               className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
             />
           </div>

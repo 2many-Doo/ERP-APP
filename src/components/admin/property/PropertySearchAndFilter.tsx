@@ -28,6 +28,12 @@ const PropertySearchAndFilter: React.FC<PropertySearchAndFilterProps> = ({
   onProductTypeChange,
   productTypes,
 }) => {
+  const [localQuery, setLocalQuery] = React.useState(searchQuery);
+
+  React.useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex flex-col md:flex-row gap-4">
@@ -38,8 +44,14 @@ const PropertySearchAndFilter: React.FC<PropertySearchAndFilterProps> = ({
             <Input
               type="text"
               placeholder="Талбай хайх..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onSearchChange(localQuery);
+                }
+              }}
               className="pl-10"
             />
           </div>

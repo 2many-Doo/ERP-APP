@@ -215,7 +215,7 @@ export const CreateMerchantModal: React.FC<CreateMerchantModalProps> = ({
                 </div>
                 <div>
                   <label htmlFor="rd" className="block text-sm font-medium text-slate-700 mb-2">
-                    Бүртгэлийн дугаар
+                   Регистрийн дугаар
                   </label>
                   <Input
                     id="rd"

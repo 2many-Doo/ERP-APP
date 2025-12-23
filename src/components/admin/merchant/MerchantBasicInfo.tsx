@@ -76,7 +76,7 @@ export const MerchantBasicInfo: React.FC<MerchantBasicInfoProps> = ({ merchant }
         )}
         {(merchant as any).rd && (
           <div className="space-y-1">
-            <p className="text-sm text-slate-500">Бүртгэлийн дугаар</p>
+            <p className="text-sm text-slate-500">Регистрийн дугаар</p>
             <p className="text-sm font-medium text-slate-900">{(merchant as any).rd}</p>
           </div>
         )}

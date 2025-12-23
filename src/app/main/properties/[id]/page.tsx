@@ -15,6 +15,34 @@ export default function PropertyDetailPage() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchProperty = async () => {
+      if (!propertyId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const propertyResponse = await getProperty(propertyId);
+        if (propertyResponse.error) {
+          setError(propertyResponse.error);
+        }
+        if (propertyResponse.data) {
+          const responseData = propertyResponse.data as any;
+          const property = responseData.data || responseData;
+          if (property) {
+            setSelectedProperty(property);
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Мэдээлэл татахад алдаа гарлаа");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [propertyId]);
 
   const handleBack = () => {
     router.push("/main");
@@ -125,7 +153,7 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-10xl mx-auto px-4 py-6">
         {loading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-10 bg-slate-200 rounded-lg" />
@@ -136,6 +164,8 @@ export default function PropertyDetailPage() {
               ))}
             </div>
           </div>
+        ) : error ? (
+          <div className="text-center text-red-600 text-sm">{error}</div>
         ) : (
           <PropertyDetail
             propertyId={propertyId}

@@ -243,7 +243,7 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({
                 </div>
                 <div>
                   <label htmlFor="edit-rd" className="block text-sm font-medium text-slate-700 mb-2">
-                    Бүртгэлийн дугаар
+                    Регистрийн дугаар
                   </label>
                   <Input
                     id="edit-rd"

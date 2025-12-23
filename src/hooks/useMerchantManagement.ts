@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getMerchants } from "@/lib/api";
 
@@ -34,21 +34,11 @@ export const useMerchantManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [orderby, setOrderby] = useState<string>("name");
   const [order, setOrder] = useState<string>("asc");
-
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   const fetchMerchants = async (
     page: number,
@@ -59,7 +49,7 @@ export const useMerchantManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      const filterSearch = search !== undefined ? search : debouncedSearchQuery;
+      const filterSearch = search !== undefined ? search : searchQuery;
       const filterOrderby = orderBy !== undefined && orderBy !== null ? orderBy : orderby;
       const filterOrder = orderDirection !== undefined && orderDirection !== null ? orderDirection : order;
       
@@ -71,7 +61,14 @@ export const useMerchantManagement = () => {
         filterSearch
       );
 
-      if (merchantsResponse.error) {
+      if (merchantsResponse.status === 422) {
+        const message = merchantsResponse.message || merchantsResponse.error || "Хайлт буруу эсвэл дутуу байна (422).";
+        setError(message);
+        setMerchants([]);
+        setTotalItems(0);
+        setTotalPages(1);
+        toast.error(message);
+      } else if (merchantsResponse.error) {
         setError(merchantsResponse.error);
         toast.error(`Мерчант татахад алдаа гарлаа: ${merchantsResponse.error}`);
       } else if (merchantsResponse.data) {
@@ -121,18 +118,9 @@ export const useMerchantManagement = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refetch when search query changes
-  useEffect(() => {
-    if (debouncedSearchQuery !== undefined) {
-      setCurrentPage(1);
-      fetchMerchants(1, debouncedSearchQuery, orderby, order);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchQuery]);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchMerchants(page, debouncedSearchQuery, orderby, order);
+    fetchMerchants(page, searchQuery, orderby, order);
   };
 
   const handleSort = (newOrderby: string) => {
@@ -140,7 +128,13 @@ export const useMerchantManagement = () => {
     setOrderby(newOrderby);
     setOrder(newOrder);
     setCurrentPage(1);
-    fetchMerchants(1, debouncedSearchQuery, newOrderby, newOrder);
+    fetchMerchants(1, searchQuery, newOrderby, newOrder);
+  };
+
+  const searchMerchants = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+    fetchMerchants(1, query, orderby, order);
   };
 
   // Calculate statistics
@@ -178,6 +172,7 @@ export const useMerchantManagement = () => {
     fetchMerchants,
     handlePageChange,
     handleSort,
+    searchMerchants,
   };
 };
 
