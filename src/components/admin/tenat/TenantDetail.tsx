@@ -159,6 +159,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
       case "Түр хаасан":
       case "pending":
       case "property_selected":
+      case "under_review":
       case "checking":
         return "bg-yellow-100 text-yellow-800";
       case "Дууссан":
@@ -168,6 +169,21 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
       default:
         return "bg-slate-100 text-slate-800";
     }
+  };
+
+  const getStatusDisplay = (status: string) => {
+    const map: Record<string, string> = {
+      approved: "Зөвшөөрсөн",
+      pending: "Шинээр түрээслэх",
+      property_selected: "Түрээс сунгах",
+      checking: "Шалгагдаж байна",
+      under_review: "Дахин шалгагдаж байна",
+      in_contract_process: "Гэрээ байгуулах",
+      incomplete: "Дутуу",
+      rejected: "Татгалзсан",
+      cancelled: "Цуцлагдсан",
+    };
+    return map[status] || status || "-";
   };
 
   return (
@@ -233,7 +249,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
                   formatted.status
                 )}`}
               >
-                {formatted.status}
+                {getStatusDisplay(formatted.status)}
               </span>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">

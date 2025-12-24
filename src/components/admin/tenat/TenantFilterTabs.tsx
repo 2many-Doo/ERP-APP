@@ -25,9 +25,9 @@ export const TenantFilterTabs: React.FC<TenantFilterTabsProps> = ({
   const statusConfig: Record<string, { name: string; count: number }> = {
     property_selected: { name: "Түрээс сунгах", count: 0 },
     pending: { name: "Шинээр түрээслэх", count: 0 },
-    approved: { name: "Зөвшөөрсөн", count: 0 },
-    checking: { name: "Шалгагдаж байна", count: 0 }, // includes under_review
     incomplete: { name: "Дутуу", count: 0 },
+    checking: { name: "Шалгагдаж байна", count: 0 }, // includes under_review
+    approved: { name: "Зөвшөөрсөн", count: 0 },
     in_contract_process: { name: "Гэрээ байгуулах", count: 0 },
     rejected: { name: "Татгалзсан", count: 0 },
     cancelled: { name: "Цуцлагдсан", count: 0 },

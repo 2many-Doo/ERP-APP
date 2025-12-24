@@ -15,6 +15,7 @@ import ContractProcess from "@/components/admin/tenat/contract-process";
 import InsuranceManagement from "@/components/admin/tenat/insurance-management";
 import PropertyManagement from "@/components/admin/property/PropertyManagement";
 import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHistory";
+import PropertyRateUpdate from "@/components/admin/property/PropertyRateUpdate";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -192,7 +193,9 @@ const MainPageClient = () => {
       case "property-management":
         return <PropertyManagement />;
       case "property-rate-history":
-        return <PropertyRateHistory />;
+        return <PropertyRateHistory hideActions />;
+      case "property-rate-update":
+        return <PropertyRateUpdate />;
       default:
         return <UserManagement />;
     }

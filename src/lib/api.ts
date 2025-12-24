@@ -1047,6 +1047,33 @@ export const getAnnualRates = async (
 };
 
 /**
+ * Get need-action annual rates (pending) API function
+ */
+export const getNeedActionAnnualRates = async (
+  year?: number | null,
+  page?: number | null,
+  perPage?: number | null
+): Promise<ApiResponse<{ data: any[] }>> => {
+  const params: Record<string, string | number> = {};
+
+  if (year !== null && year !== undefined && year !== 0) {
+    params.year = year;
+  }
+
+  if (page !== null && page !== undefined && page > 0) {
+    params.page = page;
+  }
+
+  if (perPage !== null && perPage !== undefined && perPage > 0) {
+    params.per_page = perPage;
+  }
+
+  return get("/v1/need-action-annual-rates", {
+    params,
+  });
+};
+
+/**
  * Create annual rate API function (creates a rate request)
  */
 export const createAnnualRate = async (

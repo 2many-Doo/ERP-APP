@@ -86,6 +86,12 @@ export const sidebarSections: NavSection[] = [
         permission: "property_menu_show",
       },
       {
+        id: "rate-update",
+        label: "Үнэлгээ засах",
+        componentKey: "property-rate-update",
+        permission: "property_menu_show",
+      },
+      {
         id: "rate-history",
         label: "Үнэлгээний түүх",
         componentKey: "property-rate-history",

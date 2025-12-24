@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Settings, Sun, LogOut } from "lucide-react";
+import { Bell, Sun, Moon, LogOut } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -17,9 +17,17 @@ type AuthUser = {
 const Header: React.FC = () => {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Init theme from localStorage or system preference
+    const storedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
+    const initial = storedTheme || (prefersDark ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
 
     const stored = localStorage.getItem("user");
     if (!stored) return;
@@ -56,9 +64,16 @@ const Header: React.FC = () => {
     router.push("/sign-in");
   };
 
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
+  };
+
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-slate-200 bg-white px-8">
-      <div className="flex items-center gap-3 rounded-2xl mr-auto  py-2">
+      <div className="flex items-center gap-3 rounded-2xl mr-auto py-2">
       <div className="flex justify-center">
         <Image
           src="/Sutailogo.jpg"
@@ -74,19 +89,13 @@ const Header: React.FC = () => {
             <p className="text-xs text-slate-500">{displayRole}</p>
           </div>
         </div>
-        
-      <div className="hidden w-56 items-center gap-3 mr-auto rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 transition-all duration-300 focus-within:w-[28rem] focus-within:border-blue-300 focus-within:bg-white focus-within:shadow-lg lg:flex">
-        <Search className="h-4 w-4 text-slate-400" />
-        <input
-          type="search"
-          placeholder="Хайлт хийх..."
-          className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 transition-all duration-300"
-        />
-      </div>
 
       <div className="flex items-center gap-2">
-        <HeaderIconButton icon={Sun} label="Гэрэл" />
-        <HeaderIconButton icon={Settings} label="Тохиргоо" />
+        <HeaderIconButton
+          icon={theme === "dark" ? Sun : Moon}
+          label={theme === "dark" ? "Гэрэл горим" : "Харанхуй горим"}
+          onClick={toggleTheme}
+        />
         <HeaderIconButton icon={Bell} label="Мэдэгдэл" badge={3} />
         <Button
           type="button"
@@ -106,13 +115,15 @@ const HeaderIconButton: React.FC<{
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   badge?: number;
-}> = ({ icon: Icon, label, badge }) => (
+  onClick?: () => void;
+}> = ({ icon: Icon, label, badge, onClick }) => (
   <Button
     type="button"
     variant="outline"
     size="icon"
     className="relative h-11 w-11 rounded-2xl border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
     aria-label={label}
+    onClick={onClick}
   >
     <Icon className="h-5 w-5" />
     {badge && badge > 0 ? (
