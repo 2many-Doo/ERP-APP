@@ -17,7 +17,7 @@ interface ApprovedTenantListProps {
 }
 
 const ApprovedTenantList: React.FC<ApprovedTenantListProps> = ({ onTenantClick }) => {
-  const [filterType, setFilterType] = React.useState<FilterType>("approved");
+  const [filterType, setFilterType] = React.useState<FilterType>("incomplete");
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
   const { leaseRequests, loading, error, statusOptions, currentPage, totalPages, fetchLeaseRequests, handlePageChange } = useLeaseRequests();
   const tenants = useTenantData(leaseRequests);

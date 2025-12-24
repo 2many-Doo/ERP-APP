@@ -3,13 +3,19 @@
  * Supports GET, POST, PATCH, PUT, DELETE methods
  */
 
-// Helper function to normalize URL (remove duplicate protocols)
+// Helper function to normalize URL while respecting provided protocol
 const normalizeBaseUrl = (url: string): string => {
   if (!url) return "";
-  // Remove any existing protocol
-  url = url.replace(/^https?:\/\//, "");
-  // Ensure it starts with https://
-  return `https://${url}`;
+
+  // Trim and drop trailing slashes for consistency
+  const cleaned = url.trim().replace(/\/+$/, "");
+
+  // If caller specifies http/https, keep it; otherwise default to https
+  if (/^https?:\/\//i.test(cleaned)) {
+    return cleaned;
+  }
+
+  return `https://${cleaned}`;
 };
 
 const rawBaseUrl =
