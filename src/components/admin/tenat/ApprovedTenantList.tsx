@@ -43,13 +43,13 @@ const ApprovedTenantList: React.FC<ApprovedTenantListProps> = ({ onTenantClick }
       return approvedTenants;
     }
     
-    // Filter by specific status
+    // Filter by specific status (normalize under_review -> checking)
     return approvedTenants.filter((tenant) => {
       const originalRequest = leaseRequests.find((req: any) => req.id === tenant.id);
       if (!originalRequest) return false;
       
-      // Match the selected status
-      return originalRequest.status === filterType;
+      const normalizedStatus = originalRequest.status === "under_review" ? "checking" : originalRequest.status;
+      return normalizedStatus === filterType;
     });
   }, [approvedTenants, filterType, leaseRequests]);
 
@@ -141,7 +141,8 @@ const ApprovedTenantList: React.FC<ApprovedTenantListProps> = ({ onTenantClick }
             onReject={handleReject}
             filterType={filterType}
             processingIds={processingIds}
-            showActions={filterType !== "approved"}
+            // Hide actions for approved and incomplete tabs
+            showActions={filterType !== "approved" && filterType !== "incomplete"}
           />
           {totalPages > 1 && (
             <Pagination

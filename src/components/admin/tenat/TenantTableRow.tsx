@@ -99,6 +99,7 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
   
   const statusLabel = getStatusLabel();
   const hasPropertyId = tenant.propertyId !== null && tenant.propertyId !== undefined;
+  const canShowActions = showActions && tenant.status !== "incomplete";
   
   return (
     <tr
@@ -141,26 +142,30 @@ export const TenantTableRow: React.FC<TenantTableRowProps> = ({ tenant, statusOp
       </td>
       {showActions && (
         <td className="px-6 py-4">
-          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={isProcessing}
-              className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 hover:border-green-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onApprove?.(tenant.id)}
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={isProcessing}
-              className="h-8 w-8 p-0 text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onReject?.(tenant.id)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          {canShowActions ? (
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isProcessing}
+                className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 hover:border-green-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => onApprove?.(tenant.id)}
+              >
+                <Check className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isProcessing}
+                className="h-8 w-8 p-0 text-red-600 border-red-600 hover:bg-red-50 hover:border-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => onReject?.(tenant.id)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <span className="text-xs text-slate-400">Үйлдэлгүй</span>
+          )}
         </td>
       )}
     </tr>
