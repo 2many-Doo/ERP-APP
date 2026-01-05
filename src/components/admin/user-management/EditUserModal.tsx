@@ -22,9 +22,8 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   const [formData, setFormData] = useState({
     name: user.name || "",
     email: user.email || "",
-    password: "",
     phone: user.phone || "",
-    role_ids: user.roles?.map((role) => role.id) || [],
+    roles: user.roles?.map((role) => role.id) || [],
   });
   const [updating, setUpdating] = useState(false);
 
@@ -33,9 +32,8 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     setFormData({
       name: user.name || "",
       email: user.email || "",
-      password: "",
       phone: user.phone || "",
-      role_ids: user.roles?.map((role) => role.id) || [],
+      roles: user.roles?.map((role) => role.id) || [],
     });
   }, [user]);
 
@@ -48,7 +46,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
       toast.error("Имэйл оруулна уу");
       return;
     }
-    if (formData.role_ids.length === 0) {
+    if (formData.roles.length === 0) {
       toast.error("Хамгийн багадаа нэг эрх сонгоно уу");
       return;
     }
@@ -58,19 +56,13 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
       const userData: {
         name: string;
         email: string;
-        password?: string;
         phone?: string;
         roles: number[];
       } = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        roles: formData.role_ids,
+        roles: formData.roles,
       };
-      
-      // Only include password if it's provided
-      if (formData.password.trim() && formData.password.length >= 6) {
-        userData.password = formData.password;
-      }
       
       if (formData.phone.trim()) {
         userData.phone = formData.phone.trim();
@@ -119,7 +111,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={updating || !formData.name.trim() || !formData.email.trim() || formData.role_ids.length === 0}
+            disabled={updating || !formData.name.trim() || !formData.email.trim() || formData.roles.length === 0}
           >
             {updating ? "Хадгалж байна..." : "Хадгалах"}
           </Button>
