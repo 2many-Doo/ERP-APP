@@ -492,6 +492,29 @@ export const login = async (
 };
 
 /**
+ * Forgot password update API function
+ */
+export const updateForgotPassword = async (payload: {
+  email: string;
+  password: string;
+  password_confirmation: string;
+  token?: string;
+}): Promise<ApiResponse<any>> => {
+  const body: Record<string, string> = {
+    email: payload.email,
+    password: payload.password,
+    password_confirmation: payload.password_confirmation,
+  };
+
+  // Include reset token when backend requires it
+  if (payload.token) {
+    body.token = payload.token;
+  }
+
+  return post("/password/update", body, { apiKeyInHeader: true });
+};
+
+/**
  * Get roles API function
  */
 export const getRoles = async (): Promise<ApiResponse<{ data: Array<{ id: number; title: string; permissions: Array<{ id: number; title: string; pivot?: { role_id: number; permission_id: number } }> }> }>> => {
@@ -527,7 +550,6 @@ export const getUserById = async (
 export const createUser = async (userData: {
   name: string;
   email: string;
-  password: string;
   phone?: string;
   roles: number[];
 }): Promise<ApiResponse<any>> => {

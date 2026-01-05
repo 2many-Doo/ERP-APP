@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
 
 import { NavItem, sidebarSections } from "../../utils/sidebarSections";
 import { Button } from "../ui/button";
@@ -193,6 +194,7 @@ function SidebarLink({
   activeItemId?: string | null;
   onSelect?: SidebarSelectionHandler;
 }) {
+  const pathname = usePathname();
   const baseClasses =
     "group flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
   const isActive = item.id === activeItemId || item.active;
@@ -217,16 +219,12 @@ function SidebarLink({
   };
 
   if (item.componentKey) {
+    // Always navigate to main root when switching component tabs
+    const href = `/main?view=${item.componentKey}`;
     return (
-      <Button
-        type="button"
-        onClick={handleSelect}
-        variant="ghost"
-        className={`${baseClasses} ${activeClasses}`}
-        aria-pressed={isActive}
-      >
+      <Link href={href} className={`${baseClasses} ${activeClasses}`}>
         <span>{item.label}</span>
-      </Button>
+      </Link>
     );
   }
 

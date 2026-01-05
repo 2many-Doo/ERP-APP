@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useMainLayout } from "@/contexts/MainLayoutContext";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import UserManagement from "@/components/admin/user-management/UserManagement";
@@ -27,6 +27,37 @@ const MainPageClient = () => {
   const merchantIdParam = searchParams.get("merchantId");
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
   const [selectedMerchantId, setSelectedMerchantId] = useState<number | null>(null);
+  const previousActiveComponent = useRef<string | null>(null);
+
+  // Always reset detail selections when switching menu (including tenant subsections)
+  useEffect(() => {
+    if (previousActiveComponent.current === null) {
+      previousActiveComponent.current = activeComponent;
+      return;
+    }
+
+    if (previousActiveComponent.current !== activeComponent) {
+      setSelectedTenantId(null);
+      setSelectedMerchantId(null);
+
+      const params = new URLSearchParams(searchParams.toString());
+      let changed = false;
+      if (params.has("tenantId")) {
+        params.delete("tenantId");
+        changed = true;
+      }
+      if (params.has("merchantId")) {
+        params.delete("merchantId");
+        changed = true;
+      }
+      if (changed) {
+        const next = params.toString();
+        router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      }
+    }
+
+    previousActiveComponent.current = activeComponent;
+  }, [activeComponent, pathname, router, searchParams]);
 
   // When switching main menu, reset detail selections and strip query params so list is default
   useEffect(() => {

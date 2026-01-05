@@ -19,9 +19,8 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "",
     phone: "",
-    role_ids: [] as number[],
+    roles: [] as number[],
   });
   const [creating, setCreating] = useState(false);
 
@@ -34,11 +33,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       toast.error("Имэйл оруулна уу");
       return;
     }
-    if (!formData.password.trim() || formData.password.length < 6) {
-      toast.error("Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой");
-      return;
-    }
-    if (formData.role_ids.length === 0) {
+    if (formData.roles.length === 0) {
       toast.error("Хамгийн багадаа нэг эрх сонгоно уу");
       return;
     }
@@ -47,14 +42,12 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       const userData: {
         name: string;
         email: string;
-        password: string;
         phone?: string;
         roles: number[];
       } = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        password: formData.password,
-        roles: formData.role_ids,
+        roles: formData.roles,
       };
       
       if (formData.phone.trim()) {
@@ -104,7 +97,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={creating || !formData.name.trim() || !formData.email.trim() || !formData.password.trim() || formData.role_ids.length === 0}
+            disabled={creating || !formData.name.trim() || !formData.email.trim() || formData.roles.length === 0}
           >
             {creating ? "Хадгалж байна..." : "Хадгалах"}
           </Button>

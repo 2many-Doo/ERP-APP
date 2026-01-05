@@ -140,7 +140,7 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
             <Dialog open={openInfo} onOpenChange={setOpenInfo}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
-                  <Info className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   Хүсэлтийн мэдээлэл
                 </Button>
               </DialogTrigger>

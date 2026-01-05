@@ -132,7 +132,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
       tenant.propertyNumber ||
       "-";
 
-    const description = tenant.notes || tenant.description || tenant.comment || "-";
+    const description = tenant.notes || tenant.description || tenant.comment || "-" || tenant.request_description;
     const status = tenant.status || "-";
     const createdAt = tenant.created_at || tenant.request_date || null;
 

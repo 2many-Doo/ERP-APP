@@ -141,7 +141,7 @@ const ApprovedTenantList: React.FC<ApprovedTenantListProps> = ({ onTenantClick }
             filterType={filterType}
             processingIds={processingIds}
             // Hide actions for approved and incomplete tabs
-            showActions={filterType !== "approved" && filterType !== "incomplete"}
+            showActions={filterType !== "approved" && filterType !== "incomplete" && filterType !== "checking"}
           />
           {totalPages > 1 && (
             <Pagination

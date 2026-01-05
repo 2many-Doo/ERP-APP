@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Mail, Lock, Shield, Phone } from "lucide-react";
+import { User, Mail, Shield, Phone } from "lucide-react";
 import { getRoles } from "@/lib/api";
 
 interface Role {
@@ -13,16 +13,14 @@ interface CreateUserFormProps {
   formData: {
     name: string;
     email: string;
-    password: string;
     phone: string;
-    role_ids: number[];
+    roles: number[];
   };
   onFormDataChange: (data: {
     name: string;
     email: string;
-    password: string;
     phone: string;
-    role_ids: number[];
+    roles: number[];
   }) => void;
   isEditMode?: boolean; // If true, password is optional
 }
@@ -86,24 +84,6 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
         </div>
       </div>
       <div>
-        <label htmlFor="user-password" className="block text-sm font-medium text-slate-700 mb-2">
-          Нууц үг {!isEditMode && <span className="text-red-500">*</span>}
-          {isEditMode && <span className="text-xs text-slate-500">(Өөрчлөхгүй бол хоосон үлдээнэ)</span>}
-        </label>
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            id="user-password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => onFormDataChange({ ...formData, password: e.target.value })}
-            placeholder={isEditMode ? "Шинэ нууц үг (сонголттой)" : "Хамгийн багадаа 6 тэмдэгт"}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-        {!isEditMode && <p className="mt-1 text-xs text-slate-500">Хамгийн багадаа 6 тэмдэгт</p>}
-      </div>
-      <div>
         <label htmlFor="user-phone" className="block text-sm font-medium text-slate-700 mb-2">
           Утасны дугаар
         </label>
@@ -139,17 +119,17 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
                 >
                   <input
                     type="checkbox"
-                    checked={formData.role_ids.includes(role.id)}
+                    checked={formData.roles.includes(role.id)}
                     onChange={(e) => {
                       if (e.target.checked) {
                         onFormDataChange({
                           ...formData,
-                          role_ids: [...formData.role_ids, role.id],
+                          roles: [...formData.roles, role.id],
                         });
                       } else {
                         onFormDataChange({
                           ...formData,
-                          role_ids: formData.role_ids.filter((id) => id !== role.id),
+                          roles: formData.roles.filter((id) => id !== role.id),
                         });
                       }
                     }}
@@ -164,9 +144,9 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
             )}
           </div>
         )}
-        {formData.role_ids.length > 0 && (
+        {formData.roles.length > 0 && (
           <p className="mt-2 text-xs text-slate-500">
-            {formData.role_ids.length} эрх сонгогдсон
+            {formData.roles.length} эрх сонгогдсон
           </p>
         )}
       </div>

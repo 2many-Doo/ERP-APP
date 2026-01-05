@@ -53,6 +53,8 @@ export const MerchantLeaseRequests: React.FC<MerchantLeaseRequestsProps> = ({ le
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">ID</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Талбай ID</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Талбай дугаар</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Төлөв</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-700 uppercase">Огноо</th>
               </tr>
@@ -62,6 +64,12 @@ export const MerchantLeaseRequests: React.FC<MerchantLeaseRequestsProps> = ({ le
                 <tr key={request.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-4">
                     <span className="text-sm font-medium text-slate-900">#{request.id}</span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-slate-600">{request.property_id || "-"}</span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-slate-600">{request.property_number || "-"}</span>
                   </td>
                   <td className="px-4 py-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

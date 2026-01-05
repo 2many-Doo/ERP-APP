@@ -49,13 +49,14 @@ export function MainLayoutProvider({
   const handleSidebarSelect = (item: NavItemType) => {
     if (item.href) {
       router.push(item.href);
-    } else if (item.componentKey) {
-      // Update state and URL query so browser back works as tabs history
+      return;
+    }
+
+    if (item.componentKey) {
       setActiveComponent(item.componentKey);
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams();
       params.set("view", item.componentKey);
-      const next = params.toString();
-      router.push(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      router.push(`/main?${params.toString()}`, { scroll: false });
     }
   };
 
