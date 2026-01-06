@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import { login, getAuthUser, updateForgotPassword } from "@/lib/api";
+import { login, getAuthUser, requestPasswordReset } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { toast } from "sonner";
 
 const SignInPage = () => {
   const router = useRouter();
@@ -19,9 +20,6 @@ const SignInPage = () => {
   });
   const [resetForm, setResetForm] = React.useState({
     email: "",
-    password: "",
-    password_confirmation: "",
-    token: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,51 +111,53 @@ const SignInPage = () => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-
-    if (resetForm.password !== resetForm.password_confirmation) {
-      setError("Нууц үг хоорондоо таарахгүй байна.");
+    const email = resetForm.email.trim();
+    if (!email) {
+      const message = "Имэйлээ оруулна уу.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await updateForgotPassword(resetForm);
+      const response = await requestPasswordReset(email);
 
       if (response.status === 0) {
-        setError(response.error || "Сервертэй холбогдох боломжгүй. Интернет холболтоо шалгана уу.");
+        const message = response.error || "Сервертэй холбогдох боломжгүй. Интернет холболтоо шалгана уу.";
+        setError(message);
+        toast.error(message);
         return;
       }
 
-      if (response.error) {
-        setError(response.error || response.message || "Нууц үг шинэчлэхэд алдаа гарлаа.");
-        return;
-      }
-
-      if (![200, 201].includes(response.status)) {
-        setError(`Алдаа: HTTP ${response.status}`);
+      if (response.error || ![200, 201, 202].includes(response.status)) {
+        const message = response.error || response.message || `Алдаа: HTTP ${response.status}`;
+        setError(message);
+        toast.error(message);
         return;
       }
 
       const message =
         response.message ||
-        (typeof response.data === "string" ? response.data : "Нууц үг амжилттай шинэчлэгдлээ. Шинэ нууц үгээрээ нэвтэрнэ үү.");
+        (typeof response.data === "string"
+          ? response.data
+          : "Нууц үг сэргээх холбоос таны имэйл рүү илгээгдлээ. Шуудангаа шалгана уу.");
       setSuccessMessage(message);
+      toast.success(message);
 
-      // Prefill email for login and switch back to login mode
+      // Prefill email for login
       setFormData((prev) => ({
         ...prev,
-        email: resetForm.email,
+        email,
         password: "",
       }));
       setResetForm({
         email: "",
-        password: "",
-        password_confirmation: "",
-        token: "",
       });
-      setAuthMode("login");
     } catch (err) {
-      setError("Нууц үг шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.");
+      const message = "Нууц үг сэргээх хүсэлт илгээхэд алдаа гарлаа. Дахин оролдоно уу.";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -190,18 +190,6 @@ const SignInPage = () => {
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl border border-slate-200 p-8">
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-          {successMessage && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700">{successMessage}</p>
-            </div>
-          )}
-
           {/* Form */}
           {authMode === "login" ? (
             <LoginForm

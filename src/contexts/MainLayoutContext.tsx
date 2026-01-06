@@ -24,7 +24,6 @@ export function MainLayoutProvider({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const [activeComponent, setActiveComponent] = useState<string | null>(
     "merchant-list"
   );

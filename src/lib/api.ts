@@ -492,6 +492,15 @@ export const login = async (
 };
 
 /**
+ * Request password reset email
+ */
+export const requestPasswordReset = async (
+  email: string
+): Promise<ApiResponse<any>> => {
+  return post("/password/reset", { email }, { apiKeyInHeader: true });
+};
+
+/**
  * Forgot password update API function
  */
 export const updateForgotPassword = async (payload: {
