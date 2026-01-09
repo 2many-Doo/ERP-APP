@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import { X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Property } from "./types";
 import { approveAnnualRate } from "@/lib/api";
 
@@ -26,29 +33,41 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
   onSuccess,
   onUpdateRate,
 }) => {
+  const FEE_PERCENT_OPTIONS = [0, 10, 20];
   const [formData, setFormData] = useState<RateData>({
     rate: 0,
     fee: 0,
   });
+  const [feePercent, setFeePercent] = useState<number>(20);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [approving, setApproving] = useState(false);
 
-  const computeFee = (rate: number | null | undefined) => {
-    if (!rate || rate <= 0) return 0;
-    return Number((rate * 0.2).toFixed(2));
+  const computeFee = (
+    rate: number | null | undefined,
+    percent: number | null | undefined
+  ) => {
+    if (!rate || rate <= 0 || percent === null || percent === undefined) return 0;
+    return Number(((rate * percent) / 100).toFixed(2));
   };
 
   useEffect(() => {
     if (property?.rate) {
       const rate = property.rate.rate || 0;
+      const existingFee = property.rate.fee ?? 0;
+      const inferredPercent =
+        rate > 0 ? Math.round((existingFee / rate) * 100) : feePercent;
+      const validPercent = FEE_PERCENT_OPTIONS.includes(inferredPercent)
+        ? inferredPercent
+        : 20;
+      setFeePercent(validPercent);
       setFormData({
         rate,
-        fee: property.rate.fee ?? computeFee(rate),
+        fee: computeFee(rate, validPercent),
       });
     } else {
       // Default values for new rate
-      const currentYear = new Date().getFullYear();
+      setFeePercent(20);
       setFormData({
         rate: 0,
         fee: 0,
@@ -70,7 +89,7 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
     setUpdating(true);
     try {
       // Ensure all required fields are properly formatted
-      const fee = computeFee(formData.rate);
+      const fee = computeFee(formData.rate, feePercent);
       const rateDataToSend = {
         rate: Number(formData.rate),
         fee,
@@ -169,23 +188,9 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Он
-              </label>
-              <Input
-                type="number"
-                value={formData.year || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, year: parseInt(e.target.value) || 0 })
-                }
-                className="w-full"
-                placeholder="Жишээ: 2025"
-                required
-              />
-            </div> */}
+        <form onSubmit={handleSubmit} className="p-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+       
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -199,7 +204,7 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
                   setFormData({
                     ...formData,
                     rate: newRate,
-                    fee: computeFee(newRate),
+                    fee: computeFee(newRate, feePercent),
                   });
                 }}
                 className="w-full"
@@ -209,11 +214,36 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
                 step="1000"
               />
             </div>
-
+            <div className="w-full">
+            <label className="block text-sm font-medium text-slate-700 mb-2">Менежментийн хувь (%) </label>                
+            <Select
+                  value={feePercent.toString()}
+                  onValueChange={(value) => {
+                    const selected = Number(value);
+                    setFeePercent(selected);
+                    setFormData((prev) => ({
+                      ...prev,
+                      fee: computeFee(prev.rate, selected),
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Төлбөрийн хувь" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[120] bg-white">
+                    {FEE_PERCENT_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option.toString()}>
+                        {option}%
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Менежментийн төлбөр (₮)
               </label>
+            <div className="flex gap-3">
               <Input
                 type="number"
                 value={formData.fee || ""}
@@ -227,36 +257,11 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
                 step="1000"
               />
             </div>
-
-            {/* <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Эхлэх огноо
-              </label>
-              <Input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) =>
-                  setFormData({ ...formData, start_date: e.target.value })
-                }
-                className="w-full"
-                required
-              />
+            
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Дуусах огноо
-              </label>
-              <Input
-                type="date"
-                value={formData.end_date}
-                onChange={(e) =>
-                  setFormData({ ...formData, end_date: e.target.value })
-                }
-                className="w-full"
-                required
-              />
-            </div> */}
+          
+          
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">

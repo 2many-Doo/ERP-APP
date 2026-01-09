@@ -4,21 +4,14 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import { Pagination } from "../../ui/pagination";
-import { useMerchantManagement, Merchant } from "@/hooks/useMerchantManagement";
 import { useVipMerchantManagement } from "@/hooks/useVipMerchantManagement";
-import { Store, Search, Plus, Edit, Trash2, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { CreateMerchantModal } from "./CreateMerchantModal";
-import { EditMerchantModal } from "./EditMerchantModal";
-import { deleteMerchant } from "@/lib/api";
+import { Store, Search, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
-interface MerchantListProps {
+interface VipMerchantListProps {
   onMerchantClick?: (merchantId: number) => void;
-  variant?: "default" | "vip";
 }
 
-const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProps) => {
-  const isVip = variant === "vip";
-  const hook = isVip ? useVipMerchantManagement : useMerchantManagement;
+const VipMerchantList = ({ onMerchantClick }: VipMerchantListProps) => {
   const {
     merchants,
     loading,
@@ -35,17 +28,13 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
     order,
     fetchMerchants,
     searchMerchants,
-  } = hook();
+  } = useVipMerchantManagement();
   const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {
     setLocalSearch(searchQuery);
   }, [searchQuery]);
   
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
-  const [deletingMerchantId, setDeletingMerchantId] = useState<number | null>(null);
-
   const getStatusDisplay = (status: string | undefined): string => {
     if (!status) return "Тодорхойгүй";
     if (status === "active" || status === "Идэвхтэй") return "Идэвхтэй";
@@ -57,59 +46,27 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
     return status === "active" || status === "Идэвхтэй";
   };
 
-  const handleDelete = async (merchantId: number) => {
-    setDeletingMerchantId(merchantId);
-    try {
-      const response = await deleteMerchant(merchantId);
-      if (response.error) {
-        toast.error(response.error || "Алдаа гарлаа");
-      } else {
-        toast.success("Мерчант амжилттай устгагдлаа");
-        handlePageChange(currentPage);
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Алдаа гарлаа");
-    } finally {
-      setDeletingMerchantId(null);
-    }
-  };
-
-
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Store className="h-8 w-8 text-gray-600" />
-          <h1 className="text-3xl font-bold text-slate-800">
-            {isVip ? "ВИП мерчант жагсаалт" : "Мерчант жагсаалт"}
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-800">ВИП мерчант жагсаалт</h1>
         </div>
-        {!isVip && (
-          <Button 
-            type="button" 
-            variant="secondary" 
-            className="flex items-center gap-2"
-            onClick={() => setShowCreateModal(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Шинэ мерчант нэмэх
-          </Button>
-        )}
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <p className="text-sm text-slate-600 mb-2">Нийт мерчант</p>
+          <p className="text-sm text-slate-600 mb-2">Нийт ВИП мерчант</p>
           <p className="text-3xl font-bold text-slate-800">{loading ? "..." : totalItems}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <p className="text-sm text-slate-600 mb-2">Идэвхтэй мерчант</p>
+          <p className="text-sm text-slate-600 mb-2">Идэвхтэй</p>
           <p className="text-3xl font-bold text-green-600">{loading ? "..." : activeMerchants}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <p className="text-sm text-slate-600 mb-2">Идэвхгүй мерчант</p>
+          <p className="text-sm text-slate-600 mb-2">Идэвхгүй</p>
           <p className="text-3xl font-bold text-red-600">{loading ? "..." : inactiveMerchants}</p>
         </div>
       </div>
@@ -121,7 +78,7 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
             <Search className="h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Мерчант хайх..."
+              placeholder="ВИП мерчант хайх..."
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyDown={(e) => {
@@ -179,23 +136,18 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">
                   Төлөв
                 </th>
-                {!isVip && (
-                  <th className="px-6 py-4 text-right text-xs font-medium text-slate-700 uppercase tracking-wider">
-                    Үйлдэл
-                  </th>
-                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     Уншиж байна...
                   </td>
                 </tr>
               ) : merchants.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     Мерчант олдсонгүй
                   </td>
                 </tr>
@@ -234,33 +186,6 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
                         {getStatusDisplay(merchant.status)}
                       </span>
                     </td>
-                    {!isVip && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={() => setEditingMerchant(merchant)}
-                          >
-                            <Edit className="h-4 w-4 text-blue-600" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={() => {
-                              if (window.confirm("Энэ мерчантыг устгахдаа итгэлтэй байна уу?")) {
-                                handleDelete(merchant.id);
-                              }
-                            }}
-                            disabled={deletingMerchantId === merchant.id}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </td>
-                    )}
                   </tr>
                 ))
               )}
@@ -278,32 +203,10 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
           loading={loading}
         />
       )}
-
-      {/* Create Merchant Modal */}
-      {!isVip && showCreateModal && (
-        <CreateMerchantModal
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            setShowCreateModal(false);
-            handlePageChange(currentPage);
-          }}
-        />
-      )}
-
-      {/* Edit Merchant Modal */}
-      {!isVip && editingMerchant && (
-        <EditMerchantModal
-          merchant={editingMerchant}
-          onClose={() => setEditingMerchant(null)}
-          onSuccess={() => {
-            setEditingMerchant(null);
-            handlePageChange(currentPage);
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default MerchantList;
+export default VipMerchantList;
+
 

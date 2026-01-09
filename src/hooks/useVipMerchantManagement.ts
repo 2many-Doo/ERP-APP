@@ -1,36 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { getMerchants } from "@/lib/api";
+import { getVipClients } from "@/lib/api";
+import { Merchant } from "./useMerchantManagement";
 
-export interface Merchant {
-  id: number;
-  name?: string;
-  first_name?: string;
-  last_name?: string;
-  family_name?: string;
-  code?: string;
-  email?: string;
-  phone?: string;
-  contact?: string;
-  address?: string;
-  address_description?: string;
-  status?: string;
-  registeredDate?: string;
-  totalTransactions?: number;
-  revenue?: string | number;
-  rd?: string;
-  type?: string;
-  owner_id?: number;
-  gender?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  properties?: any[];
-  lease_requests?: any[];
-  lease_agreements?: any[];
-  vehicle_access_requests?: any[];
-}
-
-export const useMerchantManagement = () => {
+export const useVipMerchantManagement = () => {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +27,7 @@ export const useMerchantManagement = () => {
       const filterOrderby = orderBy !== undefined && orderBy !== null ? orderBy : orderby;
       const filterOrder = orderDirection !== undefined && orderDirection !== null ? orderDirection : order;
       
-      const merchantsResponse = await getMerchants(
+      const merchantsResponse = await getVipClients(
         page,
         50,
         filterOrderby,
@@ -71,31 +44,37 @@ export const useMerchantManagement = () => {
         toast.error(message);
       } else if (merchantsResponse.error) {
         setError(merchantsResponse.error);
-        toast.error(`Мерчант татахад алдаа гарлаа: ${merchantsResponse.error}`);
+        toast.error(`VIP мерчант татахад алдаа гарлаа: ${merchantsResponse.error}`);
       } else if (merchantsResponse.data) {
         let merchantsData: Merchant[] = [];
         let paginationInfo: any = {};
         
         const responseData = merchantsResponse.data as any;
         
-        // Support multiple common API shapes
         if (Array.isArray(responseData)) {
           merchantsData = responseData;
         } else if (responseData.data && Array.isArray(responseData.data)) {
-          // { data: [...] , meta: {...} }
           merchantsData = responseData.data;
           paginationInfo = responseData.meta || {};
         } else if (responseData.data?.data && Array.isArray(responseData.data.data)) {
-          // { data: { data: [...], meta: {...} } }
           merchantsData = responseData.data.data;
           paginationInfo = responseData.data.meta || responseData.meta || {};
         } else if (responseData.data?.merchants && Array.isArray(responseData.data.merchants)) {
-          // { data: { merchants: [...], meta: {...} } }
           merchantsData = responseData.data.merchants;
           paginationInfo = responseData.data.meta || responseData.meta || {};
         }
         
-        setMerchants(merchantsData);
+        // Normalize VIP payload to Merchant shape for UI
+        const normalized = merchantsData.map((m) => ({
+          ...m,
+          name: m.name || m.full_name || "",
+          contact: m.contact || m.phone || m.number || m.serial_no || m.rd || "",
+          address: m.address || m.current_property_number || "",
+          status: m.status || m.note || "",
+          revenue: m.revenue || m.rate || "",
+        }));
+
+        setMerchants(normalized);
         
         if (paginationInfo.last_page !== undefined && paginationInfo.last_page !== null) {
           setTotalPages(paginationInfo.last_page);
@@ -118,7 +97,7 @@ export const useMerchantManagement = () => {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Алдаа гарлаа";
       setError(errorMsg);
-      toast.error(`Мерчант татахад алдаа гарлаа: ${errorMsg}`);
+      toast.error(`VIP мерчант татахад алдаа гарлаа: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -143,12 +122,12 @@ export const useMerchantManagement = () => {
   };
 
   const searchMerchants = (query: string) => {
-    setSearchQuery(query);
+    const trimmed = query.trim();
+    setSearchQuery(trimmed);
     setCurrentPage(1);
-    fetchMerchants(1, query, orderby, order);
+    fetchMerchants(1, trimmed, orderby, order);
   };
 
-  // Calculate statistics
   const activeMerchants = merchants.filter((m) => m.status === "Идэвхтэй" || m.status === "active").length;
   const inactiveMerchants = merchants.filter((m) => m.status === "Идэвхгүй" || m.status === "inactive").length;
   const totalRevenue = merchants.reduce((sum, m) => {
@@ -162,7 +141,6 @@ export const useMerchantManagement = () => {
   }, 0);
 
   return {
-    // State
     merchants,
     loading,
     error,
@@ -175,11 +153,7 @@ export const useMerchantManagement = () => {
     activeMerchants,
     inactiveMerchants,
     totalRevenue,
-    
-    // Setters
     setSearchQuery,
-    
-    // Functions
     fetchMerchants,
     handlePageChange,
     handleSort,

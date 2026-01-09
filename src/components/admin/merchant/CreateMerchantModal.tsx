@@ -38,6 +38,38 @@ export const CreateMerchantModal: React.FC<CreateMerchantModalProps> = ({
   });
   const [creating, setCreating] = useState(false);
 
+  const handleTypeChange = (value: "individual" | "organization") => {
+    setFormData((prev) => {
+      if (value === "individual") {
+        return {
+          ...prev,
+          type: value,
+          // clear organization fields
+          company_rd: "",
+          company_name: "",
+          company_email: "",
+          company_phone: "",
+          company_address: "",
+          company_address_description: "",
+        };
+      }
+      return {
+        ...prev,
+        type: value,
+        // clear individual fields
+        family_name: "",
+        last_name: "",
+        first_name: "",
+        gender: "",
+        rd: "",
+        email: "",
+        phone: "",
+        address: "",
+        address_description: "",
+      };
+    });
+  };
+
   const handleSubmit = async () => {
     if (formData.type === "individual") {
       if (!formData.family_name.trim() || !formData.last_name.trim() || !formData.first_name.trim()) {
@@ -131,29 +163,25 @@ export const CreateMerchantModal: React.FC<CreateMerchantModalProps> = ({
         
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Type Selection */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Төрөл <span className="text-red-500">*</span>
+          <div className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3 bg-slate-50">
+            <div>
+              <p className="text-sm font-medium text-slate-800">Байгууллага эсэх</p>
+              <p className="text-xs text-slate-500">Чеклэвэл байгууллагын талбарууд гарна, арилгавал хувь хүний талбарууд гарна.</p>
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-blue-600"
+                checked={formData.type === "organization"}
+                onChange={(e) => handleTypeChange(e.target.checked ? "organization" : "individual")}
+              />
+              <span className="text-sm text-slate-700">Байгууллага</span>
             </label>
-            <Select
-              value={formData.type}
-              onValueChange={(value: "individual" | "organization") =>
-                setFormData({ ...formData, type: value })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Төрөл сонгох" />
-              </SelectTrigger>
-              <SelectContent className="z-[200] bg-white">
-                <SelectItem value="individual">Хувь хүн</SelectItem>
-                <SelectItem value="organization">Байгууллага</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {formData.type === "individual" ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div key="individual" className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="family-name" className="block text-sm font-medium text-slate-700 mb-2">
                     Овог <span className="text-red-500">*</span>

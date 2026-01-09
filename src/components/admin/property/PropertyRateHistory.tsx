@@ -148,7 +148,7 @@ const normalizeResponse = (data: any): NormalizedResponse => {
 
 export const PropertyRateHistory: React.FC<PropertyRateHistoryProps> = ({
   title = "Үнэлгээний түүх",
-  defaultYear = 2025,
+  defaultYear = 2026,
   defaultStatus = "",
   forceStatus,
   hideStatusFilter = false,

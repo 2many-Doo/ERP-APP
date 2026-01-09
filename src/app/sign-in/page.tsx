@@ -34,25 +34,33 @@ const SignInPage = () => {
       
       // Check for network/connection errors
       if (response.status === 0) {
-        setError(response.error || "Сервертэй холбогдох боломжгүй. Интернэт холболтоо шалгана уу.");
+        const message = response.error || "Сервертэй холбогдох боломжгүй. Интернэт холболтоо шалгана уу.";
+        setError(message);
+        toast.error(message);
         return;
       }
       
       // Check for error
       if (response.error) {
-        setError(response.error || response.message || "Нэвтрэхэд алдаа гарлаа");
+        const message = response.error || response.message || "Нэвтрэхэд алдаа гарлаа";
+        setError(message);
+        toast.error(message);
         return;
       }
 
       // Check response status
       if (response.status !== 200 && response.status !== 201) {
-        setError(`Алдаа: HTTP ${response.status}`);
+        const message = `Алдаа: HTTP ${response.status}`;
+        setError(message);
+        toast.error(message);
         return;
       }
 
       // Check if response.data is a string (IP address or other)
       if (typeof response.data === "string") {
-        setError(` ${response.data}.`);
+        const message = `${response.data}.`;
+        setError(message);
+        toast.error(message);
         return;
       }
       
@@ -84,10 +92,14 @@ const SignInPage = () => {
         // Redirect to main page
         router.push("/main");
       } else {
-        setError("Token хүлээн авсангүй. Response structure: " + JSON.stringify(response.data).substring(0, 300));
+        const message = "Token хүлээн авсангүй. Response structure: " + JSON.stringify(response.data).substring(0, 300);
+        setError(message);
+        toast.error(message);
       }
     } catch (err) {
-      setError("Алдаа гарлаа. Дахин оролдоно уу.");
+      const message = "Алдаа гарлаа. Дахин оролдоно уу.";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

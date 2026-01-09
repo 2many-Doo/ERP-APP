@@ -69,6 +69,8 @@ export function MainLayoutProvider({
         return "management-permissions";
       case "merchant-list":
         return "merchant-list";
+      case "vip-merchant-list":
+        return "vip-merchant-list";
       case "tenant-list":
         return "agreement-layout";
       case "approved-tenant-list":
@@ -77,8 +79,10 @@ export function MainLayoutProvider({
         return "product-insurance";
       case "liability-insurance":
         return "liability-insurance";
+      case "contract-layout":
+        return "contract-template";
       case "contract-process":
-        return "utilities";
+        return "contract-process";
       case "insurance-management":
         return "components";
       case "legal-documents":

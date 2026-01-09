@@ -41,6 +41,12 @@ export const sidebarSections: NavSection[] = [
         componentKey: "merchant-list",
         permission: "merchant_menu_show",
       },
+      {
+        id: "vip-merchant-list",
+        label: "VIP",
+        componentKey: "vip-merchant-list",
+        permission: "merchant_menu_show",
+      },
     ],
   },
   {
@@ -61,9 +67,15 @@ export const sidebarSections: NavSection[] = [
         permission: "lease_agreement_show",
       },
       {
-        id: "utilities",
+        id: "contract-process",
         label: "Гэрээний процесс",
         componentKey: "contract-process",
+        permission: "lease_agreement_show",
+      },
+      {
+        id: "contract-template",
+        label: "Гэрээний загвар",
+        componentKey: "contract-layout",
         permission: "lease_agreement_show",
       },
       {

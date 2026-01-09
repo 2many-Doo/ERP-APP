@@ -17,7 +17,7 @@ interface TenantTableProps {
   showActions?: boolean; // Show approve/reject buttons, default true
 }
 
-export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, statusOptions, onTenantClick, onStatusChange, onApprove, onReject, filterType, processingIds, showActions = true }) => {
+export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, statusOptions, onTenantClick, onApprove, onReject, processingIds, showActions = true }) => {
   // Determine if we should show "Лангуу" based on whether tenants have propertyId
   // If all tenants have propertyId, show "Лангуу", otherwise show "Үйл ажиллагааны төрөл"
   const isRenewal = tenants.length > 0 && tenants.every((tenant) => tenant.propertyId !== null && tenant.propertyId !== undefined);
@@ -33,7 +33,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
                 ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
-                {isRenewal ? "Лангуу" : "Үйл ажиллагааны төрөл"}
+                {isRenewal ? "Павилион" : "Үйл ажиллагааны төрөл"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Харилцагчийн нэр</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Утасны дугаар</th>

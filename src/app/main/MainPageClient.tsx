@@ -6,6 +6,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import UserManagement from "@/components/admin/user-management/UserManagement";
 import PermissionManagement from "@/components/admin/permission-management/PermissionManagement";
 import MerchantList from "@/components/admin/merchant/MerchantList";
+import VipMerchantList from "@/components/admin/merchant/VipMerchantList";
 import MerchantDetail from "@/components/admin/merchant/MerchantDetail";
 import TenantList from "@/components/admin/tenat/tenat-folder/TenantList";
 import TenantDetail from "@/components/admin/tenat/tenat-folder/TenantDetail";
@@ -17,6 +18,7 @@ import PropertyManagement from "@/components/admin/property/PropertyManagement";
 import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHistory";
 import PropertyRateUpdate from "@/components/admin/property/PropertyRateUpdate";
 import LegalDocuments from "@/components/admin/other/LegalDocuments";
+import ContractTemplateList from "@/components/admin/contract-template/ContractTemplateList";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -69,7 +71,8 @@ const MainPageClient = () => {
       activeComponent === "tenant-list" ||
       activeComponent === "approved-tenant-list" ||
       activeComponent === "contract-process";
-    const isMerchantContext = activeComponent === "merchant-list";
+    const isMerchantContext =
+      activeComponent === "merchant-list" || activeComponent === "vip-merchant-list";
 
     // If staying in tenant or merchant contexts, keep selections/params
     if (isTenantContext || isMerchantContext) {
@@ -139,7 +142,7 @@ const MainPageClient = () => {
 
   // Reset selected merchant when switching away from merchant-list
   useEffect(() => {
-    if (activeComponent !== "merchant-list") {
+    if (activeComponent !== "merchant-list" && activeComponent !== "vip-merchant-list") {
       setSelectedMerchantId(null);
       const params = new URLSearchParams(searchParams.toString());
       if (params.has("merchantId")) {
@@ -151,11 +154,7 @@ const MainPageClient = () => {
   }, [activeComponent, pathname, router, searchParams]);
 
   const handleTenantClick = (tenantId: number) => {
-    setSelectedTenantId(tenantId);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tenantId", String(tenantId));
-    const next = params.toString();
-    router.push(next ? `${pathname}?${next}` : pathname);
+    router.push(`/main/tenants/${tenantId}`);
   };
 
   const handleBackToList = () => {
@@ -167,11 +166,7 @@ const MainPageClient = () => {
   };
 
   const handleMerchantClick = (merchantId: number) => {
-    setSelectedMerchantId(merchantId);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("merchantId", String(merchantId));
-    const next = params.toString();
-    router.push(next ? `${pathname}?${next}` : pathname);
+    router.push(`/main/merchants/${merchantId}`);
   };
 
   const handleBackToMerchantList = () => {
@@ -184,7 +179,10 @@ const MainPageClient = () => {
 
   const renderComponent = () => {
     // If merchant is selected, show detail view
-    if (selectedMerchantId !== null && activeComponent === "merchant-list") {
+    if (
+      selectedMerchantId !== null &&
+      (activeComponent === "merchant-list" || activeComponent === "vip-merchant-list")
+    ) {
       return <MerchantDetail merchantId={selectedMerchantId} onBack={handleBackToMerchantList} />;
     }
 
@@ -214,6 +212,8 @@ const MainPageClient = () => {
         return <PermissionManagement />;
       case "merchant-list":
         return <MerchantList onMerchantClick={handleMerchantClick} />;
+      case "vip-merchant-list":
+        return <VipMerchantList onMerchantClick={handleMerchantClick} />;
       case "tenant-list":
         return <TenantList onTenantClick={handleTenantClick} />;
       case "approved-tenant-list":
@@ -230,6 +230,8 @@ const MainPageClient = () => {
         return <PropertyRateUpdate />;
       case "legal-documents":
         return <LegalDocuments />;
+      case "contract-layout":
+        return <ContractTemplateList />;
       default:
         return <UserManagement />;
     }

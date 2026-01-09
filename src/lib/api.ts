@@ -109,8 +109,8 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
   if (!response.ok) {
     if (status === 401) {
       return {
-        error: "Нэвтрэх шаардлагатай.",
-        message: "Нэвтрэх шаардлагатай.",
+        error: "Нэвтрэх нэр эсвэл нууц үг буруу байна.",
+        message: "Нэвтрэх нэр эсвэл нууц үг буруу байна.",
         status,
       };
     }
@@ -817,6 +817,13 @@ export const getProductTypes = async (): Promise<ApiResponse<{ data: any[] }>> =
 };
 
 /**
+ * Get contract template create meta (property types, product types, etc)
+ */
+export const getContractTemplateCreateMeta = async (): Promise<ApiResponse<any>> => {
+  return get("/v1/contract-templates/create");
+};
+
+/**
  * Get properties API function
  */
 export const getProperties = async (
@@ -920,9 +927,9 @@ export const getPropertyAnnualRates = async (propertyId: number): Promise<ApiRes
 /**
  * Get property types API function
  */
-// export const getPropertyTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
-//   return get("/v1/property/types");
-// };
+export const getPropertyTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/properties/types");
+};
 
 /**
  * Get service categories API function
@@ -961,6 +968,37 @@ export const getMerchants = async (
   }
   
   return get("/v1/merchants", {
+    params,
+  });
+};
+
+/**
+ * Get VIP clients (merchants) API function
+ */
+export const getVipClients = async (
+  page: number = 1,
+  perPage: number = 50,
+  orderby: string = "name",
+  order: string = "asc",
+  search?: string | null
+): Promise<ApiResponse<{ data: any[] }>> => {
+  const params: Record<string, string | number> = {
+    page,
+    per_page: perPage,
+    orderby,
+    order,
+  };
+
+  const trimmed = search?.trim() ?? "";
+  // Only send search params when provided
+  if (trimmed) {
+    params.q = trimmed;
+    params.search = trimmed;
+    params.keyword = trimmed;
+    params.term = trimmed;
+  }
+
+  return get("/v1/vip-clients", {
     params,
   });
 };
@@ -1214,6 +1252,63 @@ export const updateProperty = async (
 };
 
 /**
+ * Contract template list
+ */
+export const getContractTemplates = async (
+  page: number = 1,
+  perPage: number = 32,
+  orderby: string = "name",
+  order: string = "asc",
+  q: string = ""
+): Promise<
+  ApiResponse<{
+    data: any[];
+    last_page?: number;
+    current_page?: number;
+    total_pages?: number;
+    total?: number;
+  }>
+> => {
+  return get("/v1/contract-templates", {
+    params: {
+      page,
+      per_page: perPage,
+      orderby,
+      order,
+      q,
+    },
+  });
+};
+
+/**
+ * Create contract template (multipart with file upload)
+ */
+export const createContractTemplate = async (payload: {
+  name: string;
+  category: string;
+  file_url: string;
+  file_name?: string;
+  file?: string;
+  template_file?: string;
+  contract_type?: "organization" | "individual" | string;
+  property_type_id?: number | string;
+  product_types?: Array<number | string>;
+  type?: string;
+}): Promise<ApiResponse<any>> => {
+  // Backend хүлээж буй талбаруудыг file_url, file_name гэж илгээнэ.
+  // Хэрэв өөр нэршил шаардагдвал эндээс тохируулна.
+  const body: any = { ...payload };
+  // Ensure backend gets all possible file keys
+  if (payload.file_url && !body.file) {
+    body.file = payload.file_url;
+  }
+  if (payload.file_url && !body.template_file) {
+    body.template_file = payload.file_url;
+  }
+  return post("/v1/contract-templates", body);
+};
+
+/**
  * Get single legal document by ID
  */
 export const getLegalDocument = async (id: number): Promise<ApiResponse<any>> => {
@@ -1227,6 +1322,7 @@ export const updateLegalDocumentContent = async (
   id: number,
   content: any
 ): Promise<ApiResponse<any>> => {
+  // Backend зөвхөн PATCH дэмжиж байгаа тул PATCH ашиглана.
   return patch(`/v1/legal-documents/${id}/content`, { content });
 };
 
