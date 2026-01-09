@@ -5,6 +5,7 @@ import { getMerchants } from "@/lib/api";
 export interface Merchant {
   id: number;
   name?: string;
+  full_name?: string;
   first_name?: string;
   last_name?: string;
   family_name?: string;
@@ -13,11 +14,16 @@ export interface Merchant {
   phone?: string;
   contact?: string;
   address?: string;
+  current_property_number?: string;
+  number?: string;
+  serial_no?: string;
   address_description?: string;
   status?: string;
+  note?: string;
   registeredDate?: string;
   totalTransactions?: number;
   revenue?: string | number;
+  rate?: string | number;
   rd?: string;
   type?: string;
   owner_id?: number;
