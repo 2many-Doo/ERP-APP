@@ -13,6 +13,43 @@ export const ContractFormRequestInfo: React.FC<ContractFormRequestInfoProps> = (
     return null;
   }
 
+  const getStatusDisplay = (status: string | null | undefined) => {
+    if (!status) return "-";
+    const map: Record<string, string> = {
+      approved: "Зөвшөөрсөн",
+      pending: "Хүлээгдэж буй",
+      property_selected: "Талбай сонгогдсон",
+      checking: "Шалгагдаж байна",
+      under_review: "Дахин шалгагдаж байна",
+      in_contract_process: "Гэрээ байгуулах",
+      incomplete: "Дутуу",
+      rejected: "Татгалзсан",
+      cancelled: "Цуцлагдсан",
+    };
+    return map[status] || status || "-";
+  };
+
+  const getStatusStyle = (status: string | null | undefined) => {
+    if (!status) return "bg-slate-200 text-slate-800";
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-700";
+      case "rejected":
+        return "bg-red-100 text-red-700";
+      case "pending":
+        return "bg-amber-100 text-amber-800";
+      case "in_contract_process":
+        return "bg-blue-100 text-blue-700";
+      case "property_selected":
+        return "bg-teal-100 text-teal-700";
+      case "checking":
+      case "under_review":
+        return "bg-indigo-100 text-indigo-700";
+      default:
+        return "bg-slate-200 text-slate-800";
+    }
+  };
+
   return (
     <div className="bg-white p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -31,22 +68,8 @@ export const ContractFormRequestInfo: React.FC<ContractFormRequestInfoProps> = (
         <div>
           <label className="text-sm font-medium text-slate-600">Төлөв</label>
           <p className="text-sm text-slate-800 mt-1">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              requestData.status === "checking" ? "bg-primary text-white" :
-              requestData.status === "approved" ? "bg-success text-white" :
-              requestData.status === "rejected" ? "bg-danger text-white" :
-              requestData.status === "pending" ? "bg-warning text-white" :
-              requestData.status === "in_contract_process" ? "bg-blue-100 text-blue-700" :
-              requestData.status === "property_selected" ? "bg-teal-100 text-teal-700" :
-              "bg-slate-200 text-slate-800"
-            }`}>
-              {requestData.status === "checking" ? "Шалгагдаж байна" :
-               requestData.status === "approved" ? "Зөвшөөрсөн" :
-               requestData.status === "rejected" ? "Татгалзсан" :
-               requestData.status === "pending" ? "Хүлээгдэж буй" :
-               requestData.status === "in_contract_process" ? "Гэрээ байгуулах" :
-               requestData.status === "property_selected" ? "Талбай сонгогдсон" :
-               requestData.status}
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(requestData.status)}`}>
+              {getStatusDisplay(requestData.status)}
             </span>
           </p>
         </div>

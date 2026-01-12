@@ -6,6 +6,26 @@
  * Extract attachments array from various possible API response structures
  */
 export const extractAttachments = (responseData: any, data: any): any[] => {
+  const normalizeObjectAttachments = (obj: any): any[] => {
+    if (!obj || Array.isArray(obj) || typeof obj !== "object") return [];
+    return Object.entries(obj).flatMap(([key, value]) => {
+      if (value === null || value === undefined) return [];
+
+      if (Array.isArray(value)) {
+        if (value.length > 0 && typeof value[0] === "object" && !Array.isArray(value[0])) {
+          return value.map((v) => ({ ...(v as any), name: (v as any).name || key }));
+        }
+        return [{ name: key, urls: value }];
+      }
+
+      if (typeof value === "object") {
+        return [{ ...(value as any), name: (value as any).name || key }];
+      }
+
+      return [{ name: key, urls: [value] }];
+    });
+  };
+
   // Check responseData.attachements.data first (most common structure)
   if (responseData.attachements?.data && Array.isArray(responseData.attachements.data)) {
     return responseData.attachements.data;
@@ -26,6 +46,22 @@ export const extractAttachments = (responseData: any, data: any): any[] => {
   if (responseData.attachments?.data && Array.isArray(responseData.attachments.data)) {
     return responseData.attachments.data;
   }
+  // Check nested responseData.data.attachments.data
+  if (responseData.data?.attachments?.data && Array.isArray(responseData.data.attachments.data)) {
+    return responseData.data.attachments.data;
+  }
+  // Check nested responseData.data.attachments (direct array)
+  if (responseData.data?.attachments && Array.isArray(responseData.data.attachments)) {
+    return responseData.data.attachments;
+  }
+  // Check nested data.data.attachments.data
+  if (data?.data?.attachments?.data && Array.isArray(data.data.attachments.data)) {
+    return data.data.attachments.data;
+  }
+  // Check nested data.data.attachments (direct array)
+  if (data?.data?.attachments && Array.isArray(data.data.attachments)) {
+    return data.data.attachments;
+  }
   // Check data.attachments.data
   if (data.attachments?.data && Array.isArray(data.attachments.data)) {
     return data.attachments.data;
@@ -37,6 +73,15 @@ export const extractAttachments = (responseData: any, data: any): any[] => {
   // Check data.attachments (direct array)
   if (data.attachments && Array.isArray(data.attachments)) {
     return data.attachments;
+  }
+  // Handle attachments as object map { name: [...] }
+  const objectAttachments =
+    normalizeObjectAttachments(responseData?.attachments) ||
+    normalizeObjectAttachments(responseData?.data?.attachments) ||
+    normalizeObjectAttachments(data?.attachments) ||
+    normalizeObjectAttachments(data?.data?.attachments);
+  if (objectAttachments.length > 0) {
+    return objectAttachments;
   }
   return [];
 };
@@ -79,14 +124,23 @@ export const buildAttachmentMap = (attachments: any[]): Record<string, any[]> =>
   const attachmentMap: Record<string, any[]> = {};
   
   if (Array.isArray(attachments) && attachments.length > 0) {
-    attachments.forEach((attachment: any) => {
-      if (attachment && attachment.name) {
-        const name = attachment.name;
-        if (!attachmentMap[name]) {
-          attachmentMap[name] = [];
-        }
-        attachmentMap[name].push(attachment);
+    attachments.forEach((attachment: any, idx: number) => {
+      if (!attachment) return;
+      const name =
+        attachment.name ||
+        attachment.type ||
+        attachment.key ||
+        attachment.label ||
+        attachment.title ||
+        attachment.kind ||
+        `attachment_${idx + 1}`;
+
+      const normalized = { ...attachment, name };
+
+      if (!attachmentMap[name]) {
+        attachmentMap[name] = [];
       }
+      attachmentMap[name].push(normalized);
     });
   }
   

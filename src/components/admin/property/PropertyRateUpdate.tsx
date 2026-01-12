@@ -9,7 +9,7 @@ const PropertyRateUpdate: React.FC = () => {
   return (
     <PropertyRateHistory
       title="Үнэлгээ засах"
-      defaultYear={2025}
+      defaultYear={2026}
       forceStatus="pending"
       hideStatusFilter
       hideForceStatusLabel

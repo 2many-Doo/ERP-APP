@@ -119,6 +119,20 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
     }));
   }, [attachmentMap, getAttachmentLabelMn]);
 
+  const renderStatusBadge = (status?: string | null) => {
+    if (!status) return null;
+    const key = status.toLowerCase();
+    const style =
+      key === "approved"
+        ? "bg-green-100 text-green-700"
+        : key === "rejected"
+        ? "bg-red-100 text-red-700"
+        : "bg-amber-100 text-amber-700";
+    const label =
+      key === "approved" ? "Зөвшөөрсөн" : key === "rejected" ? "Татгалзсан" : "Хүлээгдэж буй";
+    return <span className={`ml-2 inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${style}`}>{label}</span>;
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -159,47 +173,60 @@ const ContractFormDetail: React.FC<ContractFormDetailProps> = ({
         {!useApprovedEndpoint && <ContractFileUploader />}
 
         <div className="space-y-6">
+          {attachmentGroups.length === 0 && (
+            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+              Материал илгээгээгүй байна.
+            </div>
+          )}
+
           {attachmentGroups.map((group) => (
             <div key={group.name} className="border-b border-slate-200 pb-6">
-              <h3 className="font-semibold mb-4">{group.label}</h3>
+              <h3 className="font-semibold mb-4 flex items-center">
+                {group.label}
+                {renderStatusBadge(group.status)}
+              </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {group.urls.map((url, i) => (
-                  <div
-                    key={i}
-                    className="border border-slate-200 rounded-lg p-4 bg-white"
-                  >
-                    {/* ✅ ЖИЖИГ THUMBNAIL */}
-                    <div className="relative h-32 w-full bg-slate-100 rounded mb-3 overflow-hidden">
-                      {isImageUrl(url) && !failedImages.has(url) ? (
-                        <Image
-                          src={url}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          onError={() =>
-                            setFailedImages((p) => new Set(p).add(url))
-                          }
-                        />
-                      ) : (
-                        <div className="h-full flex items-center justify-center">
-                          <FileText className="h-10 w-10 text-slate-400" />
-                        </div>
-                      )}
-                    </div>
-
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={() => handlePreview(url)}
+              {group.urls.length === 0 ? (
+                <p className="text-sm text-slate-600">Материал илгээгээгүй байна.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {group.urls.map((url, i) => (
+                    <div
+                      key={i}
+                      className="border border-slate-200 rounded-lg p-4 bg-white"
                     >
-                      <Eye className="h-4 w-4" />
-                      Харах
-                    </Button>
-                  </div>
-                ))}
-              </div>
+                      {/* ✅ ЖИЖИГ THUMBNAIL */}
+                      <div className="relative h-32 w-full bg-slate-100 rounded mb-3 overflow-hidden">
+                        {isImageUrl(url) && !failedImages.has(url) ? (
+                          <Image
+                            src={url}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            onError={() =>
+                              setFailedImages((p) => new Set(p).add(url))
+                            }
+                          />
+                        ) : (
+                          <div className="h-full flex items-center justify-center">
+                            <FileText className="h-10 w-10 text-slate-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full gap-2"
+                        onClick={() => handlePreview(url)}
+                      >
+                        <Eye className="h-4 w-4" />
+                        Харах
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {group.status !== "approved" &&
                 group.status !== "rejected" && (

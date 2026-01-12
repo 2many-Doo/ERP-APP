@@ -26,20 +26,88 @@ export const useContractFormData = ({ tenantId, useApprovedEndpoint = true }: Us
   const attachmentLabels = useMemo<Record<string, string>>(
     () => ({
       request: "Түрээсийн хүсэлт",
-      deposit_receipt: "Санхүүгын барьцаалбар",
+      deposit_receipt: "Барьцаа байршуулах",
       id_doc: "Иргэний үнэмлэх хуулбар",
-      organization_certificate: "Улсын бүртгэлийн гэрчилгээ",
+      organization_certificate: "Байгууллагын гэрчилгээний хуулбар",
       business_regulations: "Компанийн дүрэм",
-      org_rules: "Байгууллагын дүрэм",
-      ceo_id_doc: "Захирлын иргэний үнэмлэх",
-      org_request: "Байгууллагын хүсэлт",
-      org_certificate: "Байгууллагын бүртгэлийн гэрчилгээ",
+      org_rules: "ААН дүрэм",
+      ceo_id_doc: "Захиралын иргэний үнэмлэхний лавлагаа",
+      org_request: "ААН хүсэлт",
+      org_certificate: "Байгууллагын гэрчилгээний хуулбар",
       // шаардлагатай бол нэмээд явна
     }),
     []
   );
 
   const getAttachmentLabelMn = (key: string) => attachmentLabels[key] ?? key;
+
+  const applyResponse = (responseData: any, allowEmpty: boolean = true): boolean => {
+    if (!responseData) return false;
+    const data = responseData.data || responseData;
+
+    const attachments = extractAttachments(responseData, data);
+
+    const attachmentListData = responseData.attachment_list || data.attachment_list || {};
+    const hasAny =
+      attachments.length > 0 ||
+      Object.keys(attachmentListData || {}).length > 0;
+
+    if (!allowEmpty && !hasAny) {
+      // Skip overwriting existing attachments; caller will decide fallback.
+      return false;
+    }
+
+    setAttachmentList(attachmentListData);
+    setRequestData(data);
+
+    if (data.contact_name) setTenantName(data.contact_name);
+    else if (data.customer_name) setTenantName(data.customer_name);
+    else if (data.name) setTenantName(data.name);
+    else if (data.merchant?.name) setTenantName(data.merchant.name);
+
+    const newAttachmentMap = buildAttachmentMap(attachments);
+    setAttachmentMap(newAttachmentMap);
+
+    const attachmentUrlsMap = buildAttachmentUrlsMap(newAttachmentMap);
+
+    const newFormData: any = {
+      hasCollateralDifference: (newAttachmentMap["deposit_receipt"] || []).length > 0,
+      collateralDifferenceAmount: data.deposit_amount?.toString() || "",
+    };
+
+    Object.keys(attachmentUrlsMap).forEach((name) => {
+      const camelCaseName =
+        name
+          .split("_")
+          .map((word, index) =>
+            index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+          )
+          .join("") + "Images";
+      newFormData[camelCaseName] = attachmentUrlsMap[name];
+    });
+
+    // backward compatibility
+    if (attachmentUrlsMap["request"]) newFormData.leaseRequestImages = attachmentUrlsMap["request"];
+    if (attachmentUrlsMap["deposit_receipt"]) newFormData.depositReceiptImages = attachmentUrlsMap["deposit_receipt"];
+    if (attachmentUrlsMap["id_doc"]) newFormData.directorIdImages = attachmentUrlsMap["id_doc"];
+    if (attachmentUrlsMap["organization_certificate"])
+      newFormData.organizationCertificateImages = attachmentUrlsMap["organization_certificate"];
+    if (attachmentUrlsMap["business_regulations"])
+      newFormData.businessRegulationsImages = attachmentUrlsMap["business_regulations"];
+
+    setFormData(newFormData);
+
+    // Step approvals
+    const newStepApprovals: Record<number, boolean | null> = {};
+    Object.keys(newAttachmentMap).forEach((name, index) => {
+      const atts = newAttachmentMap[name] || [];
+      newStepApprovals[index + 1] = getStepApprovalStatus(atts);
+    });
+
+    setStepApprovals(newStepApprovals);
+
+    return Object.keys(newAttachmentMap).length > 0;
+  };
 
   useEffect(() => {
     const fetchLeaseRequest = async () => {
@@ -49,62 +117,16 @@ export const useContractFormData = ({ tenantId, useApprovedEndpoint = true }: Us
           ? await getApprovedLeaseRequestById(tenantId)
           : await getLeaseRequestById(tenantId);
 
+        let hasAttachments = false;
         if (response.data) {
-          const responseData = response.data;
-          const data = responseData.data || responseData;
+          hasAttachments = applyResponse(response.data, !useApprovedEndpoint);
+        }
 
-          const attachments = extractAttachments(responseData, data);
-
-          const attachmentListData = responseData.attachment_list || data.attachment_list || {};
-          setAttachmentList(attachmentListData);
-
-          setRequestData(data);
-
-          if (data.contact_name) setTenantName(data.contact_name);
-          else if (data.customer_name) setTenantName(data.customer_name);
-          else if (data.name) setTenantName(data.name);
-          else if (data.merchant?.name) setTenantName(data.merchant.name);
-
-          const newAttachmentMap = buildAttachmentMap(attachments);
-          setAttachmentMap(newAttachmentMap);
-
-          const attachmentUrlsMap = buildAttachmentUrlsMap(newAttachmentMap);
-
-          const newFormData: any = {
-            hasCollateralDifference: (newAttachmentMap["deposit_receipt"] || []).length > 0,
-            collateralDifferenceAmount: data.deposit_amount?.toString() || "",
-          };
-
-          Object.keys(attachmentUrlsMap).forEach((name) => {
-            const camelCaseName =
-              name
-                .split("_")
-                .map((word, index) =>
-                  index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-                )
-                .join("") + "Images";
-            newFormData[camelCaseName] = attachmentUrlsMap[name];
-          });
-
-          // backward compatibility
-          if (attachmentUrlsMap["request"]) newFormData.leaseRequestImages = attachmentUrlsMap["request"];
-          if (attachmentUrlsMap["deposit_receipt"]) newFormData.depositReceiptImages = attachmentUrlsMap["deposit_receipt"];
-          if (attachmentUrlsMap["id_doc"]) newFormData.directorIdImages = attachmentUrlsMap["id_doc"];
-          if (attachmentUrlsMap["organization_certificate"])
-            newFormData.organizationCertificateImages = attachmentUrlsMap["organization_certificate"];
-          if (attachmentUrlsMap["business_regulations"])
-            newFormData.businessRegulationsImages = attachmentUrlsMap["business_regulations"];
-
-          setFormData(newFormData);
-
-          // Step approvals
-          const newStepApprovals: Record<number, boolean | null> = {};
-          Object.keys(newAttachmentMap).forEach((name, index) => {
-            const atts = newAttachmentMap[name] || [];
-            newStepApprovals[index + 1] = getStepApprovalStatus(atts);
-          });
-
-          setStepApprovals(newStepApprovals);
+        if (useApprovedEndpoint && !hasAttachments) {
+          const fallback = await getLeaseRequestById(tenantId);
+          if (fallback.data) {
+            applyResponse(fallback.data, false);
+          }
         }
       } catch (error) {
         toast.error("Мэдээлэл татахад алдаа гарлаа");
@@ -121,51 +143,16 @@ export const useContractFormData = ({ tenantId, useApprovedEndpoint = true }: Us
       const response = useApprovedEndpoint
         ? await getApprovedLeaseRequestById(tenantId)
         : await getLeaseRequestById(tenantId);
+      let hasAttachments = false;
       if (response.data) {
-        const responseData = response.data;
-        const data = responseData.data || responseData;
-        const attachments = extractAttachments(responseData, data);
+        hasAttachments = applyResponse(response.data, !useApprovedEndpoint);
+      }
 
-        const newAttachmentMap = buildAttachmentMap(attachments);
-        setAttachmentMap(newAttachmentMap);
-
-        const attachmentUrlsMap = buildAttachmentUrlsMap(newAttachmentMap);
-
-        const newFormData: any = {
-          hasCollateralDifference: (newAttachmentMap["deposit_receipt"] || []).length > 0,
-          collateralDifferenceAmount: data.deposit_amount?.toString() || "",
-        };
-
-        Object.keys(attachmentUrlsMap).forEach((name) => {
-          const camelCaseName =
-            name
-              .split("_")
-              .map((word, index) =>
-                index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-              )
-              .join("") + "Images";
-          newFormData[camelCaseName] = attachmentUrlsMap[name];
-        });
-
-        // backward compatibility
-        if (attachmentUrlsMap["request"]) newFormData.leaseRequestImages = attachmentUrlsMap["request"];
-        if (attachmentUrlsMap["deposit_receipt"]) newFormData.depositReceiptImages = attachmentUrlsMap["deposit_receipt"];
-        if (attachmentUrlsMap["id_doc"]) newFormData.directorIdImages = attachmentUrlsMap["id_doc"];
-        if (attachmentUrlsMap["organization_certificate"])
-          newFormData.organizationCertificateImages = attachmentUrlsMap["organization_certificate"];
-        if (attachmentUrlsMap["business_regulations"])
-          newFormData.businessRegulationsImages = attachmentUrlsMap["business_regulations"];
-
-        setFormData(newFormData);
-
-        const newStepApprovals: Record<number, boolean | null> = {};
-        Object.keys(newAttachmentMap).forEach((name, index) => {
-          const atts = newAttachmentMap[name] || [];
-          newStepApprovals[index + 1] = getStepApprovalStatus(atts);
-        });
-
-        setStepApprovals(newStepApprovals);
-        setRequestData(data);
+      if (useApprovedEndpoint && !hasAttachments) {
+        const fallback = await getLeaseRequestById(tenantId);
+        if (fallback.data) {
+          applyResponse(fallback.data, false);
+        }
       }
     } catch (error) {
       console.error("Error refreshing data:", error);

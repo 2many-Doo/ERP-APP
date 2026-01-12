@@ -14,12 +14,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { updateLegalDocumentContent } from "@/lib/api";
 import type { LegalDocument } from "./LegalDocuments";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+const formatIndexPath = (path: (string | number)[], currentIndex?: number) => {
+  const indices = [...path, currentIndex]
+    .filter((p): p is number => typeof p === "number")
+    .map((n) => (Number(n) + 1).toString());
+  return indices.length ? indices.join(".") : currentIndex !== undefined ? String(currentIndex + 1) : "";
+};
 
 type LegalDocumentContentEditorProps = {
   legalDocumentId: number;
@@ -102,7 +108,7 @@ const EditableNode: React.FC<{
         {value.map((item, idx) => (
           <div key={`${path.join(".")}-${idx}`} className="rounded-lg  p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-600">Элемент {idx + 1}</p>
+              <p className="text-xл font-semibold text-slate-600">{formatIndexPath(path, idx)}</p>
               <Button
                 variant="ghost"
                 size="icon"
@@ -144,12 +150,14 @@ const EditableNode: React.FC<{
         <div className="grid gap-3">
           {entries.map(([key, val]) => (
             <div key={`${path.join(".")}-${key}`} className="space-y-2 rounded-lg  p-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{key}</p>
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <EditableNode value={val} path={[...path, key]} onChange={onChange} />
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-8 w-8"
                   onClick={() => {
                     const next = { ...(value as Record<string, JsonValue>) };
                     delete next[key];
@@ -159,7 +167,6 @@ const EditableNode: React.FC<{
                   <Trash2 className="h-4 w-4 text-slate-500" />
                 </Button>
               </div>
-              <EditableNode value={val} path={[...path, key]} onChange={onChange} />
             </div>
           ))}
         </div>
@@ -355,25 +362,6 @@ const LegalDocumentContentEditor: React.FC<LegalDocumentContentEditorProps> = ({
                 </div>
               )}
             </div>
-{/* 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-800">JSON харагдац</p>
-                {jsonError && <span className="text-xs text-red-600">JSON алдаа: {jsonError}</span>}
-              </div>
-              <textarea
-                value={jsonText}
-                onChange={(e) => handleJsonTextChange(e.target.value)}
-                className={cn(
-                  "min-h-[440px] w-full rounded-lg  bg-white p-3 font-mono text-sm leading-6",
-                  jsonError ? "-red-400 focus:outline-red-500" :  focus:outline-black"
-                )}
-                spellCheck={false}
-              />
-              <p className="text-xs text-slate-500">
-                Текстийг шууд өөрчлөхөд автоматаар JSON parse хийж, зүүн талын талбаруудтай синк тааруулна.
-              </p>
-            </div> */}
           </div>
 
           <DialogFooter className="pt-2">
