@@ -397,7 +397,7 @@ const TenantDetail = ({ tenantId, onBack }: TenantDetailProps) => {
                       {renderStatusBadge(group.status)}
                     </div>
                     {group.urls.length === 0 ? (
-                      <p className="text-sm text-slate-600">Материал илгээгээгүй байна.</p>
+                      <p className="text-sm text-slate-600">Материал дутуу.</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {group.urls.map((url, idx) => (
