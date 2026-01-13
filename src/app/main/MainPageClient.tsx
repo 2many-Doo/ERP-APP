@@ -19,6 +19,8 @@ import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHis
 import PropertyRateUpdate from "@/components/admin/property/PropertyRateUpdate";
 import LegalDocuments from "@/components/admin/other/LegalDocuments";
 import ContractTemplateList from "@/components/admin/contract-template/ContractTemplateList";
+import BankAccounts from "@/components/admin/finance/BankAccounts";
+import InvoiceHistoryList from "@/components/admin/finance/InvoiceHistoryList";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -232,6 +234,10 @@ const MainPageClient = () => {
         return <LegalDocuments />;
       case "contract-layout":
         return <ContractTemplateList />;
+      case "finance-bank-accounts":
+        return <BankAccounts />;
+      case "finance-invoices":
+        return <InvoiceHistoryList />;
       default:
         return <UserManagement />;
     }

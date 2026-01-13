@@ -55,7 +55,11 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
         setTemplate(null);
         return;
       }
-      const data = res.data?.data || res.data || res;
+      const data =
+        res.data?.data?.data ||
+        res.data?.data ||
+        res.data ||
+        res;
       const propertyArr =
         data?.property_types ||
         data?.propertyTypes ||
@@ -105,25 +109,70 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
     }
   }, [templateId]);
 
+  const pickFirstUrl = (...vals: any[]) => {
+    for (const v of vals) {
+      if (typeof v === "string" && v.trim()) return v;
+    }
+    return null;
+  };
+
+  const findUrlDeep = (val: any, depth = 0): string | null => {
+    if (!val || depth > 4) return null;
+    if (typeof val === "string") {
+      const trimmed = val.trim();
+      if (!trimmed) return null;
+      if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("/")) return trimmed;
+      return null;
+    }
+    if (Array.isArray(val)) {
+      for (const item of val) {
+        const found = findUrlDeep(item, depth + 1);
+        if (found) return found;
+      }
+    } else if (typeof val === "object") {
+      for (const key of Object.keys(val)) {
+        const found = findUrlDeep(val[key], depth + 1);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const downloadUrl = useMemo(() => {
-    const mediaUrl = Array.isArray(template?.media) && template.media[0]?.original_url;
-    return (
-      mediaUrl ||
-      template?.file_url ||
-      template?.template_file ||
-      template?.file ||
-      template?.url ||
-      null
+    const media =
+      (template as any)?.media?.[0] ||
+      (template as any)?.media?.data?.[0] ||
+      (template as any)?.data?.media?.[0] ||
+      (template as any)?.data?.media?.data?.[0];
+    const mediaUrl = media?.original_url || media?.url;
+    const directUrl = pickFirstUrl(
+      mediaUrl,
+      template?.file_url,
+      template?.template_file,
+      template?.file,
+      template?.url,
+      template?.file_path,
+      template?.path,
+      template?.location,
+      template?.link,
+      (template as any)?.data?.file_url,
+      (template as any)?.data?.template_file,
+      (template as any)?.data?.file
     );
+    return directUrl || findUrlDeep(template) || null;
   }, [template]);
 
   const displayFileName = useMemo(() => {
-    const mediaName =
-      (Array.isArray(template?.media) && (template.media[0]?.name || template.media[0]?.file_name)) ||
-      null;
+    const media =
+      (template as any)?.media?.[0] ||
+      (template as any)?.media?.data?.[0] ||
+      (template as any)?.data?.media?.[0] ||
+      (template as any)?.data?.media?.data?.[0];
+    const mediaName = media?.name || media?.file_name || null;
     return (
       mediaName ||
       template?.file_name ||
+      (template as any)?.data?.file_name ||
       template?.original_name ||
       template?.filename ||
       template?.template_file ||
@@ -204,7 +253,7 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
           {downloadUrl && (
             <Button variant="outline" size="sm" className="gap-2" onClick={handleDownload}>
               <Download className="h-4 w-4" />
-              Файл
+              Файл татах
             </Button>
           )}
           <EditContractTemplateDialog
@@ -254,10 +303,20 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm text-slate-500">Файлын нэр</p>
-            <p className="text-sm font-medium text-slate-900 break-all">
-              {displayFileName}
-            </p>
+            <p className="text-sm text-slate-500">Файл татах</p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={handleDownload}
+                disabled={!downloadUrl}
+              >
+                <Download className="h-4 w-4" />
+                {downloadUrl ? displayFileName : "Файл байхгүй"}
+              </Button>
+              {!downloadUrl && <span className="text-xs text-slate-500">Холбоос олдсонгүй</span>}
+            </div>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-slate-500">Шинэчлэгдсэн</p>

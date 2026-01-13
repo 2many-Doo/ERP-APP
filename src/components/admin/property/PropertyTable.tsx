@@ -133,9 +133,6 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
                 Төлөв
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-700 uppercase">
-                Үйлдэл
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">

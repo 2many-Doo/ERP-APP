@@ -1288,6 +1288,20 @@ export const getContractTemplateById = async (id: number | string): Promise<ApiR
 };
 
 /**
+ * Bank accounts list
+ */
+export const getBankAccounts = async (): Promise<ApiResponse<any>> => {
+  return get("/v1/bank-account/accounts");
+};
+
+/**
+ * Invoice histories list
+ */
+export const getInvoiceHistories = async (): Promise<ApiResponse<any>> => {
+  return get("/v1/invoice-histories/list-data");
+};
+
+/**
  * Create contract template (multipart with file upload)
  */
 export const createContractTemplate = async (payload: {

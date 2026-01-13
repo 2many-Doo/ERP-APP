@@ -117,27 +117,15 @@ export const sidebarSections: NavSection[] = [
     permission: "finance_menu_show",
     items: [
       {
-        id: "finance-transactions",
-        label: "Гүйлгээ",
-        href: "#finance-transactions",
-        permission: "finance_menu_show",
-      },
-      {
-        id: "finance-payments",
-        label: "Төлбөр",
-        href: "#finance-payments",
+        id: "finance-bank-accounts",
+        label: "Банкны данс",
+        componentKey: "finance-bank-accounts",
         permission: "finance_menu_show",
       },
       {
         id: "finance-invoices",
-        label: "Нэхэмжлэх",
-        href: "#finance-invoices",
-        permission: "finance_menu_show",
-      },
-      {
-        id: "finance-reports",
-        label: "Санхүүгийн тайлан",
-        href: "#finance-reports",
+        label: "Нэхэмжлэл",
+        componentKey: "finance-invoices",
         permission: "finance_menu_show",
       },
     ],

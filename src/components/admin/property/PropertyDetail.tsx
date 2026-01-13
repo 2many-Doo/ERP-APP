@@ -472,15 +472,16 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
                   Түүх харах
                 </Button>
               )}
-              {/* {onRateClick && (
+              {onRateClick && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onRateClick(property)}
+                  onClick={() => property && onRateClick(property)}
+                  className="flex items-center gap-2"
                 >
-                  {property.rate ? "Үнэлгээ засах" : "Үнэлгээ өгөх"}
+                  {property?.rate ? "Үнэлгээ засах" : "Үнэлгээ өгөх"}
                 </Button>
-              )} */}
+              )}
             </div>
           </div>
           

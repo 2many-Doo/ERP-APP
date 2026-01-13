@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "../../ui/button";
-import { Star } from "lucide-react";
 import { Property } from "./types";
 
 interface PropertyTableRowProps {
@@ -145,22 +143,7 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
           return <span className="text-sm text-slate-500">-</span>;
         })()}
       </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRateClick(property);
-            }}
-          >
-            <Star className="h-4 w-4" />
-            Үнэлгээ өгөх
-          </Button>
-        </div>
-      </td>
+      <td className="px-6 py-4"></td>
     </tr>
   );
 };

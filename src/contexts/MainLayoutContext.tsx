@@ -85,6 +85,10 @@ export function MainLayoutProvider({
         return "contract-process";
       case "insurance-management":
         return "components";
+      case "finance-bank-accounts":
+        return "finance-bank-accounts";
+      case "finance-invoices":
+        return "finance-invoices";
       case "legal-documents":
         return "other-terms";
       default:
