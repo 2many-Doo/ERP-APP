@@ -1281,6 +1281,13 @@ export const getContractTemplates = async (
 };
 
 /**
+ * Get contract template by ID
+ */
+export const getContractTemplateById = async (id: number | string): Promise<ApiResponse<any>> => {
+  return get(`/v1/contract-templates/${id}`);
+};
+
+/**
  * Create contract template (multipart with file upload)
  */
 export const createContractTemplate = async (payload: {
@@ -1306,6 +1313,31 @@ export const createContractTemplate = async (payload: {
     body.template_file = payload.file_url;
   }
   return post("/v1/contract-templates", body);
+};
+
+/**
+ * Update contract template
+ */
+export const updateContractTemplate = async (
+  id: number | string,
+  payload: {
+    name?: string;
+    category?: string;
+    file_url?: string;
+    file_name?: string;
+    file?: string;
+    template_file?: string;
+    contract_type?: "organization" | "individual" | string;
+    property_type_id?: number | string;
+    product_types?: Array<number | string>;
+    type?: string;
+    [key: string]: any;
+  }
+): Promise<ApiResponse<any>> => {
+  const body: any = { ...payload };
+  if (payload.file_url && !body.file) body.file = payload.file_url;
+  if (payload.file_url && !body.template_file) body.template_file = payload.file_url;
+  return put(`/v1/contract-templates/${id}`, body);
 };
 
 /**

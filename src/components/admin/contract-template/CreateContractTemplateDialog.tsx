@@ -312,7 +312,7 @@ const CreateContractTemplateDialog: React.FC<CreateContractTemplateDialogProps> 
               disabled={loadingMeta || submitting || uploading || propertyTypes.length === 0}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={loadingMeta ? "Ачааллаж байна..." : "Ангилал сонгох"} />
+                <SelectValue placeholder={loadingMeta ? "Ачааллаж байна..." : "Талбайн төрөл сонгох"} />
               </SelectTrigger>
               <SelectContent className="z-[100] bg-white">
                 {propertyTypes.length === 0 && (

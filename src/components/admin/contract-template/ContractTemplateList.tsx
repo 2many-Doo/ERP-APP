@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, Pencil } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { getContractTemplates, getContractTemplateCreateMeta } from "@/lib/api";
 import CreateContractTemplateDialog from "./CreateContractTemplateDialog";
+import EditContractTemplateDialog from "./EditContractTemplateDialog";
+import { useRouter } from "next/navigation";
 
 type ContractTemplate = {
   id?: number;
@@ -34,8 +36,10 @@ const ContractTemplateList: React.FC = () => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [appliedSearch, setAppliedSearch] = useState<string>("");
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
+  const [editOpenId, setEditOpenId] = useState<number | null>(null);
   const [typeMap, setTypeMap] = useState<Record<string, string>>({});
   const [propertyTypeMap, setPropertyTypeMap] = useState<Record<string, string>>({});
+  const router = useRouter();
 
   const fetchTemplates = async (page: number = 1, query: string = appliedSearch) => {
     try {
@@ -300,7 +304,11 @@ const ContractTemplateList: React.FC = () => {
                 </tr>
               ) : (
                 templates.map((template) => (
-                  <tr key={template.id ?? renderName(template)} className="hover:bg-slate-50 transition-colors">
+                  <tr
+                    key={template.id ?? renderName(template)}
+                    className="hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => template.id && router.push(`/main/contract-templates/${template.id}`)}
+                  >
                     <td className="px-6 py-4 text-sm text-slate-900">#{template.id ?? "-"}</td>
                     <td className="px-6 py-4 text-sm text-slate-900">{renderName(template)}</td>
                     <td className="px-6 py-4 text-sm text-slate-700">{renderContractType(template)}</td>
