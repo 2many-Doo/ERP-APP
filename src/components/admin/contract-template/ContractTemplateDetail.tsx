@@ -120,16 +120,33 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
     return findUrlDeep(tpl);
   };
 
+  const normalizeBaseUrl = (value: string) => {
+    if (!value) return "";
+    const cleaned = value.trim().replace(/\/+$/, "");
+    if (/^https?:\/\//i.test(cleaned)) return cleaned;
+    return `https://${cleaned}`;
+  };
+
   const resolveFileUrl = (url?: string | null) => {
     if (!url) return "";
-    if (/^https?:\/\//i.test(url)) return url;
+
+    // If backend returns absolute URL, avoid mixed-content on Vercel (HTTPS)
+    if (/^https?:\/\//i.test(url)) {
+      if (typeof window !== "undefined" && window.location.protocol === "https:" && url.startsWith("http://")) {
+        return url.replace(/^http:\/\//i, "https://");
+      }
+      return url;
+    }
+
     const base =
       process.env.NEXT_PUBLIC_API_URL ||
       process.env.NEXT_PUBLIC_PRODUCTION_URL ||
       process.env.NEXT_PUBLIC_BASE_URL_TEST ||
       "";
-    if (!base) return url;
-    return `${base.replace(/\/+$/, "")}/${String(url).replace(/^\/+/, "")}`;
+    const normalizedBase = normalizeBaseUrl(base);
+    if (!normalizedBase) return url;
+
+    return `${normalizedBase}/${String(url).replace(/^\/+/, "")}`;
   };
 
   const downloadUrl = resolveFileUrl(extractFileUrlFromTemplate(template));
