@@ -167,6 +167,15 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
     try {
       setDownloading(true);
       const headers: Record<string, string> = {};
+
+      // Align with other API calls: send token + api-key if configured
+      const apiKey =
+        process.env.NEXT_PUBLIC_API_KEY ||
+        process.env.NEXT_PUBLIC_PRODUCTION_KEY ||
+        "";
+      if (apiKey) {
+        headers["api-key"] = apiKey;
+      }
       if (typeof window !== "undefined") {
         const token = localStorage.getItem("token");
         if (token) {
