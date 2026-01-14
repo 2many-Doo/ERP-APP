@@ -157,21 +157,41 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
         }
       }
 
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        throw new Error("Файл татахад алдаа гарлаа.");
-      }
+      // Try authenticated fetch first (works if storage is protected)
+      try {
+        const response = await fetch(url, {
+          headers,
+          credentials: "include",
+          mode: "cors",
+        });
+        if (!response.ok) {
+          throw new Error("Fetch failed");
+        }
 
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const fileNameFromUrl = url.split("/").pop() || "contract-template";
-      link.href = downloadUrl;
-      link.download = template?.file_name || template?.name || fileNameFromUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const fileNameFromUrl = url.split("/").pop() || "contract-template";
+        link.href = blobUrl;
+        link.download = template?.file_name || template?.name || fileNameFromUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        return;
+      } catch (fetchErr) {
+        // Fallback for CORS/opaque responses: open direct link
+        console.warn("Fetch download failed, fallback to direct link", fetchErr);
+        const link = document.createElement("a");
+        const fileNameFromUrl = url.split("/").pop() || "contract-template";
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.download = template?.file_name || template?.name || fileNameFromUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (err) {
       console.error(err);
       window.alert("Файл татахад алдаа гарлаа. Дахин оролдоно уу.");
