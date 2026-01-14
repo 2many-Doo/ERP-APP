@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowLeft, Download, Loader2, Pencil } from "lucide-react";
 import { Button } from "../../ui/button";
 import { getContractTemplateById } from "@/lib/api";
 import EditContractTemplateDialog from "./EditContractTemplateDialog";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 type ContractTemplate = {
   id?: number;
@@ -30,7 +29,7 @@ type ContractTemplate = {
   file_url?: string;
   template_file?: string;
   file_name?: string;
-  [key: string]: any;
+  [key: string]: any;                                                          
 };
 
 interface ContractTemplateDetailProps {
@@ -41,9 +40,145 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
   const [propertyTypesMap, setPropertyTypesMap] = useState<Record<string, string>>({});
   const [template, setTemplate] = useState<ContractTemplate | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const router = useRouter();
+
+  const extractFileUrlFromMedia = (media?: any[]) => {
+    if (!Array.isArray(media)) return "";
+    const prioritized = media.find(
+      (m) =>
+        m?.collection_name === "template_file" ||
+        m?.collectionName === "template_file" ||
+        m?.collection_name === "file" ||
+        m?.collectionName === "file"
+    );
+    const first = prioritized || media[0];
+    return first?.original_url || first?.url || "";
+  };
+
+  const findUrlDeep = (value: any): string => {
+    // Recursively find a string that looks like a URL
+    if (!value) return "";
+    if (typeof value === "string") {
+      if (/^https?:\/\//i.test(value) || /\.(docx?|pdf|xlsx?|pptx?)$/i.test(value)) return value;
+      return "";
+    }
+    if (Array.isArray(value)) {
+      for (const v of value) {
+        const found = findUrlDeep(v);
+        if (found) return found;
+      }
+      return "";
+    }
+    if (typeof value === "object") {
+      for (const key of Object.keys(value)) {
+        if (/(url|file|path)$/i.test(key) && typeof value[key] === "string") {
+          const maybe = findUrlDeep(value[key]);
+          if (maybe) return maybe;
+        }
+        const found = findUrlDeep(value[key]);
+        if (found) return found;
+      }
+    }
+    return "";
+  };
+
+  const extractFileUrlFromTemplate = (tpl?: any) => {
+    if (!tpl) return "";
+    if (tpl.file_url || tpl.template_file || tpl.file || tpl.fileUrl || tpl.templateFile) {
+      return (
+        tpl.file_url ||
+        tpl.template_file ||
+        tpl.file ||
+        tpl.fileUrl ||
+        tpl.templateFile ||
+        ""
+      );
+    }
+    // Nested shapes: tpl.data?.media, tpl.meta?.media, tpl.medias, tpl.media
+    const mediaSources: any[] = [
+      tpl.media,
+      tpl.medias,
+      tpl.files,
+      tpl.attachments,
+      tpl?.data?.media,
+      tpl?.data?.medias,
+      tpl?.meta?.media,
+      tpl?.meta?.medias,
+    ].flat().filter(Boolean);
+
+    const urlFromMedia = extractFileUrlFromMedia(mediaSources);
+    if (urlFromMedia) return urlFromMedia;
+
+    // Direct url fields
+    const direct = tpl.original_url || tpl.url;
+    if (direct) return direct;
+
+    // Deep search as last resort
+    return findUrlDeep(tpl);
+  };
+
+  const resolveFileUrl = (url?: string | null) => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) return url;
+    const base =
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_PRODUCTION_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL_TEST ||
+      "";
+    if (!base) return url;
+    return `${base.replace(/\/+$/, "")}/${String(url).replace(/^\/+/, "")}`;
+  };
+
+  const downloadUrl = resolveFileUrl(extractFileUrlFromTemplate(template));
+  if (process.env.NODE_ENV === "development") {
+    // Helpful during integration issues
+    // eslint-disable-next-line no-console
+    console.debug("Contract template download URL:", downloadUrl, template);
+  }
+
+  const handleDownloadFile = async () => {
+    const url = downloadUrl;
+
+    if (!url) {
+      window.alert("Татах файл олдсонгүй.");
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      const headers: Record<string, string> = {};
+      if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token");
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+      }
+
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        throw new Error("Файл татахад алдаа гарлаа.");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const fileNameFromUrl = url.split("/").pop() || "contract-template";
+      link.href = downloadUrl;
+      link.download = template?.file_name || template?.name || fileNameFromUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error(err);
+      window.alert("Файл татахад алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const fetchTemplate = async () => {
     setLoading(true);
@@ -109,86 +244,6 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
     }
   }, [templateId]);
 
-  const pickFirstUrl = (...vals: any[]) => {
-    for (const v of vals) {
-      if (typeof v === "string" && v.trim()) return v;
-    }
-    return null;
-  };
-
-  const findUrlDeep = (val: any, depth = 0): string | null => {
-    if (!val || depth > 4) return null;
-    if (typeof val === "string") {
-      const trimmed = val.trim();
-      if (!trimmed) return null;
-      if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("/")) return trimmed;
-      return null;
-    }
-    if (Array.isArray(val)) {
-      for (const item of val) {
-        const found = findUrlDeep(item, depth + 1);
-        if (found) return found;
-      }
-    } else if (typeof val === "object") {
-      for (const key of Object.keys(val)) {
-        const found = findUrlDeep(val[key], depth + 1);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  const downloadUrl = useMemo(() => {
-    const media =
-      (template as any)?.media?.[0] ||
-      (template as any)?.media?.data?.[0] ||
-      (template as any)?.data?.media?.[0] ||
-      (template as any)?.data?.media?.data?.[0];
-    const mediaUrl = media?.original_url || media?.url;
-    const directUrl = pickFirstUrl(
-      mediaUrl,
-      template?.file_url,
-      template?.template_file,
-      template?.file,
-      template?.url,
-      template?.file_path,
-      template?.path,
-      template?.location,
-      template?.link,
-      (template as any)?.data?.file_url,
-      (template as any)?.data?.template_file,
-      (template as any)?.data?.file
-    );
-    return directUrl || findUrlDeep(template) || null;
-  }, [template]);
-
-  const displayFileName = useMemo(() => {
-    const media =
-      (template as any)?.media?.[0] ||
-      (template as any)?.media?.data?.[0] ||
-      (template as any)?.data?.media?.[0] ||
-      (template as any)?.data?.media?.data?.[0];
-    const mediaName = media?.name || media?.file_name || null;
-    return (
-      mediaName ||
-      template?.file_name ||
-      (template as any)?.data?.file_name ||
-      template?.original_name ||
-      template?.filename ||
-      template?.template_file ||
-      (downloadUrl ? downloadUrl.split("/").pop()?.split("?")[0] : null) ||
-      "-"
-    );
-  }, [template, downloadUrl]);
-
-  const handleDownload = () => {
-    if (!downloadUrl) {
-      toast.error("Файл олдсонгүй");
-      return;
-    }
-    window.open(downloadUrl, "_blank", "noopener,noreferrer");
-  };
-
   const formatStatus = (status?: string | boolean) => {
     if (typeof status === "boolean") return status ? "Идэвхтэй" : "Идэвхгүй";
     const map: Record<string, string> = {
@@ -246,16 +301,19 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{template.name || "-"}</h1>
-            <p className="text-sm text-slate-500">{template.code || template.key || "-"}</p>
           </div>
         </div>
         <div className="flex gap-2">
-          {downloadUrl && (
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleDownload}>
-              <Download className="h-4 w-4" />
-              Файл татах
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleDownloadFile}
+            disabled={downloading || !downloadUrl}
+          >
+            {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Файл татах
+          </Button>
           <EditContractTemplateDialog
             open={editOpen}
             onOpenChange={setEditOpen}
@@ -301,22 +359,6 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
             <p className="text-sm font-medium text-slate-900">
               {formatStatus(template.status ?? template.is_active ?? template.active)}
             </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm text-slate-500">Файл татах</p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={handleDownload}
-                disabled={!downloadUrl}
-              >
-                <Download className="h-4 w-4" />
-                {downloadUrl ? displayFileName : "Файл байхгүй"}
-              </Button>
-              {!downloadUrl && <span className="text-xs text-slate-500">Холбоос олдсонгүй</span>}
-            </div>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-slate-500">Шинэчлэгдсэн</p>
