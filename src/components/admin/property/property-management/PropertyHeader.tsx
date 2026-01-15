@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "../../ui/button";
+import { Button } from "../../../ui/button";
 import { Download, Plus } from "lucide-react";
 
 interface PropertyHeaderProps {

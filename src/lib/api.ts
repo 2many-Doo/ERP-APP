@@ -809,12 +809,7 @@ export const rejectLeaseRequest = async (id: number): Promise<ApiResponse<any>> 
   return put(`/v1/lease-requests/${id}/reject`, undefined);
 };
 
-/**
- * Get product types API function
- */
-export const getProductTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/properties/product-types");
-};
+// NOTE: getProductTypes moved below with pagination/search support.
 
 /**
  * Get contract template create meta (property types, product types, etc)
@@ -925,17 +920,170 @@ export const getPropertyAnnualRates = async (propertyId: number): Promise<ApiRes
 };
 
 /**
- * Get property types API function
+ * Get property types API function (supports pagination/search)
  */
-export const getPropertyTypes = async (): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/properties/types");
+export const getPropertyTypes = async (
+  page: number = 1,
+  perPage: number = 32,
+  orderby: string = "id",
+  order: string = "asc",
+  q: string = ""
+): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/properties/types", {
+    params: {
+      page,
+      per_page: perPage,
+      orderby,
+      order,
+      q,
+    },
+  });
 };
 
 /**
- * Get service categories API function
+ * Create property type
  */
-export const getServiceCategories = async (): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/service-categories");
+export const createPropertyType = async (payload: {
+  name: string;
+  description?: string;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
+  return post("/v1/property-types", payload);
+};
+
+/**
+ * Update property type
+ */
+export const updatePropertyType = async (
+  id: number | string,
+  payload: {
+    name?: string;
+    description?: string;
+    [key: string]: any;
+  }
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/property-types/${id}`, payload);
+};
+
+/**
+ * Delete property type
+ */
+export const deletePropertyType = async (id: number | string): Promise<ApiResponse<any>> => {
+  return del(`/v1/property-types/${id}`);
+};
+
+/**
+ * Get product types API function (supports pagination/search)
+ */
+export const getProductTypes = async (
+  page: number = 1,
+  perPage: number = 32,
+  orderby: string = "id",
+  order: string = "desc",
+  q: string = ""
+): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/product-types", {
+    params: {
+      page,
+      per_page: perPage,
+      orderby,
+      order,
+      q,
+    },
+  });
+};
+
+/**
+ * Create product type
+ */
+export const createProductType = async (payload: {
+  name: string;
+  description?: string;
+  code?: string;
+  category_id?: number | null;
+  management_fee_rate?: number | null;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
+  return post("/v1/product-types", payload);
+};
+
+/**
+ * Update product type
+ */
+export const updateProductType = async (
+  id: number | string,
+  payload: {
+    name?: string;
+    description?: string;
+    code?: string;
+    category_id?: number | null;
+    management_fee_rate?: number | null;
+    [key: string]: any;
+  }
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/product-types/${id}`, payload);
+};
+
+/**
+ * Delete product type
+ */
+export const deleteProductType = async (id: number | string): Promise<ApiResponse<any>> => {
+  return del(`/v1/product-types/${id}`);
+};
+
+/**
+ * Get service categories API function with pagination/search
+ */
+export const getServiceCategories = async (
+  page: number = 1,
+  perPage: number = 32,
+  orderby: string = "created_at",
+  order: string = "desc",
+  q: string = ""
+): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/service-categories", {
+    params: {
+      page,
+      per_page: perPage,
+      orderby,
+      order,
+      q,
+    },
+  });
+};
+
+/**
+ * Create service category
+ */
+export const createServiceCategory = async (payload: {
+  name: string;
+  description?: string;
+  code?: string;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
+  return post("/v1/service-categories", payload);
+};
+
+/**
+ * Update service category
+ */
+export const updateServiceCategory = async (
+  id: number | string,
+  payload: {
+    name?: string;
+    description?: string;
+    code?: string;
+    [key: string]: any;
+  }
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/service-categories/${id}`, payload);
+};
+
+/**
+ * Delete service category
+ */
+export const deleteServiceCategory = async (id: number | string): Promise<ApiResponse<any>> => {
+  return del(`/v1/service-categories/${id}`);
 };
 
 /**

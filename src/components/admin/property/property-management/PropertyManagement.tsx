@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Pagination } from "../../ui/pagination";
+import { Pagination } from "../../../ui/pagination";
 import PropertyHeader from "./PropertyHeader";
 import PropertyStatistics from "./PropertyStatistics";
 import PropertySearchAndFilter from "./PropertySearchAndFilter";

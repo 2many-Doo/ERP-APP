@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { getProperties,  getProductTypes, getBlocks, updatePropertyRate } from "@/lib/api";
-import { Property, ProductType, Block } from "@/components/admin/property/types";
+import { Property, ProductType, Block } from "@/components/admin/property/property-management/types";
 
 export const usePropertyManagement = () => {
   const [properties, setProperties] = useState<Property[]>([]);

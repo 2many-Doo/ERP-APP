@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PropertyDetail } from "@/components/admin/property/PropertyDetail";
+import { PropertyDetail } from "@/components/admin/property/property-management";
 import { approveAnnualRate, rejectAnnualRate, getProperty } from "@/lib/api";
-import { Property } from "@/components/admin/property/types";
-import { UpdateRateModal } from "@/components/admin/property/UpdateRateModal";
+import { Property } from "@/components/admin/property/property-management/types";
+import { UpdateRateModal } from "@/components/admin/property/property-management/UpdateRateModal";
 import { createAnnualRate } from "@/lib/api";
 
 export default function PropertyDetailPage() {

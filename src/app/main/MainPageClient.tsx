@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { useMainLayout } from "@/contexts/MainLayoutContext";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -14,13 +13,16 @@ import { ContractFormDetail } from "@/components/admin/tenat/contract-tenant";
 import ApprovedTenantList from "@/components/admin/tenat/tenat-folder/ApprovedTenantList";
 import ContractProcess from "@/components/admin/tenat/contract-process";
 import InsuranceManagement from "@/components/admin/tenat/insurance-management";
-import PropertyManagement from "@/components/admin/property/PropertyManagement";
-import { PropertyRateHistory } from "@/components/admin/property/PropertyRateHistory";
-import PropertyRateUpdate from "@/components/admin/property/PropertyRateUpdate";
+import { PropertyManagement } from "@/components/admin/property/property-management";
+import { PropertyRateHistory } from "@/components/admin/property/property-management";
+import { PropertyRateUpdate } from "@/components/admin/property/property-management";
 import LegalDocuments from "@/components/admin/other/LegalDocuments";
 import ContractTemplateList from "@/components/admin/contract-template/ContractTemplateList";
 import BankAccounts from "@/components/admin/finance/BankAccounts";
 import InvoiceHistoryList from "@/components/admin/finance/InvoiceHistoryList";
+import ServiceCategoryList from "@/components/admin/property/service-category/ServiceCategoryList";
+import PropertyTypeList from "@/components/admin/property/property-type/PropertyTypeList";
+import ProductTypeList from "@/components/admin/property/product-type/ProductTypeList";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -230,6 +232,12 @@ const MainPageClient = () => {
         return <PropertyRateHistory hideActions />;
       case "property-rate-update":
         return <PropertyRateUpdate />;
+      case "property-category-list":
+        return <ServiceCategoryList />;
+      case "property-type-list":
+        return <PropertyTypeList />;
+      case "property-product-type-list":
+        return <ProductTypeList />;
       case "legal-documents":
         return <LegalDocuments />;
       case "contract-layout":
@@ -238,6 +246,8 @@ const MainPageClient = () => {
         return <BankAccounts />;
       case "finance-invoices":
         return <InvoiceHistoryList />;
+      case "property-product-type-list":
+        return <ProductTypeList />;
       default:
         return <UserManagement />;
     }

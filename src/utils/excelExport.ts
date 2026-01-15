@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Property } from '@/components/admin/property/types';
+import { Property } from '@/components/admin/property/property-management/types';
 
 export const exportPropertiesToExcel = (properties: Property[], filename: string = 'Талбайн_мэдээлэл') => {
   // Prepare data for Excel

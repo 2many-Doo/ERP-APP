@@ -5,7 +5,7 @@ import { PropertyRateHistory } from "./PropertyRateHistory";
 import { getNeedActionAnnualRates } from "@/lib/api";
 
 // Pending-only view for updating/approving rates using need-action endpoint
-const PropertyRateUpdate: React.FC = () => {
+export const PropertyRateUpdate: React.FC = () => {
   return (
     <PropertyRateHistory
       title="Үнэлгээ засах"

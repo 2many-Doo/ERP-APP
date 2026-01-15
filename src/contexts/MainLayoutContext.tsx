@@ -91,6 +91,12 @@ export function MainLayoutProvider({
         return "finance-invoices";
       case "legal-documents":
         return "other-terms";
+      case "property-type-list":
+        return "property-type-list";
+      case "property-product-type-list":
+        return "property-product-type-list";
+      case "property-category-list":
+        return "property-category-list";
       default:
         return null;
     }

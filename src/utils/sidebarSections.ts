@@ -109,6 +109,24 @@ export const sidebarSections: NavSection[] = [
         componentKey: "property-rate-history",
         permission: "property_menu_show",
       },
+      {
+        id: "property-type-list",
+        label: "Талбайн төрөл",
+        componentKey: "property-type-list",
+        permission: "property_menu_show",
+      },
+      {
+        id: "property-category-list",
+        label: "Талбайн ангилал",
+        componentKey: "property-category-list",
+        permission: "property_menu_show",
+      },
+      {
+        id: "property-product-type-list",
+        label: "Бүтээгдэхүүний төрөл",
+        componentKey: "property-product-type-list",
+        permission: "property_menu_show",
+      },
     ],
   },
   {
