@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { getBankAccounts } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ type BankAccount = {
 const BankAccounts: React.FC = () => {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const fetchAccounts = async () => {
     try {
@@ -89,15 +91,23 @@ const BankAccounts: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                accounts.map((acc) => (
-                  <tr key={acc.id ?? acc.account_number ?? acc.name} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 text-sm text-slate-900">#{acc.id ?? "-"}</td>
-                    <td className="px-6 py-4 text-sm text-slate-900">{acc.purpose || acc.name || "-"}</td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{acc.bank_name || "-"}</td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{acc.account_number || acc.number || "-"}</td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{acc.account_holder || "-"}</td>
-                  </tr>
-                ))
+                accounts.map((acc) => {
+                  const id = acc.id ?? acc.account_number ?? acc.name;
+                  const href = id ? `/main/bank-accounts/${id}` : null;
+                  return (
+                    <tr
+                      key={id}
+                      className="hover:bg-slate-50 cursor-pointer"
+                      onClick={() => href && router.push(href)}
+                    >
+                      <td className="px-6 py-4 text-sm text-slate-900">#{id ?? "-"}</td>
+                      <td className="px-6 py-4 text-sm text-slate-900">{acc.purpose || acc.name || "-"}</td>
+                      <td className="px-6 py-4 text-sm text-slate-700">{acc.bank_name || "-"}</td>
+                      <td className="px-6 py-4 text-sm text-slate-700">{acc.account_number || acc.number || "-"}</td>
+                      <td className="px-6 py-4 text-sm text-slate-700">{acc.account_holder || "-"}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

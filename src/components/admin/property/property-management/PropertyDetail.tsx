@@ -86,10 +86,10 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
       } else if (response.data) {
         const responseData = response.data as any;
         const ratesArray = responseData.data || (Array.isArray(responseData) ? responseData : []);
-        
-        // Filter to ensure only rates for this specific property are shown
-        const propertyRates = Array.isArray(ratesArray) 
-          ? ratesArray.filter((rate: any) => rate.property_id === propertyId)
+
+        // Filter to ensure only rates for this specific property are shown (handle string/number ids)
+        const propertyRates = Array.isArray(ratesArray)
+          ? ratesArray.filter((rate: any) => Number(rate?.property_id) === Number(propertyId))
           : [];
         
         // Sort by year descending (newest first)

@@ -979,7 +979,7 @@ export const getProductTypes = async (
   page: number = 1,
   perPage: number = 32,
   orderby: string = "id",
-  order: string = "desc",
+  order: string = "asc",
   q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/product-types", {
@@ -1440,6 +1440,36 @@ export const getContractTemplateById = async (id: number | string): Promise<ApiR
  */
 export const getBankAccounts = async (): Promise<ApiResponse<any>> => {
   return get("/v1/bank-account/accounts");
+};
+
+/**
+ * Get bank account transactions by account ID
+ */
+export const getBankAccountTransactions = async (
+  accountId: number | string,
+  {
+    startDate,
+    endDate,
+    page = 1,
+    perPage = 32,
+    q = "",
+  }: {
+    startDate?: string | null;
+    endDate?: string | null;
+    page?: number;
+    perPage?: number;
+    q?: string;
+  }
+): Promise<ApiResponse<any>> => {
+  const params: Record<string, string | number | boolean> = {
+    page,
+    per_page: perPage,
+  };
+  if (startDate) params.start_date = startDate;
+  if (endDate) params.end_date = endDate;
+  if (q) params.q = q;
+
+  return get(`/v1/bank-account/account/${accountId}/transactions`, { params });
 };
 
 /**
