@@ -25,7 +25,6 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
   property: propProperty,
   onBack,
   onRateClick,
-  onRateSuccess,
   onEdit,
   onApproveRate,
   onRejectRate,
@@ -76,7 +75,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
         setAnnualRates([]);
         return;
       }
-      
+
       if (response.error) {
         // Only show toast for non-404 errors
         if (response.status !== 404) {
@@ -91,7 +90,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
         const propertyRates = Array.isArray(ratesArray)
           ? ratesArray.filter((rate: any) => Number(rate?.property_id) === Number(propertyId))
           : [];
-        
+
         // Sort by year descending (newest first)
         const sortedRates = propertyRates.sort((a: any, b: any) => (b.year || 0) - (a.year || 0));
         setAnnualRates(sortedRates);
@@ -203,23 +202,28 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
           </Button>
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
-             {property?.number || property?.id || propertyId}
+              {property?.number || property?.id || propertyId}
             </h1>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
+          {onRateClick && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => property && onRateClick(property)}
+              className="flex items-center gap-2"
+            >
+              {property?.rate ? "Үнэлгээ засах" : "Үнэлгээ өгөх"}
+            </Button>
+          )}
           {property && (
             <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Засах
             </Button>
           )}
-          {/* {onRateClick && property && (
-            <Button variant="outline" onClick={() => onRateClick(property)}>
-              <Star className="h-4 w-4 mr-2" />
-              Үнэлгээний хүсэлт илгээх
-            </Button>
-          )} */}
         </div>
       </div>
 
@@ -232,18 +236,18 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               <FileText className="h-5 w-5" />
               Үндсэн мэдээлэл
             </h3>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Талбайн дугаар</label>
                 <p className="text-sm text-slate-900 mt-1">{property?.number || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Нэр</label>
                 <p className="text-sm text-slate-900 mt-1">{property.name || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Тайлбар</label>
                 <p className="text-sm text-slate-600 mt-1">{property.description || "-"}</p>
@@ -257,28 +261,28 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               <MapPin className="h-5 w-5" />
               Байршил ба хэмжээс
             </h3>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">X координат</label>
                 <p className="text-sm text-slate-900 mt-1">{property.x ?? "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Y координат</label>
                 <p className="text-sm text-slate-900 mt-1">{property.y ?? "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Урт</label>
                 <p className="text-sm text-slate-900 mt-1">{property.length ? `${property.length}м` : "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Өргөн</label>
                 <p className="text-sm text-slate-900 mt-1">{property.width ? `${property.width}м` : "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Талбайн хэмжээ</label>
                 <p className="text-sm text-slate-900 mt-1">
@@ -296,20 +300,20 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               <Building className="h-5 w-5" />
               Блокийн мэдээлэл
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн нэр</label>
                 <p className="text-sm text-slate-900 mt-1">{property.block.name || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн урт</label>
                 <p className="text-sm text-slate-900 mt-1">
                   {property.block.length ? `${property.block.length}м` : "-"}
                 </p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн өргөн</label>
                 <p className="text-sm text-slate-900 mt-1">
@@ -327,45 +331,45 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               <User className="h-5 w-5" />
               Түрээслэгчийн мэдээлэл
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Төрөл</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.type || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Нэр</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.name || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Регистр</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.rd || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Имэйл</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.email || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Утас</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.phone || "-"}</p>
               </div>
-              
+
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Хаяг</label>
                 <p className="text-sm text-slate-900 mt-1">{property.tenant.address || "-"}</p>
               </div>
-              
+
               {property.tenant.address_description && (
                 <div className="md:col-span-2">
                   <label className="text-xs font-medium text-slate-500 uppercase">Хаягийн дэлгэрэнгүй</label>
                   <p className="text-sm text-slate-600 mt-1">{property.tenant.address_description}</p>
                 </div>
               )}
-              
+
               {property.tenant.website && (
                 <div>
                   <label className="text-xs font-medium text-slate-500 uppercase">Вебсайт</label>
@@ -379,29 +383,29 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
             </div>
 
             {/* Social Media */}
-            {(property.tenant.facebook || property.tenant.twitter || property.tenant.instagram || 
+            {(property.tenant.facebook || property.tenant.twitter || property.tenant.instagram ||
               property.tenant.youtube || property.tenant.wechat) && (
-              <div className="mt-4 pt-4 border-t border-slate-200">
-                <label className="text-xs font-medium text-slate-500 uppercase mb-2 block">Олон нийтийн сүлжээ</label>
-                <div className="flex flex-wrap gap-2">
-                  {property.tenant.facebook && (
-                    <span className="text-xs text-blue-600">Facebook</span>
-                  )}
-                  {property.tenant.twitter && (
-                    <span className="text-xs text-blue-400">Twitter</span>
-                  )}
-                  {property.tenant.instagram && (
-                    <span className="text-xs text-pink-600">Instagram</span>
-                  )}
-                  {property.tenant.youtube && (
-                    <span className="text-xs text-red-600">YouTube</span>
-                  )}
-                  {property.tenant.wechat && (
-                    <span className="text-xs text-green-600">WeChat</span>
-                  )}
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <label className="text-xs font-medium text-slate-500 uppercase mb-2 block">Олон нийтийн сүлжээ</label>
+                  <div className="flex flex-wrap gap-2">
+                    {property.tenant.facebook && (
+                      <span className="text-xs text-blue-600">Facebook</span>
+                    )}
+                    {property.tenant.twitter && (
+                      <span className="text-xs text-blue-400">Twitter</span>
+                    )}
+                    {property.tenant.instagram && (
+                      <span className="text-xs text-pink-600">Instagram</span>
+                    )}
+                    {property.tenant.youtube && (
+                      <span className="text-xs text-red-600">YouTube</span>
+                    )}
+                    {property.tenant.wechat && (
+                      <span className="text-xs text-green-600">WeChat</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         )}
 
@@ -411,7 +415,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
             <Tag className="h-5 w-5" />
             Төрөл ба ангилал
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {property.type && (
               <div>
@@ -422,7 +426,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 )}
               </div>
             )}
-            
+
             {property.product_type && (
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Барааны төрөл</label>
@@ -437,14 +441,13 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 )}
               </div>
             )}
-            
+
             {property.status && (
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Төлөв</label>
                 <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 ${
-                    property.status.style || "bg-slate-100 text-slate-800"
-                  }`}
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 ${property.status.style || "bg-slate-100 text-slate-800"
+                    }`}
                 >
                   {property.status.description || property.status.name || "-"}
                 </span>
@@ -472,19 +475,9 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
                   Түүх харах
                 </Button>
               )}
-              {onRateClick && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => property && onRateClick(property)}
-                  className="flex items-center gap-2"
-                >
-                  {property?.rate ? "Үнэлгээ засах" : "Үнэлгээ өгөх"}
-                </Button>
-              )}
             </div>
           </div>
-          
+
           {loadingRates ? (
             <div className="text-center py-8">
               <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
@@ -495,9 +488,8 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               {annualRates.map((rate, index) => (
                 <div
                   key={rate.id || index}
-                  className={`border rounded-lg p-4 ${
-                    index === 0 ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'
-                  }`}
+                  className={`border rounded-lg p-4 ${index === 0 ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-base font-semibold text-slate-900">
@@ -514,17 +506,17 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
                       <label className="text-xs font-medium text-slate-500 uppercase">Үнэ</label>
                       <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.rate)}</p>
                     </div>
-                    
+
                     <div>
                       <label className="text-xs font-medium text-slate-500 uppercase">Төлбөр</label>
                       <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.fee)}</p>
                     </div>
-                    
+
                     <div>
                       <label className="text-xs font-medium text-slate-500 uppercase">Эхлэх огноо</label>
                       <p className="text-sm text-slate-900 mt-1">{formatDate(rate.start_date)}</p>
                     </div>
-                    
+
                     <div>
                       <label className="text-xs font-medium text-slate-500 uppercase">Дуусах огноо</label>
                       <p className="text-sm text-slate-900 mt-1">{formatDate(rate.end_date)}</p>
@@ -546,13 +538,13 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
             <Calendar className="h-5 w-5" />
             Бүртгэлийн мэдээлэл
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-slate-500 uppercase">Үүсгэсэн огноо</label>
               <p className="text-sm text-slate-900 mt-1">{formatDate(property.created_at)}</p>
             </div>
-            
+
             <div>
               <label className="text-xs font-medium text-slate-500 uppercase">Шинэчлэгдсэн огноо</label>
               <p className="text-sm text-slate-900 mt-1">{formatDate(property.updated_at)}</p>

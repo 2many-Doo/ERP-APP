@@ -174,7 +174,7 @@ const BankAccountTransactions: React.FC<Props> = ({ accountId }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Огноо</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Гүйлгээний утга</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Төрөл</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Данс</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Эзэмшигч/Данс</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-slate-700 uppercase">Дүн</th>
               </tr>
             </thead>
