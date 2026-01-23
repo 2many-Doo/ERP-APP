@@ -14,6 +14,7 @@ export interface Property {
   block_id?: number;
   tenant_id?: number;
   type_id?: number;
+  property_type_id?: number;
   product_type_id?: number;
   status_id?: number;
   block?: {
@@ -25,6 +26,22 @@ export interface Property {
     updated_at?: string;
     deleted_at?: string | null;
     main_area_id?: number;
+  };
+  property_type?: {
+    id: number;
+    name?: string;
+    description?: string | null;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
+  };
+  propertyType?: {
+    id: number;
+    name?: string;
+    description?: string | null;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
   };
   tenant?: {
     id: number;
