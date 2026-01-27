@@ -7,6 +7,8 @@ import { approveAnnualRate, rejectAnnualRate, getProperty } from "@/lib/api";
 import { Property } from "@/components/admin/property/property-management/types";
 import { UpdateRateModal } from "@/components/admin/property/property-management/UpdateRateModal";
 import { createAnnualRate } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -52,7 +54,7 @@ export default function PropertyDetailPage() {
     if (!rateId || rateId === 0) {
       throw new Error("Үнэлгээний ID буруу байна");
     }
-    
+
     const response = await approveAnnualRate(propertyId, rateId);
     if (response.error) {
       throw new Error(response.error || "Баталгаажуулахад алдаа гарлаа");
@@ -100,11 +102,11 @@ export default function PropertyDetailPage() {
   }) => {
     const property = selectedProperty;
     const productTypeId = property?.product_type_id ?? property?.product_type?.id ?? null;
-    
+
     if (!property) {
       throw new Error("Талбай олдсонгүй");
     }
-    
+
     const response = await createAnnualRate({
       property_id: propertyId,
       year: new Date().getFullYear(),
@@ -114,7 +116,7 @@ export default function PropertyDetailPage() {
       end_date: "",
       product_type_id: productTypeId,
     });
-    
+
     if (response.error || !response.data) {
       const errorMessage = response.message || response.error || `Алдаа гарлаа (Status: ${response.status || 'unknown'})`;
       throw new Error(errorMessage);
@@ -152,40 +154,63 @@ export default function PropertyDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-10xl mx-auto px-4 py-6">
-        {loading ? (
-          <div className="animate-pulse space-y-4">
-            <div className="h-10 bg-slate-200 rounded-lg" />
-            <div className="h-64 bg-slate-200 rounded-lg" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1,2,3,4].map((i) => (
-                <div key={i} className="h-24 bg-slate-200 rounded-lg" />
-              ))}
+    <div className="min-h-screen bg-slate-100">
+      <div className="fixed inset-0 z-[120] flex items-start justify-center bg-black/60 backdrop-blur-sm px-4 py-8 overflow-y-auto">
+        <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl border border-slate-200 rounded-t-2xl">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 border-b bg-white/90 backdrop-blur rounded-t-2xl">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="h-9 w-9"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <div>
+                <p className="text-xs text-slate-500">Талбайн дэлгэрэнгүй</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {selectedProperty?.number || selectedProperty?.id || propertyId}
+                </p>
+              </div>
             </div>
           </div>
-        ) : error ? (
-          <div className="text-center text-red-600 text-sm">{error}</div>
-        ) : (
-          <PropertyDetail
-            propertyId={propertyId}
-            property={selectedProperty}
-            onBack={handleBack}
-            onRateClick={handleRateClick}
-            onRateSuccess={handleRateSuccess}
-            onApproveRate={handleApproveRate}
-            onRejectRate={handleRejectRate}
-          />
-        )}
+
+          <div className="max-h-[80vh] overflow-y-auto px-4 py-6">
+            {loading ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-10 bg-slate-200 rounded-lg" />
+                <div className="h-64 bg-slate-200 rounded-lg" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-24 bg-slate-200 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-600 text-sm">{error}</div>
+            ) : (
+              <PropertyDetail
+                propertyId={propertyId}
+                property={selectedProperty}
+                onBack={handleBack}
+                onRateClick={handleRateClick}
+                onRateSuccess={handleRateSuccess}
+                onApproveRate={handleApproveRate}
+                onRejectRate={handleRejectRate}
+                showBackButton={false}
+              />
+            )}
+          </div>
+        </div>
       </div>
-      
+
       {/* Rate Update Modal */}
       {isRateModalOpen && selectedProperty && (
         <UpdateRateModal
           property={selectedProperty}
           onClose={() => {
             setIsRateModalOpen(false);
-            setSelectedProperty(null);
           }}
           onSuccess={handleRateSuccess}
           onUpdateRate={handleUpdateRate}

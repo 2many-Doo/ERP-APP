@@ -84,24 +84,123 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-4">
-      <div>
-        <label htmlFor="property-number" className="block text-sm font-medium text-slate-700 mb-2">
-          Талбайн дугаар <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            id="property-number"
-            type="text"
-            value={formData.number || ''}
-            onChange={(e) => handleNumberChange(e.target.value)}
-            placeholder="Талбайн дугаар"
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="property-number" className="block text-sm font-medium text-slate-700 mb-2">
+            Талбайн дугаар <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              id="property-number"
+              type="text"
+              value={formData.number || ''}
+              onChange={(e) => handleNumberChange(e.target.value)}
+              placeholder="Талбайн дугаар"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Блок
+          </label>
+          {loadingTypes ? (
+            <div className="flex items-center justify-center py-4 h-10 border border-slate-300 rounded-lg">
+              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
+            </div>
+          ) : (
+            <Select
+              value={formData.block_id?.toString() || undefined}
+              onValueChange={(value) =>
+                onFormDataChange({
+                  ...formData,
+                  block_id: value ? parseInt(value) : null,
+                })
+              }
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Блок сонгох" />
+              </SelectTrigger>
+              <SelectContent className="z-[100] bg-white">
+                {blocks.map((block) => (
+                  <SelectItem key={block.id} value={block.id.toString()}>
+                    {block.name || `Блок #${block.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Талбайн төрөл
+          </label>
+          {loadingTypes ? (
+            <div className="flex items-center justify-center py-4 h-10 border border-slate-300 rounded-lg">
+              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
+            </div>
+          ) : (
+            <Select
+              value={formData.type_id?.toString() || undefined}
+              onValueChange={(value) =>
+                onFormDataChange({
+                  ...formData,
+                  type_id: value ? parseInt(value) : null,
+                })
+              }
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Талбайн төрөл сонгох" />
+              </SelectTrigger>
+              <SelectContent className="z-[100] bg-white">
+                {propertyTypes.map((pt: any) => (
+                  <SelectItem key={pt.id} value={pt.id?.toString()}>
+                    {pt.name || pt.title || `Төрөл #${pt.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Бүтээгдэхүүний төрөл
+          </label>
+          {loadingTypes ? (
+            <div className="flex items-center justify-center py-4 h-10 border border-slate-300 rounded-lg">
+              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
+            </div>
+          ) : (
+            <Select
+              value={formData.product_type_id?.toString() || undefined}
+              onValueChange={(value) =>
+                onFormDataChange({
+                  ...formData,
+                  product_type_id: value ? parseInt(value) : null,
+                })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Бүтээгдэхүүний төрөл сонгох" />
+              </SelectTrigger>
+              <SelectContent className="z-[100] bg-white">
+                {productTypes.map((productType) => (
+                  <SelectItem key={productType.id} value={productType.id.toString()}>
+                    {productType.name || `Бүтээгдэхүүн #${productType.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label htmlFor="property-x" className="block text-sm font-medium text-slate-700 mb-2">
             X координат
@@ -137,9 +236,6 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
             />
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="property-length" className="block text-sm font-medium text-slate-700 mb-2">
             Урт
@@ -174,104 +270,6 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
               className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Блок
-          </label>
-          {loadingTypes ? (
-            <div className="flex items-center justify-center py-8 border border-slate-300 rounded-lg">
-              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
-            </div>
-          ) : (
-            <Select
-              value={formData.block_id?.toString() || undefined}
-              onValueChange={(value) =>
-                onFormDataChange({
-                  ...formData,
-                  block_id: value ? parseInt(value) : null,
-                })
-              }
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Блок сонгох" />
-              </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
-                {blocks.map((block) => (
-                  <SelectItem key={block.id} value={block.id.toString()}>
-                    {block.name || `Блок #${block.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Талбайн төрөл
-          </label>
-          {loadingTypes ? (
-            <div className="flex items-center justify-center py-8 border border-slate-300 rounded-lg">
-              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
-            </div>
-          ) : (
-            <Select
-              value={formData.type_id?.toString() || undefined}
-              onValueChange={(value) =>
-                onFormDataChange({
-                  ...formData,
-                  type_id: value ? parseInt(value) : null,
-                })
-              }
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Талбайн төрөл сонгох" />
-              </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
-                {propertyTypes.map((pt: any) => (
-                  <SelectItem key={pt.id} value={pt.id?.toString()}>
-                    {pt.name || pt.title || `Төрөл #${pt.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Бүтээгдэхүүний төрөл
-          </label>
-          {loadingTypes ? (
-            <div className="flex items-center justify-center py-8 border border-slate-300 rounded-lg">
-              <div className="animate-pulse text-slate-500">Уншиж байна...</div>
-            </div>
-          ) : (
-            <Select
-              value={formData.product_type_id?.toString() || undefined}
-              onValueChange={(value) =>
-                onFormDataChange({
-                  ...formData,
-                  product_type_id: value ? parseInt(value) : null,
-                })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Бүтээгдэхүүний төрөл сонгох" />
-              </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
-                {productTypes.map((productType) => (
-                  <SelectItem key={productType.id} value={productType.id.toString()}>
-                    {productType.name || `Бүтээгдэхүүн #${productType.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
         </div>
       </div>
     </div>

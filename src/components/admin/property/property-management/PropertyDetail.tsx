@@ -18,6 +18,7 @@ interface PropertyDetailProps {
   onEdit?: (property: Property) => void;
   onApproveRate?: (propertyId: number, rateId: number) => Promise<void>;
   onRejectRate?: (propertyId: number, rateId: number) => Promise<void>;
+  showBackButton?: boolean;
 }
 
 export const PropertyDetail: React.FC<PropertyDetailProps> = ({
@@ -28,6 +29,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
   onEdit,
   onApproveRate,
   onRejectRate,
+  showBackButton = true,
 }) => {
   const [property, setProperty] = useState<Property | null>(propProperty || null);
   const [loading, setLoading] = useState(!propProperty);
@@ -196,10 +198,12 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="back" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Буцах
-          </Button>
+          {showBackButton && (
+            <Button variant="back" size="sm" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Буцах
+            </Button>
+          )}
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
               {property?.number || property?.id || propertyId}
@@ -230,7 +234,7 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
       {/* Content */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
         {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -291,266 +295,245 @@ export const PropertyDetail: React.FC<PropertyDetailProps> = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Block Information */}
-        {property.block && (
-          <div className="border-t border-slate-200 pt-6">
+          {/* Block Information */}
+          <div>
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <Building className="h-5 w-5" />
               Блокийн мэдээлэл
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-1 gap-4">
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн нэр</label>
-                <p className="text-sm text-slate-900 mt-1">{property.block.name || "-"}</p>
+                <p className="text-sm text-slate-900 mt-1">{property.block?.name || "-"}</p>
               </div>
 
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн урт</label>
                 <p className="text-sm text-slate-900 mt-1">
-                  {property.block.length ? `${property.block.length}м` : "-"}
+                  {property.block?.length ? `${property.block.length}м` : "-"}
                 </p>
               </div>
 
               <div>
                 <label className="text-xs font-medium text-slate-500 uppercase">Блокийн өргөн</label>
                 <p className="text-sm text-slate-900 mt-1">
-                  {property.block.width ? `${property.block.width}м` : "-"}
+                  {property.block?.width ? `${property.block.width}м` : "-"}
                 </p>
               </div>
             </div>
           </div>
-        )}
+          {/* Timestamps */}
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+              <Calendar className="h-5 w-5" />
+              Бүртгэлийн мэдээлэл
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase">Үүсгэсэн огноо</label>
+                <p className="text-sm text-slate-900 mt-1">{formatDate(property.created_at)}</p>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase">Шинэчлэгдсэн огноо</label>
+                <p className="text-sm text-slate-900 mt-1">{formatDate(property.updated_at)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
 
         {/* Tenant Information */}
         {property.tenant && (
           <div className="border-t border-slate-200 pt-6">
-            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
-              <User className="h-5 w-5" />
-              Түрээслэгчийн мэдээлэл
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-between">
               <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Төрөл</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.type || "-"}</p>
-              </div>
+                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+                  <User className="h-5 w-5" />
+                  Түрээслэгчийн мэдээлэл
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Төрөл</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.type || "-"}</p>
+                  </div>
 
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Нэр</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.name || "-"}</p>
-              </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Нэр</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.name || "-"}</p>
+                  </div>
 
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Регистр</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.rd || "-"}</p>
-              </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Регистр</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.rd || "-"}</p>
+                  </div>
 
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Имэйл</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.email || "-"}</p>
-              </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Хаяг</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.address || "-"}</p>
+                  </div>
 
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Утас</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.phone || "-"}</p>
-              </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Утас</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.phone || "-"}</p>
+                  </div>
 
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Хаяг</label>
-                <p className="text-sm text-slate-900 mt-1">{property.tenant.address || "-"}</p>
-              </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase">Имэйл</label>
+                    <p className="text-sm text-slate-900 mt-1">{property.tenant.email || "-"}</p>
+                  </div>
 
-              {property.tenant.address_description && (
-                <div className="md:col-span-2">
-                  <label className="text-xs font-medium text-slate-500 uppercase">Хаягийн дэлгэрэнгүй</label>
-                  <p className="text-sm text-slate-600 mt-1">{property.tenant.address_description}</p>
+
+                  {property.tenant.address_description && (
+                    <div className="md:col-span-2">
+                      <label className="text-xs font-medium text-slate-500 uppercase">Хаягийн дэлгэрэнгүй</label>
+                      <p className="text-sm text-slate-600 mt-1">{property.tenant.address_description}</p>
+                    </div>
+                  )}
+
+                  {property.tenant.website && (
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase">Вебсайт</label>
+                      <p className="text-sm text-blue-600 mt-1">
+                        <a href={property.tenant.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          {property.tenant.website}
+                        </a>
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {property.tenant.website && (
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase">Вебсайт</label>
-                  <p className="text-sm text-blue-600 mt-1">
-                    <a href={property.tenant.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                      {property.tenant.website}
-                    </a>
-                  </p>
-                </div>
-              )}
-            </div>
+              <div>
+                <div className="border-t md:border-t-0  border-slate-200 pt-6 md:pt-0 md:pl-8">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+                    <Tag className="h-5 w-5" />
+                    Төрөл ба ангилал
+                  </h3>
 
-            {/* Social Media */}
-            {(property.tenant.facebook || property.tenant.twitter || property.tenant.instagram ||
-              property.tenant.youtube || property.tenant.wechat) && (
-                <div className="mt-4 pt-4 border-t border-slate-200">
-                  <label className="text-xs font-medium text-slate-500 uppercase mb-2 block">Олон нийтийн сүлжээ</label>
-                  <div className="flex flex-wrap gap-2">
-                    {property.tenant.facebook && (
-                      <span className="text-xs text-blue-600">Facebook</span>
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    {property.type && (
+                      <div>
+                        <label className="text-xs font-medium text-slate-500 uppercase">Талбайн төрөл</label>
+                        <p className="text-sm text-slate-900 mt-1">{property.type.name || "-"}</p>
+                        {property.type.description && (
+                          <p className="text-xs text-slate-600 mt-1">{property.type.description}</p>
+                        )}
+                      </div>
                     )}
-                    {property.tenant.twitter && (
-                      <span className="text-xs text-blue-400">Twitter</span>
+
+                    {property.product_type && (
+                      <div>
+                        <label className="text-xs font-medium text-slate-500 uppercase">Барааны төрөл</label>
+                        <p className="text-sm text-slate-900 mt-1">{property.product_type.name || "-"}</p>
+                        {property.product_type.description && (
+                          <p className="text-xs text-slate-600 mt-1">{property.product_type.description}</p>
+                        )}
+                        {property.product_type.management_fee_rate && (
+                          <p className="text-xs text-slate-600 mt-1">
+                            Удирдлагын хувь: {property.product_type.management_fee_rate}%
+                          </p>
+                        )}
+                      </div>
                     )}
-                    {property.tenant.instagram && (
-                      <span className="text-xs text-pink-600">Instagram</span>
-                    )}
-                    {property.tenant.youtube && (
-                      <span className="text-xs text-red-600">YouTube</span>
-                    )}
-                    {property.tenant.wechat && (
-                      <span className="text-xs text-green-600">WeChat</span>
+
+                    {property.status && (
+                      <div>
+                        <label className="text-xs font-medium text-slate-500 uppercase">Төлөв</label>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 ${property.status.style || "bg-slate-100 text-slate-800"
+                            }`}
+                        >
+                          {property.status.description || property.status.name || "-"}
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* Rate Information */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Үнэлгээний мэдээлэл
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {annualRates.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsHistoryModalOpen(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <History className="h-4 w-4" />
+                        Түүх харах
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {loadingRates ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
+                    <p className="mt-2 text-sm text-slate-500">Үнэлгээний мэдээлэл татаж байна...</p>
+                  </div>
+                ) : annualRates.length > 0 ? (
+                  <div className="space-y-4">
+                    {annualRates.map((rate, index) => (
+                      <div
+                        key={rate.id || index}
+                        className={`border rounded-lg p-4 ${index === 0 ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-base font-semibold text-slate-900">
+                            {rate.year || "-"} он
+                          </h4>
+                          {index === 0 && (
+                            <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                              Сүүлийн үнэлгээ
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-medium text-slate-500 uppercase">Үнэ</label>
+                            <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.rate)}</p>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-medium text-slate-500 uppercase">Төлбөр</label>
+                            <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.fee)}</p>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-medium text-slate-500 uppercase">Эхлэх огноо</label>
+                            <p className="text-sm text-slate-900 mt-1">{formatDate(rate.start_date)}</p>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-medium text-slate-500 uppercase">Дуусах огноо</label>
+                            <p className="text-sm text-slate-900 mt-1">{formatDate(rate.end_date)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">
+                    <p className="text-sm">Үнэлгээний мэдээлэл оруулаагүй байна</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Type & Category */}
-        <div className="border-t border-slate-200 pt-6">
-          <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
-            <Tag className="h-5 w-5" />
-            Төрөл ба ангилал
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {property.type && (
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Талбайн төрөл</label>
-                <p className="text-sm text-slate-900 mt-1">{property.type.name || "-"}</p>
-                {property.type.description && (
-                  <p className="text-xs text-slate-600 mt-1">{property.type.description}</p>
-                )}
-              </div>
-            )}
-
-            {property.product_type && (
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Барааны төрөл</label>
-                <p className="text-sm text-slate-900 mt-1">{property.product_type.name || "-"}</p>
-                {property.product_type.description && (
-                  <p className="text-xs text-slate-600 mt-1">{property.product_type.description}</p>
-                )}
-                {property.product_type.management_fee_rate && (
-                  <p className="text-xs text-slate-600 mt-1">
-                    Удирдлагын хувь: {property.product_type.management_fee_rate}%
-                  </p>
-                )}
-              </div>
-            )}
-
-            {property.status && (
-              <div>
-                <label className="text-xs font-medium text-slate-500 uppercase">Төлөв</label>
-                <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 ${property.status.style || "bg-slate-100 text-slate-800"
-                    }`}
-                >
-                  {property.status.description || property.status.name || "-"}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Rate Information */}
-        <div className="border-t border-slate-200 pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Үнэлгээний мэдээлэл
-            </h3>
-            <div className="flex items-center gap-2">
-              {annualRates.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsHistoryModalOpen(true)}
-                  className="flex items-center gap-2"
-                >
-                  <History className="h-4 w-4" />
-                  Түүх харах
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {loadingRates ? (
-            <div className="text-center py-8">
-              <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
-              <p className="mt-2 text-sm text-slate-500">Үнэлгээний мэдээлэл татаж байна...</p>
-            </div>
-          ) : annualRates.length > 0 ? (
-            <div className="space-y-4">
-              {annualRates.map((rate, index) => (
-                <div
-                  key={rate.id || index}
-                  className={`border rounded-lg p-4 ${index === 0 ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-white'
-                    }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-base font-semibold text-slate-900">
-                      {rate.year || "-"} он
-                    </h4>
-                    {index === 0 && (
-                      <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                        Сүүлийн үнэлгээ
-                      </span>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase">Үнэ</label>
-                      <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.rate)}</p>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase">Төлбөр</label>
-                      <p className="text-sm text-slate-900 mt-1">{formatCurrency(rate.fee)}</p>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase">Эхлэх огноо</label>
-                      <p className="text-sm text-slate-900 mt-1">{formatDate(rate.start_date)}</p>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase">Дуусах огноо</label>
-                      <p className="text-sm text-slate-900 mt-1">{formatDate(rate.end_date)}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-slate-500">
-              <p className="text-sm">Үнэлгээний мэдээлэл оруулаагүй байна</p>
-            </div>
-          )}
-        </div>
-
-        {/* Timestamps */}
-        <div className="border-t border-slate-200 pt-6">
-          <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5" />
-            Бүртгэлийн мэдээлэл
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-medium text-slate-500 uppercase">Үүсгэсэн огноо</label>
-              <p className="text-sm text-slate-900 mt-1">{formatDate(property.created_at)}</p>
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-slate-500 uppercase">Шинэчлэгдсэн огноо</label>
-              <p className="text-sm text-slate-900 mt-1">{formatDate(property.updated_at)}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Rate History Modal */}
