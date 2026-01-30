@@ -87,7 +87,7 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
         length?: number | null;
         width?: number | null;
         block_id?: number | null;
-      type_id?: number | null;
+        type_id?: number | null;
         product_type_id?: number | null;
       } = {};
 
@@ -149,9 +149,13 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
   const isFormValid = formData.number?.trim();
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-[101] w-full max-w-4xl mx-4 bg-white rounded-xl shadow-xl border border-slate-200 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="fixed inset-0  backdrop-blur-sm"
+        aria-hidden
+        onClick={onClose}
+      />
+      <div className="relative z-[101] w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
@@ -167,7 +171,7 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
         </div>
 
         <CreatePropertyForm formData={formData} onFormDataChange={handleFormDataChange} />
-        
+
         <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200">
           <Button variant="outline" onClick={onClose} disabled={updating}>
             Цуцлах

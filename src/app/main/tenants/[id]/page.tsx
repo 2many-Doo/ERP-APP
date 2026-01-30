@@ -1,17 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import TenantDetail from "@/components/admin/tenat/tenat-folder/TenantDetail";
 
 const TenantDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const lastValidIdRef = useRef<number | null>(null);
 
   const idParam = params?.id;
-  const tenantId = typeof idParam === "string" ? Number(idParam) : Array.isArray(idParam) ? Number(idParam[0]) : NaN;
+  const parsedId = typeof idParam === "string" ? Number(idParam) : Array.isArray(idParam) ? Number(idParam[0]) : NaN;
+  const tenantId = Number.isFinite(parsedId) ? parsedId : null;
 
-  if (Number.isNaN(tenantId)) {
+  useEffect(() => {
+    if (tenantId !== null) {
+      lastValidIdRef.current = tenantId;
+    }
+  }, [tenantId]);
+
+  const effectiveTenantId = tenantId ?? lastValidIdRef.current;
+
+  if (effectiveTenantId == null) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-3 text-center">
@@ -29,7 +39,7 @@ const TenantDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-6">
-      <TenantDetail tenantId={tenantId} onBack={() => router.push("/main")} />
+      <TenantDetail tenantId={effectiveTenantId} onBack={() => router.push("/main")} />
     </div>
   );
 };

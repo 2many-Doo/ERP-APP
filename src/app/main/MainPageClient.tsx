@@ -23,6 +23,8 @@ import InvoiceHistoryList from "@/components/admin/finance/InvoiceHistoryList";
 import ServiceCategoryList from "@/components/admin/property/service-category/ServiceCategoryList";
 import PropertyTypeList from "@/components/admin/property/property-type/PropertyTypeList";
 import ProductTypeList from "@/components/admin/property/product-type/ProductTypeList";
+import MerchantMessage from "@/components/admin/merchant/message/MerchantMessage";
+import MerchantNotification from "@/components/admin/merchant/notification/MerchantNotification";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -158,6 +160,18 @@ const MainPageClient = () => {
   }, [activeComponent, pathname, router, searchParams]);
 
   const handleTenantClick = (tenantId: number) => {
+    // Гэрээний бүрдүүлбэр / Гэрээ байгуулах: /main дээр үлдэж ContractFormDetail харуулна
+    if (
+      activeComponent === "approved-tenant-list" ||
+      activeComponent === "contract-process"
+    ) {
+      setSelectedTenantId(tenantId);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tenantId", String(tenantId));
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      return;
+    }
+    // Түрээслэгчийн жагсаалт: /main/tenants/[id] руу шилжинэ (TenantDetail)
     router.push(`/main/tenants/${tenantId}`);
   };
 
@@ -248,6 +262,10 @@ const MainPageClient = () => {
         return <InvoiceHistoryList />;
       case "property-product-type-list":
         return <ProductTypeList />;
+      case "message":
+        return <MerchantMessage />;
+      case "notification":
+        return <MerchantNotification />;
       default:
         return <UserManagement />;
     }

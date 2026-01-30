@@ -114,45 +114,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   isOpen={isSectionOpen}
                   onToggle={() => handleToggle(section.title)}
                 />
-              {isSectionOpen && (
-                <nav className="ml-3 border-l border-slate-200 pl-4 ease-in-out">
-                  <div className="space-y-1 transition-all duration-300">
-                    {section.items.map((item) => {
-                      // Filter items based on permissions
-                      if (item.permission || item.permissions) {
-                        // Check permission synchronously
-                        let hasAccess = false;
-                        if (item.permission) {
-                          hasAccess = hasPermission(item.permission);
-                        } else if (item.permissions) {
-                          if (item.requireAll) {
-                            hasAccess = hasAllPermissions(item.permissions);
-                          } else {
-                            hasAccess = hasAnyPermission(item.permissions);
+                {isSectionOpen && (
+                  <nav className="ml-3 border-l border-slate-200 pl-4 ease-in-out">
+                    <div className="space-y-1 transition-all duration-300">
+                      {section.items.map((item) => {
+                        // Filter items based on permissions
+                        if (item.permission || item.permissions) {
+                          // Check permission synchronously
+                          let hasAccess = false;
+                          if (item.permission) {
+                            hasAccess = hasPermission(item.permission);
+                          } else if (item.permissions) {
+                            if (item.requireAll) {
+                              hasAccess = hasAllPermissions(item.permissions);
+                            } else {
+                              hasAccess = hasAnyPermission(item.permissions);
+                            }
+                          }
+
+                          // Only render if user has access
+                          if (!hasAccess) {
+                            return null;
                           }
                         }
-                        
-                        // Only render if user has access
-                        if (!hasAccess) {
-                          return null;
-                        }
-                      }
-                      
-                      // Render the item
-                      return (
-                        <SidebarLink
-                          key={item.id}
-                          item={item}
-                          activeItemId={activeItemId}
-                          onSelect={onSelect}
-                        />
-                      );
-                    })}
-                  </div>
-                </nav>
-              )}
-            </div>
-          );
+
+                        // Render the item
+                        return (
+                          <SidebarLink
+                            key={item.id}
+                            item={item}
+                            activeItemId={activeItemId}
+                            onSelect={onSelect}
+                          />
+                        );
+                      })}
+                    </div>
+                  </nav>
+                )}
+              </div>
+            );
           })}
       </div>
     </aside>
@@ -233,11 +233,10 @@ function SidebarLink({
     <Link href={item.href} className={`${baseClasses} ${activeClasses}`}>
       <span>{item.label}</span>
       <ChevronRight
-        className={`h-4 w-4 ${
-          isActive
+        className={`h-4 w-4 ${isActive
             ? "text-blue-500"
             : "text-slate-300 group-hover:text-slate-500"
-        }`}
+          }`}
       />
     </Link>
   );
@@ -292,9 +291,8 @@ function SidebarGroup({
       >
         <span>{item.label}</span>
         <ChevronDown
-          className={`h-4 w-4 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+            }`}
         />
       </Button>
       {isOpen && (
@@ -313,13 +311,13 @@ function SidebarGroup({
                   hasAccess = hasAnyPermission(child.permissions);
                 }
               }
-              
+
               // Only render if user has access
               if (!hasAccess) {
                 return null;
               }
             }
-            
+
             // Render the child
             return (
               <SidebarLink

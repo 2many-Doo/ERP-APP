@@ -323,9 +323,10 @@ export const EditMerchantModal: React.FC<EditMerchantModalProps> = ({ merchant, 
                 />
               </div>
 
-              <div>
+              <div className="z-[200]">
                 <label className="block text-sm font-medium text-slate-700 mb-2">Компанийн хаягийн дэлгэрэнгүй</label>
                 <Input
+                  className="z-[200]"
                   value={formData.company_address_description}
                   onChange={(e) => setFormData({ ...formData, company_address_description: e.target.value })}
                   placeholder="байгууллагын хаягийн тайлбар"

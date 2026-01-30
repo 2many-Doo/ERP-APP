@@ -47,6 +47,18 @@ export const sidebarSections: NavSection[] = [
         componentKey: "vip-merchant-list",
         permission: "merchant_menu_show",
       },
+      {
+        id: "message",
+        label: "Мэссэж",
+        componentKey: "message",
+        permission: "merchant_menu_show",
+      },
+      {
+        id: "notification",
+        label: "Мэдэгдэл",
+        componentKey: "notification",
+        permission: "merchant_menu_show",
+      },
     ],
   },
   {
@@ -191,5 +203,3 @@ export const sidebarSections: NavSection[] = [
     ],
   },
 ];
-
-

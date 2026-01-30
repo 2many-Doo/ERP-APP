@@ -70,6 +70,10 @@ export function MainLayoutProvider({
         return "merchant-list";
       case "vip-merchant-list":
         return "vip-merchant-list";
+      case "message":
+        return "message";
+      case "notification":
+        return "notification";
       case "tenant-list":
         return "agreement-layout";
       case "approved-tenant-list":

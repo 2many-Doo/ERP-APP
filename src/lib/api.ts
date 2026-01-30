@@ -47,18 +47,24 @@ export interface RequestOptions {
 /**
  * Build URL with query parameters
  */
-const buildUrl = (endpoint: string, params?: Record<string, string | number | boolean>, includeApiKeyInQuery?: boolean): string => {
+const buildUrl = (
+  endpoint: string,
+  params?: Record<string, string | number | boolean>,
+  includeApiKeyInQuery?: boolean,
+): string => {
   // Ensure endpoint starts with /
-  const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith("/")
+    ? endpoint
+    : `/${endpoint}`;
   const url = `${BASE_URL}${normalizedEndpoint}`;
-  
+
   const searchParams = new URLSearchParams();
-  
+
   // Add API key to query params if needed
   if (includeApiKeyInQuery && API_KEY) {
     searchParams.append("api-key", API_KEY);
   }
-  
+
   // Add other params
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -76,7 +82,10 @@ const buildUrl = (endpoint: string, params?: Record<string, string | number | bo
 /**
  * Get default headers
  */
-const getDefaultHeaders = (customHeaders?: Record<string, string>, includeApiKeyInHeader: boolean = true): Record<string, string> => {
+const getDefaultHeaders = (
+  customHeaders?: Record<string, string>,
+  includeApiKeyInHeader: boolean = true,
+): Record<string, string> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...customHeaders,
@@ -101,10 +110,11 @@ const getDefaultHeaders = (customHeaders?: Record<string, string>, includeApiKey
 /**
  * Handle API response
  */
-const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> => {
+const handleResponse = async <T>(
+  response: Response,
+): Promise<ApiResponse<T>> => {
   const status = response.status;
   const contentType = response.headers.get("content-type");
-
 
   if (!response.ok) {
     if (status === 401) {
@@ -123,50 +133,59 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
     }
     let error = "Алдаа гарлаа";
     let errorData: any = null;
-    
+
     try {
       const text = await response.text();
       if (text) {
         // Check if response is HTML (usually means server error page)
-        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype') || text.trim().startsWith('<html')) {
+        if (
+          text.trim().startsWith("<!DOCTYPE") ||
+          text.trim().startsWith("<!doctype") ||
+          text.trim().startsWith("<html")
+        ) {
           // Try to extract error message from HTML
           // Look for ParseError, Error, or exception messages in HTML comments or text
-          const errorMatch = text.match(/<!--\s*([\s\S]+?)\s*-->/) || 
-                            text.match(/ParseError[^<]+/) || 
-                            text.match(/Error[^<]+/) ||
-                            text.match(/exception[^<]+/i) ||
-                            text.match(/Fatal error[^<]+/i);
-          
+          const errorMatch =
+            text.match(/<!--\s*([\s\S]+?)\s*-->/) ||
+            text.match(/ParseError[^<]+/) ||
+            text.match(/Error[^<]+/) ||
+            text.match(/exception[^<]+/i) ||
+            text.match(/Fatal error[^<]+/i);
+
           if (errorMatch) {
             let errorText = (errorMatch[1] || errorMatch[0]).trim();
             // Clean up HTML entities
-            errorText = errorText.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            errorText = errorText
+              .replace(/&quot;/g, '"')
+              .replace(/&lt;/g, "<")
+              .replace(/&gt;/g, ">")
+              .replace(/&amp;/g, "&");
             // Extract the main error message (first line or key part)
-            const lines = errorText.split('\n');
+            const lines = errorText.split("\n");
             const mainError = lines[0] || errorText;
             error = `Серверийн алдаа: ${mainError.substring(0, 300)}`;
           } else {
             error = `Серверийн алдаа (HTTP ${status}). HTML response ирсэн. Backend дээр алдаа гарсан байна.`;
           }
-          return { 
-            error, 
+          return {
+            error,
             status,
             message: error,
           };
         }
-        
+
         try {
           errorData = JSON.parse(text);
         } catch (parseError) {
           // If JSON parse fails, use text as error
           error = text || response.statusText || `HTTP ${status} алдаа`;
-          return { 
-            error, 
+          return {
+            error,
             status,
             message: error,
           };
         }
-        
+
         // Handle validation errors
         if (errorData.errors) {
           const validationErrors = Object.entries(errorData.errors)
@@ -175,9 +194,19 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
               return `${field}: ${msgs.join(", ")}`;
             })
             .join("\n");
-          error = validationErrors || errorData.message || errorData.error || errorData.msg || error;
+          error =
+            validationErrors ||
+            errorData.message ||
+            errorData.error ||
+            errorData.msg ||
+            error;
         } else {
-          error = errorData.message || errorData.error || errorData.msg || errorData.exception || error;
+          error =
+            errorData.message ||
+            errorData.error ||
+            errorData.msg ||
+            errorData.exception ||
+            error;
         }
       } else {
         // No response body, use status text
@@ -185,13 +214,13 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
       }
     } catch (err) {
       error = response.statusText || `HTTP ${status} алдаа`;
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error parsing response:', err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error parsing response:", err);
       }
     }
-    
-    return { 
-      error, 
+
+    return {
+      error,
       status,
       message: errorData?.message || error,
     };
@@ -200,22 +229,32 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
   try {
     const text = await response.text();
     let data: T;
-    
+
     // Check if response is HTML (usually means server error page)
-    if (text && (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype') || text.trim().startsWith('<html'))) {
+    if (
+      text &&
+      (text.trim().startsWith("<!DOCTYPE") ||
+        text.trim().startsWith("<!doctype") ||
+        text.trim().startsWith("<html"))
+    ) {
       // Try to extract error message from HTML
-      const errorMatch = text.match(/<!--\s*([\s\S]+?)\s*-->/) || 
-                        text.match(/ParseError[^<]+/) || 
-                        text.match(/Error[^<]+/) ||
-                        text.match(/exception[^<]+/i) ||
-                        text.match(/Fatal error[^<]+/i);
-      
+      const errorMatch =
+        text.match(/<!--\s*([\s\S]+?)\s*-->/) ||
+        text.match(/ParseError[^<]+/) ||
+        text.match(/Error[^<]+/) ||
+        text.match(/exception[^<]+/i) ||
+        text.match(/Fatal error[^<]+/i);
+
       if (errorMatch) {
         let errorText = (errorMatch[1] || errorMatch[0]).trim();
         // Clean up HTML entities
-        errorText = errorText.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+        errorText = errorText
+          .replace(/&quot;/g, '"')
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&amp;/g, "&");
         // Extract the main error message (first line or key part)
-        const lines = errorText.split('\n');
+        const lines = errorText.split("\n");
         const mainError = lines[0] || errorText;
         const errorMessage = `Серверийн алдаа: ${mainError.substring(0, 300)}`;
         return {
@@ -231,13 +270,16 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
         };
       }
     }
-    
+
     if (contentType?.includes("application/json") && text) {
       try {
         data = JSON.parse(text) as T;
       } catch (parseError: any) {
         // Handle trailing data error - try to find valid JSON and ignore trailing data
-        if (parseError?.message?.includes('trailing') || parseError?.message?.includes('Trailing')) {
+        if (
+          parseError?.message?.includes("trailing") ||
+          parseError?.message?.includes("Trailing")
+        ) {
           // Try to find the first valid JSON object/array
           const jsonMatch = text.match(/^[\s\S]*?(\{[\s\S]*\}|\[[\s\S]*\])/);
           if (jsonMatch) {
@@ -245,17 +287,21 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
               data = JSON.parse(jsonMatch[1]) as T;
             } catch {
               // If still fails, try to extract JSON more carefully
-              const firstBrace = text.indexOf('{');
-              const firstBracket = text.indexOf('[');
-              const startIndex = firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket) ? firstBrace : firstBracket;
-              
+              const firstBrace = text.indexOf("{");
+              const firstBracket = text.indexOf("[");
+              const startIndex =
+                firstBrace !== -1 &&
+                (firstBracket === -1 || firstBrace < firstBracket)
+                  ? firstBrace
+                  : firstBracket;
+
               if (startIndex !== -1) {
                 // Find matching closing brace/bracket
                 let depth = 0;
                 let endIndex = startIndex;
                 const openChar = text[startIndex];
-                const closeChar = openChar === '{' ? '}' : ']';
-                
+                const closeChar = openChar === "{" ? "}" : "]";
+
                 for (let i = startIndex; i < text.length; i++) {
                   if (text[i] === openChar) depth++;
                   if (text[i] === closeChar) depth--;
@@ -264,10 +310,12 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
                     break;
                   }
                 }
-                
+
                 if (endIndex > startIndex) {
                   try {
-                    data = JSON.parse(text.substring(startIndex, endIndex)) as T;
+                    data = JSON.parse(
+                      text.substring(startIndex, endIndex),
+                    ) as T;
                   } catch {
                     data = text as T;
                   }
@@ -301,7 +349,10 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
         data = JSON.parse(text) as T;
       } catch (parseError: any) {
         // Handle trailing data error
-        if (parseError?.message?.includes('trailing') || parseError?.message?.includes('Trailing')) {
+        if (
+          parseError?.message?.includes("trailing") ||
+          parseError?.message?.includes("Trailing")
+        ) {
           const jsonMatch = text.match(/^[\s\S]*?(\{[\s\S]*\}|\[[\s\S]*\])/);
           if (jsonMatch) {
             try {
@@ -319,7 +370,7 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
     } else {
       data = {} as T;
     }
-    
+
     return { data, status };
   } catch (error) {
     return {
@@ -334,7 +385,7 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
  */
 export const get = async <T = any>(
   endpoint: string,
-  options?: RequestOptions
+  options?: RequestOptions,
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -361,12 +412,15 @@ export const get = async <T = any>(
 export const post = async <T = any>(
   endpoint: string,
   body?: any,
-  options?: RequestOptions & { apiKeyInQuery?: boolean; apiKeyInHeader?: boolean }
+  options?: RequestOptions & {
+    apiKeyInQuery?: boolean;
+    apiKeyInHeader?: boolean;
+  },
 ): Promise<ApiResponse<T>> => {
   try {
     const apiKeyInQuery = options?.apiKeyInQuery ?? false;
     const apiKeyInHeader = options?.apiKeyInHeader ?? true;
-    
+
     const url = buildUrl(endpoint, options?.params, apiKeyInQuery);
     const headers = getDefaultHeaders(options?.headers, apiKeyInHeader);
 
@@ -384,13 +438,14 @@ export const post = async <T = any>(
   } catch (error) {
     // Better error handling for network errors
     let errorMessage = "Сүлжээний алдаа";
-    
+
     if (error instanceof TypeError && error.message.includes("fetch")) {
-      errorMessage = "Сервертэй холбогдох боломжгүй. CORS эсвэл сүлжээний асуудал байж магадгүй.";
+      errorMessage =
+        "Сервертэй холбогдох боломжгүй. CORS эсвэл сүлжээний асуудал байж магадгүй.";
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }
-    
+
     return {
       error: errorMessage,
       status: 0,
@@ -404,7 +459,7 @@ export const post = async <T = any>(
 export const patch = async <T = any>(
   endpoint: string,
   body?: any,
-  options?: RequestOptions
+  options?: RequestOptions,
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -432,7 +487,7 @@ export const patch = async <T = any>(
 export const put = async <T = any>(
   endpoint: string,
   body?: any,
-  options?: RequestOptions
+  options?: RequestOptions,
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -459,7 +514,7 @@ export const put = async <T = any>(
  */
 export const del = async <T = any>(
   endpoint: string,
-  options?: RequestOptions
+  options?: RequestOptions,
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -484,9 +539,9 @@ export const del = async <T = any>(
  * Login API function
  */
 export const login = async (
-  email: string, 
+  email: string,
   password: string,
-  options?: { apiKeyInQuery?: boolean; apiKeyInHeader?: boolean }
+  options?: { apiKeyInQuery?: boolean; apiKeyInHeader?: boolean },
 ): Promise<ApiResponse<any>> => {
   return post("/login", { email, password }, options);
 };
@@ -495,7 +550,7 @@ export const login = async (
  * Request password reset email
  */
 export const requestPasswordReset = async (
-  email: string
+  email: string,
 ): Promise<ApiResponse<any>> => {
   return post("/password/reset", { email }, { apiKeyInHeader: true });
 };
@@ -526,21 +581,61 @@ export const updateForgotPassword = async (payload: {
 /**
  * Get roles API function
  */
-export const getRoles = async (): Promise<ApiResponse<{ data: Array<{ id: number; title: string; permissions: Array<{ id: number; title: string; pivot?: { role_id: number; permission_id: number } }> }> }>> => {
+export const getRoles = async (): Promise<
+  ApiResponse<{
+    data: Array<{
+      id: number;
+      title: string;
+      permissions: Array<{
+        id: number;
+        title: string;
+        pivot?: { role_id: number; permission_id: number };
+      }>;
+    }>;
+  }>
+> => {
   return get("/v1/roles");
 };
 
 /**
  * Get users API function
  */
-export const getUsers = async (): Promise<ApiResponse<{ data: Array<{ id: number; name: string; email: string; phone?: string; roles?: Array<{ id: number; title: string; pivot?: { user_id: number; role_id: number } }> }> }>> => {
+export const getUsers = async (): Promise<
+  ApiResponse<{
+    data: Array<{
+      id: number;
+      name: string;
+      email: string;
+      phone?: string;
+      roles?: Array<{
+        id: number;
+        title: string;
+        pivot?: { user_id: number; role_id: number };
+      }>;
+    }>;
+  }>
+> => {
   return get("/v1/users");
 };
 
 /**
  * Get current authenticated user (requires auth token)
  */
-export const getAuthUser = async (): Promise<ApiResponse<{ data: { id: number; name: string; email: string; phone?: string; roles?: Array<{ id: number; title: string; permissions?: Array<{ id: number; title: string }> }> } }>> => {
+export const getAuthUser = async (): Promise<
+  ApiResponse<{
+    data: {
+      id: number;
+      name: string;
+      email: string;
+      phone?: string;
+      roles?: Array<{
+        id: number;
+        title: string;
+        permissions?: Array<{ id: number; title: string }>;
+      }>;
+    };
+  }>
+> => {
   return get("/v1/auth/user");
 };
 
@@ -548,8 +643,22 @@ export const getAuthUser = async (): Promise<ApiResponse<{ data: { id: number; n
  * Get user by ID API function
  */
 export const getUserById = async (
-  userId: number
-): Promise<ApiResponse<{ data: { id: number; name: string; email: string; phone?: string; roles?: Array<{ id: number; title: string; permissions?: Array<{ id: number; title: string }> }> } }>> => {
+  userId: number,
+): Promise<
+  ApiResponse<{
+    data: {
+      id: number;
+      name: string;
+      email: string;
+      phone?: string;
+      roles?: Array<{
+        id: number;
+        title: string;
+        permissions?: Array<{ id: number; title: string }>;
+      }>;
+    };
+  }>
+> => {
   return get(`/v1/users/${userId}`);
 };
 
@@ -576,7 +685,7 @@ export const updateUser = async (
     password?: string;
     phone?: string;
     roles?: number[];
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/users/${userId}`, userData);
 };
@@ -591,7 +700,9 @@ export const deleteUser = async (userId: number): Promise<ApiResponse<any>> => {
 /**
  * Get permissions API function
  */
-export const getPermissions = async (): Promise<ApiResponse<{ data: Array<{ id: number; title: string }> }>> => {
+export const getPermissions = async (): Promise<
+  ApiResponse<{ data: Array<{ id: number; title: string }> }>
+> => {
   return get("/v1/permissions");
 };
 
@@ -618,7 +729,7 @@ export const updateRole = async (
   roleData: {
     title: string;
     permission_ids: number[];
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   // API expects 'permissions' field instead of 'permission_ids'
   const requestData = {
@@ -651,7 +762,7 @@ export const updatePermission = async (
   permissionId: number,
   permissionData: {
     title: string;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/permissions/${permissionId}`, permissionData);
 };
@@ -659,7 +770,9 @@ export const updatePermission = async (
 /**
  * Delete permission API function
  */
-export const deletePermission = async (permissionId: number): Promise<ApiResponse<any>> => {
+export const deletePermission = async (
+  permissionId: number,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/permissions/${permissionId}`);
 };
 
@@ -668,7 +781,7 @@ export const deletePermission = async (permissionId: number): Promise<ApiRespons
  */
 export const getLeaseRequests = async (
   page: number = 1,
-  perPage: number = 20
+  perPage: number = 20,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/lease-requests", {
     params: {
@@ -683,7 +796,7 @@ export const getLeaseRequests = async (
  */
 export const uploadTempMedia = async (
   file: File,
-  meta?: { name?: string; product_types?: number[] }
+  meta?: { name?: string; product_types?: number[] },
 ): Promise<ApiResponse<any>> => {
   const formData = new FormData();
   formData.append("file", file);
@@ -691,7 +804,9 @@ export const uploadTempMedia = async (
     formData.append("name", meta.name);
   }
   if (meta?.product_types && Array.isArray(meta.product_types)) {
-    meta.product_types.forEach((pt) => formData.append("product_types[]", String(pt)));
+    meta.product_types.forEach((pt) =>
+      formData.append("product_types[]", String(pt)),
+    );
   }
 
   try {
@@ -718,7 +833,9 @@ export const uploadTempMedia = async (
 /**
  * Get lease request by ID API function
  */
-export const getLeaseRequestById = async (id: number): Promise<ApiResponse<any>> => {
+export const getLeaseRequestById = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/lease-requests/${id}`);
 };
 
@@ -726,7 +843,9 @@ export const getLeaseRequestById = async (id: number): Promise<ApiResponse<any>>
  * Get approved lease request by ID API function
  * Uses /v1/lease-requests/checking/requests/:id endpoint
  */
-export const getApprovedLeaseRequestById = async (id: number): Promise<ApiResponse<any>> => {
+export const getApprovedLeaseRequestById = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/lease-requests/checking/requests/${id}`);
 };
 
@@ -743,7 +862,7 @@ export const updateApprovedLeaseRequestAttachments = async (
     name: string;
     status: "approved" | "rejected";
     note?: string;
-  }>
+  }>,
 ): Promise<ApiResponse<any>> => {
   // Build request body - only include note if status is rejected
   const attachmentsForAPI = attachments.map((att) => {
@@ -761,20 +880,23 @@ export const updateApprovedLeaseRequestAttachments = async (
   });
 
   // Validate that all attachments have required fields
-  const invalidAttachments = attachmentsForAPI.filter(att =>
-    !att.name || !att.status
+  const invalidAttachments = attachmentsForAPI.filter(
+    (att) => !att.name || !att.status,
   );
 
   if (invalidAttachments.length > 0) {
     return {
       status: 400,
-      error: `Invalid attachments in API request: ${JSON.stringify(invalidAttachments)}`
+      error: `Invalid attachments in API request: ${JSON.stringify(invalidAttachments)}`,
     };
   }
 
   // If only one attachment is being sent, send it directly as the body
   // Otherwise, send the attachments array wrapped in an object
-  const requestBody = attachmentsForAPI.length === 1 ? attachmentsForAPI[0] : { attachments: attachmentsForAPI };
+  const requestBody =
+    attachmentsForAPI.length === 1
+      ? attachmentsForAPI[0]
+      : { attachments: attachmentsForAPI };
 
   return put(`/v1/lease-requests/checking/requests/${requestId}`, requestBody);
 };
@@ -784,7 +906,7 @@ export const updateApprovedLeaseRequestAttachments = async (
  */
 export const updateLeaseRequestStatus = async (
   id: number,
-  status: string
+  status: string,
 ): Promise<ApiResponse<any>> => {
   return post(`/v1/lease-requests/checking/requests/${id}`, { status });
 };
@@ -793,7 +915,9 @@ export const updateLeaseRequestStatus = async (
  * Approve lease request API function
  * Uses /v1/lease-requests/:id/approve endpoint
  */
-export const approveLeaseRequest = async (id: number): Promise<ApiResponse<any>> => {
+export const approveLeaseRequest = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
   // Use PUT method to approve lease request
   // Send undefined instead of {} to avoid sending empty body
   return put(`/v1/lease-requests/${id}/approve`, undefined);
@@ -803,7 +927,9 @@ export const approveLeaseRequest = async (id: number): Promise<ApiResponse<any>>
  * Reject lease request API function
  * Uses /v1/lease-requests/:id/reject endpoint
  */
-export const rejectLeaseRequest = async (id: number): Promise<ApiResponse<any>> => {
+export const rejectLeaseRequest = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
   // Use PUT method to reject lease request
   // Send undefined instead of {} to avoid sending empty body
   return put(`/v1/lease-requests/${id}/reject`, undefined);
@@ -814,7 +940,9 @@ export const rejectLeaseRequest = async (id: number): Promise<ApiResponse<any>> 
 /**
  * Get contract template create meta (property types, product types, etc)
  */
-export const getContractTemplateCreateMeta = async (): Promise<ApiResponse<any>> => {
+export const getContractTemplateCreateMeta = async (): Promise<
+  ApiResponse<any>
+> => {
   return get("/v1/contract-templates/create");
 };
 
@@ -830,51 +958,63 @@ export const getProperties = async (
   orderby?: string | null,
   order?: string | null,
   relationship?: string | null,
-  relationshipId?: number | null
+  relationshipId?: number | null,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
     per_page: perPage,
   };
-  
+
   // Add orderby parameter (default: created_at)
   if (orderby !== null && orderby !== undefined && orderby.trim() !== "") {
     params.orderby = orderby.trim();
   } else {
     params.orderby = "created_at";
   }
-  
+
   // Add order parameter (default: desc)
   if (order !== null && order !== undefined && order.trim() !== "") {
     params.order = order.trim();
   } else {
     params.order = "desc";
   }
-  
+
   // Add relationship parameter
-  if (relationship !== null && relationship !== undefined && relationship.trim() !== "") {
+  if (
+    relationship !== null &&
+    relationship !== undefined &&
+    relationship.trim() !== ""
+  ) {
     params.relationship = relationship.trim();
   }
-  
+
   // Add relationship_id parameter
-  if (relationshipId !== null && relationshipId !== undefined && relationshipId !== 0) {
+  if (
+    relationshipId !== null &&
+    relationshipId !== undefined &&
+    relationshipId !== 0
+  ) {
     params.relationship_id = relationshipId;
   }
-  
+
   // Add search query parameter (using 'q' instead of 'search')
   if (search !== null && search !== undefined && search.trim() !== "") {
     params.q = search.trim();
   }
-  
+
   if (typeId !== null && typeId !== undefined && typeId !== 0) {
     params.type_id = typeId;
   }
-  
+
   // Fix: Ensure product_type_id is added when productTypeId is provided
-  if (productTypeId !== null && productTypeId !== undefined && productTypeId !== 0) {
+  if (
+    productTypeId !== null &&
+    productTypeId !== undefined &&
+    productTypeId !== 0
+  ) {
     params.product_type_id = productTypeId;
   }
-  
+
   return get("/v1/properties", {
     params,
   });
@@ -887,7 +1027,7 @@ export const getPropertyRelationships = async (
   search?: string | null,
   relationship?: string | null,
   page: number = 1,
-  perPage: number = 50
+  perPage: number = 50,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -908,14 +1048,18 @@ export const getPropertyRelationships = async (
 /**
  * Get single property by ID API function
  */
-export const getProperty = async (propertyId: number): Promise<ApiResponse<any>> => {
+export const getProperty = async (
+  propertyId: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/properties/${propertyId}`);
 };
 
 /**
  * Get property annual rates by property ID API function
  */
-export const getPropertyAnnualRates = async (propertyId: number): Promise<ApiResponse<any>> => {
+export const getPropertyAnnualRates = async (
+  propertyId: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/properties/${propertyId}/annual-rates`);
 };
 
@@ -927,7 +1071,7 @@ export const getPropertyTypes = async (
   perPage: number = 32,
   orderby: string = "id",
   order: string = "asc",
-  q: string = ""
+  q: string = "",
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/properties/types", {
     params: {
@@ -960,7 +1104,7 @@ export const updatePropertyType = async (
     name?: string;
     description?: string;
     [key: string]: any;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/property-types/${id}`, payload);
 };
@@ -968,7 +1112,9 @@ export const updatePropertyType = async (
 /**
  * Delete property type
  */
-export const deletePropertyType = async (id: number | string): Promise<ApiResponse<any>> => {
+export const deletePropertyType = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/property-types/${id}`);
 };
 
@@ -980,7 +1126,7 @@ export const getProductTypes = async (
   perPage: number = 32,
   orderby: string = "id",
   order: string = "asc",
-  q: string = ""
+  q: string = "",
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/product-types", {
     params: {
@@ -1019,7 +1165,7 @@ export const updateProductType = async (
     category_id?: number | null;
     management_fee_rate?: number | null;
     [key: string]: any;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/product-types/${id}`, payload);
 };
@@ -1027,7 +1173,9 @@ export const updateProductType = async (
 /**
  * Delete product type
  */
-export const deleteProductType = async (id: number | string): Promise<ApiResponse<any>> => {
+export const deleteProductType = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/product-types/${id}`);
 };
 
@@ -1039,7 +1187,7 @@ export const getServiceCategories = async (
   perPage: number = 32,
   orderby: string = "created_at",
   order: string = "desc",
-  q: string = ""
+  q: string = "",
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/service-categories", {
     params: {
@@ -1074,7 +1222,7 @@ export const updateServiceCategory = async (
     description?: string;
     code?: string;
     [key: string]: any;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/service-categories/${id}`, payload);
 };
@@ -1082,7 +1230,9 @@ export const updateServiceCategory = async (
 /**
  * Delete service category
  */
-export const deleteServiceCategory = async (id: number | string): Promise<ApiResponse<any>> => {
+export const deleteServiceCategory = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/service-categories/${id}`);
 };
 
@@ -1101,7 +1251,7 @@ export const getMerchants = async (
   perPage: number = 50,
   orderby: string = "name",
   order: string = "asc",
-  search?: string | null
+  search?: string | null,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1109,12 +1259,12 @@ export const getMerchants = async (
     orderby,
     order,
   };
-  
+
   // Add search query parameter
   if (search !== null && search !== undefined && search.trim() !== "") {
     params.q = search.trim();
   }
-  
+
   return get("/v1/merchants", {
     params,
   });
@@ -1128,7 +1278,7 @@ export const getVipClients = async (
   perPage: number = 50,
   orderby: string = "name",
   order: string = "asc",
-  search?: string | null
+  search?: string | null,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1154,7 +1304,9 @@ export const getVipClients = async (
 /**
  * Get single merchant by ID API function
  */
-export const getMerchant = async (merchantId: number): Promise<ApiResponse<any>> => {
+export const getMerchant = async (
+  merchantId: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/merchants/${merchantId}`);
 };
 
@@ -1192,7 +1344,7 @@ export const updateMerchant = async (
     address?: string;
     status?: string;
     [key: string]: any;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/merchants/${merchantId}`, merchantData);
 };
@@ -1200,7 +1352,9 @@ export const updateMerchant = async (
 /**
  * Delete merchant API function
  */
-export const deleteMerchant = async (merchantId: number): Promise<ApiResponse<any>> => {
+export const deleteMerchant = async (
+  merchantId: number,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/merchants/${merchantId}`);
 };
 
@@ -1216,7 +1370,7 @@ export const updatePropertyRate = async (
     start_date: string;
     end_date: string;
   },
-  productTypeId?: number | null
+  productTypeId?: number | null,
 ): Promise<ApiResponse<any>> => {
   const requestBody: any = {
     property_id: propertyId,
@@ -1226,14 +1380,18 @@ export const updatePropertyRate = async (
     start_date: rateData.start_date,
     end_date: rateData.end_date,
   };
-  
+
   // Add product_type_id if provided
-  if (productTypeId !== null && productTypeId !== undefined && productTypeId !== 0) {
+  if (
+    productTypeId !== null &&
+    productTypeId !== undefined &&
+    productTypeId !== 0
+  ) {
     requestBody.product_type_id = productTypeId;
   }
-  
+
   const response = await put(`/v1/properties/${propertyId}/rate`, requestBody);
-  
+
   return response;
 };
 
@@ -1244,26 +1402,26 @@ export const getAnnualRates = async (
   propertyId?: number | null,
   year?: number | null,
   page?: number | null,
-  perPage?: number | null
+  perPage?: number | null,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {};
-  
+
   if (propertyId !== null && propertyId !== undefined && propertyId !== 0) {
     params.property_id = propertyId;
   }
-  
+
   if (year !== null && year !== undefined && year !== 0) {
     params.year = year;
   }
-  
+
   if (page !== null && page !== undefined && page > 0) {
     params.page = page;
   }
-  
+
   if (perPage !== null && perPage !== undefined && perPage > 0) {
     params.per_page = perPage;
   }
-  
+
   return get("/v1/annual-rates", {
     params,
   });
@@ -1275,7 +1433,7 @@ export const getAnnualRates = async (
 export const getNeedActionAnnualRates = async (
   year?: number | null,
   page?: number | null,
-  perPage?: number | null
+  perPage?: number | null,
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {};
 
@@ -1299,17 +1457,15 @@ export const getNeedActionAnnualRates = async (
 /**
  * Create annual rate API function (creates a rate request)
  */
-export const createAnnualRate = async (
-  rateData: {
-    property_id: number;
-    year: number;
-    rate: number;
-    fee: number;
-    start_date: string;
-    end_date: string;
-    product_type_id?: number | null;
-  }
-): Promise<ApiResponse<any>> => {
+export const createAnnualRate = async (rateData: {
+  property_id: number;
+  year: number;
+  rate: number;
+  fee: number;
+  start_date: string;
+  end_date: string;
+  product_type_id?: number | null;
+}): Promise<ApiResponse<any>> => {
   const requestBody: any = {
     property_id: rateData.property_id,
     year: rateData.year,
@@ -1318,11 +1474,15 @@ export const createAnnualRate = async (
     start_date: rateData.start_date,
     end_date: rateData.end_date,
   };
-  
-  if (rateData.product_type_id !== null && rateData.product_type_id !== undefined && rateData.product_type_id !== 0) {
+
+  if (
+    rateData.product_type_id !== null &&
+    rateData.product_type_id !== undefined &&
+    rateData.product_type_id !== 0
+  ) {
     requestBody.product_type_id = rateData.product_type_id;
   }
-  
+
   return post("/v1/annual-rates", requestBody);
 };
 
@@ -1330,7 +1490,10 @@ export const createAnnualRate = async (
  * Approve annual rate request API function
  * Uses /v1/annual-rates/:id/approve endpoint
  */
-export const approveAnnualRate = async (propertyId: number, rateId: number): Promise<ApiResponse<any>> => {
+export const approveAnnualRate = async (
+  propertyId: number,
+  rateId: number,
+): Promise<ApiResponse<any>> => {
   // Use PUT method to approve annual rate
   // Send undefined instead of {} to avoid sending empty body
   return put(`/v1/annual-rates/${rateId}/approve`, undefined);
@@ -1340,7 +1503,10 @@ export const approveAnnualRate = async (propertyId: number, rateId: number): Pro
  * Reject annual rate request API function
  * Note: Reject endpoint is not available, this function is kept for compatibility
  */
-export const rejectAnnualRate = async (propertyId: number, rateId: number): Promise<ApiResponse<any>> => {
+export const rejectAnnualRate = async (
+  propertyId: number,
+  rateId: number,
+): Promise<ApiResponse<any>> => {
   // Reject endpoint doesn't exist, return error
   return {
     error: "Reject функц одоогоор дэмжигдэхгүй байна",
@@ -1351,25 +1517,23 @@ export const rejectAnnualRate = async (propertyId: number, rateId: number): Prom
 /**
  * Create property API function
  */
-export const createProperty = async (
-  propertyData: {
-    number?: string;
-    name?: string;
-    description?: string | null;
-    x?: number | null;
-    y?: number | null;
-    length?: number | null;
-    width?: number | null;
-    area_size?: number | null;
-    block_id?: number | null;
-    tenant_id?: number | null;
-    type_id?: number | null;
-    product_type_id?: number | null;
-    status_id?: number | null;
-  }
-): Promise<ApiResponse<any>> => {
+export const createProperty = async (propertyData: {
+  number?: string;
+  name?: string;
+  description?: string | null;
+  x?: number | null;
+  y?: number | null;
+  length?: number | null;
+  width?: number | null;
+  area_size?: number | null;
+  block_id?: number | null;
+  tenant_id?: number | null;
+  type_id?: number | null;
+  product_type_id?: number | null;
+  status_id?: number | null;
+}): Promise<ApiResponse<any>> => {
   const response = await post(`/v1/properties`, propertyData);
-  
+
   return response;
 };
 
@@ -1392,10 +1556,10 @@ export const updateProperty = async (
     type_id?: number | null;
     product_type_id?: number | null;
     status_id?: number | null;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   const response = await put(`/v1/properties/${propertyId}`, propertyData);
-  
+
   return response;
 };
 
@@ -1407,7 +1571,7 @@ export const getContractTemplates = async (
   perPage: number = 32,
   orderby: string = "name",
   order: string = "asc",
-  q: string = ""
+  q: string = "",
 ): Promise<
   ApiResponse<{
     data: any[];
@@ -1431,7 +1595,9 @@ export const getContractTemplates = async (
 /**
  * Get contract template by ID
  */
-export const getContractTemplateById = async (id: number | string): Promise<ApiResponse<any>> => {
+export const getContractTemplateById = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/contract-templates/${id}`);
 };
 
@@ -1459,7 +1625,7 @@ export const getBankAccountTransactions = async (
     page?: number;
     perPage?: number;
     q?: string;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   const params: Record<string, string | number | boolean> = {
     page,
@@ -1524,18 +1690,21 @@ export const updateContractTemplate = async (
     product_types?: Array<number | string>;
     type?: string;
     [key: string]: any;
-  }
+  },
 ): Promise<ApiResponse<any>> => {
   const body: any = { ...payload };
   if (payload.file_url && !body.file) body.file = payload.file_url;
-  if (payload.file_url && !body.template_file) body.template_file = payload.file_url;
+  if (payload.file_url && !body.template_file)
+    body.template_file = payload.file_url;
   return put(`/v1/contract-templates/${id}`, body);
 };
 
 /**
  * Get single legal document by ID
  */
-export const getLegalDocument = async (id: number): Promise<ApiResponse<any>> => {
+export const getLegalDocument = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/legal-documents/${id}`);
 };
 
@@ -1544,7 +1713,7 @@ export const getLegalDocument = async (id: number): Promise<ApiResponse<any>> =>
  */
 export const updateLegalDocumentContent = async (
   id: number,
-  content: any
+  content: any,
 ): Promise<ApiResponse<any>> => {
   // Backend зөвхөн PATCH дэмжиж байгаа тул PATCH ашиглана.
   return patch(`/v1/legal-documents/${id}/content`, { content });
@@ -1554,7 +1723,7 @@ export const getLegalDocuments = async (
   page: number = 1,
   perPage: number = 32,
   orderby: string = "admin_name",
-  order: string = "asc"
+  order: string = "asc",
 ): Promise<
   ApiResponse<{
     data: any[];
@@ -1577,15 +1746,42 @@ export const getLegalDocuments = async (
 /**
  * Create legal document
  */
-export const createLegalDocument = async (
-  documentData: {
-    admin_name: string;
-    title?: string;
-    content?: string;
-    status?: string;
-    [key: string]: any;
-  }
-): Promise<ApiResponse<any>> => {
+export const createLegalDocument = async (documentData: {
+  admin_name: string;
+  title?: string;
+  content?: string;
+  status?: string;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
   return post("/v1/legal-documents", documentData);
 };
 
+/**
+ * Get merchant messages from sms/blocks
+ */
+export const getMerchantMessages = async (
+  page: number = 1,
+  perPage: number = 50,
+): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/sms/blocks", {
+    params: {
+      page,
+      per_page: perPage,
+    },
+  });
+};
+
+/**
+ * Get notifications from notifications/blocks
+ */
+export const getNotifications = async (
+  page: number = 1,
+  perPage: number = 50,
+): Promise<ApiResponse<{ data: any[] }>> => {
+  return get("/v1/notifications/blocks", {
+    params: {
+      page,
+      per_page: perPage,
+    },
+  });
+};

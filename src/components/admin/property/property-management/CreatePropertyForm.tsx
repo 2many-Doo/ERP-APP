@@ -124,7 +124,7 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
               <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Блок сонгох" />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
+              <SelectContent className="z-[1000] bg-white">
                 {blocks.map((block) => (
                   <SelectItem key={block.id} value={block.id.toString()}>
                     {block.name || `Блок #${block.id}`}
@@ -156,7 +156,7 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
               <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Талбайн төрөл сонгох" />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
+              <SelectContent className="z-[1000] bg-white">
                 {propertyTypes.map((pt: any) => (
                   <SelectItem key={pt.id} value={pt.id?.toString()}>
                     {pt.name || pt.title || `Төрөл #${pt.id}`}
@@ -188,7 +188,7 @@ export const CreatePropertyForm: React.FC<CreatePropertyFormProps> = ({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Бүтээгдэхүүний төрөл сонгох" />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-white">
+              <SelectContent className="z-[1000] bg-white">
                 {productTypes.map((productType) => (
                   <SelectItem key={productType.id} value={productType.id.toString()}>
                     {productType.name || `Бүтээгдэхүүн #${productType.id}`}

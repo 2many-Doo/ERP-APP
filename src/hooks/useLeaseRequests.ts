@@ -25,14 +25,14 @@ export const useLeaseRequests = () => {
       setLoading(true);
       setError(null);
       const response = await getLeaseRequests(page, 20);
-      
+
       if (response.error) {
         setError(response.error);
       } else if (response.data) {
         // Handle different response structures
         let dataArray: any[] = [];
         let paginationInfo: any = {};
-        
+
         // Check if response.data has nested data structure
         if (response.data.data && Array.isArray(response.data.data)) {
           // Structure: { data: { data: [...], last_page: X } }
@@ -42,15 +42,18 @@ export const useLeaseRequests = () => {
           // Structure: { data: [...] } - no pagination
           dataArray = response.data;
         }
-        
+
         setLeaseRequests(dataArray);
-        
+
         // Set pagination info
         if (paginationInfo.last_page !== undefined) {
           setTotalPages(paginationInfo.last_page);
         } else if (paginationInfo.total_pages !== undefined) {
           setTotalPages(paginationInfo.total_pages);
-        } else if (paginationInfo.current_page !== undefined && paginationInfo.per_page !== undefined) {
+        } else if (
+          paginationInfo.current_page !== undefined &&
+          paginationInfo.per_page !== undefined
+        ) {
           // Calculate total pages from current_page and per_page if total is available
           const total = paginationInfo.total || dataArray.length;
           setTotalPages(Math.ceil(total / (paginationInfo.per_page || 20)));
@@ -58,13 +61,13 @@ export const useLeaseRequests = () => {
           // If no pagination info, assume single page
           setTotalPages(1);
         }
-        
+
         if (paginationInfo.total !== undefined) {
           setTotalItems(paginationInfo.total);
         } else {
           setTotalItems(dataArray.length);
         }
-        
+
         // Store status options if available
         if (paginationInfo.status_options) {
           setStatusOptions(paginationInfo.status_options);
@@ -105,4 +108,3 @@ export const useLeaseRequests = () => {
     handlePageChange,
   };
 };
-
