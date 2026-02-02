@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getMerchant } from "@/lib/api";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 import { MerchantHeader } from "./MerchantHeader";
 import { MerchantBasicInfo } from "./MerchantBasicInfo";
 import { Merchant } from "@/hooks/useMerchantManagement";

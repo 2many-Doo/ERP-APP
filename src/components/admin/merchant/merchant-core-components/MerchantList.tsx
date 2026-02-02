@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Button } from "../../ui/button";
-import { Pagination } from "../../ui/pagination";
+import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { useMerchantManagement, Merchant } from "@/hooks/useMerchantManagement";
 import { useVipMerchantManagement } from "@/hooks/useVipMerchantManagement";
 import { Store, Search, Plus, Edit, Trash2, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
@@ -41,7 +41,7 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
   useEffect(() => {
     setLocalSearch(searchQuery);
   }, [searchQuery]);
-  
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
   const [deletingMerchantId, setDeletingMerchantId] = useState<number | null>(null);
@@ -86,9 +86,9 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
           </h1>
         </div>
         {!isVip && (
-          <Button 
-            type="button" 
-            variant="secondary" 
+          <Button
+            type="button"
+            variant="secondary"
             className="flex items-center gap-2"
             onClick={() => setShowCreateModal(true)}
           >
@@ -220,11 +220,10 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                          isStatusActive(merchant.status)
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${isStatusActive(merchant.status)
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {isStatusActive(merchant.status) ? (
                           <CheckCircle2 className="h-3 w-3" />
@@ -237,17 +236,17 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
                     {!isVip && (
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 w-8 p-0"
                             onClick={() => setEditingMerchant(merchant)}
                           >
                             <Edit className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 w-8 p-0"
                             onClick={() => {
                               if (window.confirm("Энэ мерчантыг устгахдаа итгэлтэй байна уу?")) {

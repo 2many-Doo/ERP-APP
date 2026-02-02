@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Button } from "../../ui/button";
-import { Pagination } from "../../ui/pagination";
+import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { useVipMerchantManagement } from "@/hooks/useVipMerchantManagement";
 import { Store, Search, CheckCircle2, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
@@ -34,7 +34,7 @@ const VipMerchantList = ({ onMerchantClick }: VipMerchantListProps) => {
   useEffect(() => {
     setLocalSearch(searchQuery);
   }, [searchQuery]);
-  
+
   const getStatusDisplay = (status: string | undefined): string => {
     if (!status) return "Тодорхойгүй";
     if (status === "active" || status === "Идэвхтэй") return "Идэвхтэй";
@@ -172,11 +172,10 @@ const VipMerchantList = ({ onMerchantClick }: VipMerchantListProps) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                          isStatusActive(merchant.status)
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${isStatusActive(merchant.status)
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {isStatusActive(merchant.status) ? (
                           <CheckCircle2 className="h-3 w-3" />

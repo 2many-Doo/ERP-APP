@@ -50,7 +50,7 @@ export interface RequestOptions {
 const buildUrl = (
   endpoint: string,
   params?: Record<string, string | number | boolean>,
-  includeApiKeyInQuery?: boolean,
+  includeApiKeyInQuery?: boolean
 ): string => {
   // Ensure endpoint starts with /
   const normalizedEndpoint = endpoint.startsWith("/")
@@ -84,7 +84,7 @@ const buildUrl = (
  */
 const getDefaultHeaders = (
   customHeaders?: Record<string, string>,
-  includeApiKeyInHeader: boolean = true,
+  includeApiKeyInHeader: boolean = true
 ): Record<string, string> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -111,7 +111,7 @@ const getDefaultHeaders = (
  * Handle API response
  */
 const handleResponse = async <T>(
-  response: Response,
+  response: Response
 ): Promise<ApiResponse<T>> => {
   const status = response.status;
   const contentType = response.headers.get("content-type");
@@ -314,7 +314,7 @@ const handleResponse = async <T>(
                 if (endIndex > startIndex) {
                   try {
                     data = JSON.parse(
-                      text.substring(startIndex, endIndex),
+                      text.substring(startIndex, endIndex)
                     ) as T;
                   } catch {
                     data = text as T;
@@ -385,7 +385,7 @@ const handleResponse = async <T>(
  */
 export const get = async <T = any>(
   endpoint: string,
-  options?: RequestOptions,
+  options?: RequestOptions
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -415,7 +415,7 @@ export const post = async <T = any>(
   options?: RequestOptions & {
     apiKeyInQuery?: boolean;
     apiKeyInHeader?: boolean;
-  },
+  }
 ): Promise<ApiResponse<T>> => {
   try {
     const apiKeyInQuery = options?.apiKeyInQuery ?? false;
@@ -459,7 +459,7 @@ export const post = async <T = any>(
 export const patch = async <T = any>(
   endpoint: string,
   body?: any,
-  options?: RequestOptions,
+  options?: RequestOptions
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -487,7 +487,7 @@ export const patch = async <T = any>(
 export const put = async <T = any>(
   endpoint: string,
   body?: any,
-  options?: RequestOptions,
+  options?: RequestOptions
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -514,7 +514,7 @@ export const put = async <T = any>(
  */
 export const del = async <T = any>(
   endpoint: string,
-  options?: RequestOptions,
+  options?: RequestOptions
 ): Promise<ApiResponse<T>> => {
   try {
     const url = buildUrl(endpoint, options?.params);
@@ -541,7 +541,7 @@ export const del = async <T = any>(
 export const login = async (
   email: string,
   password: string,
-  options?: { apiKeyInQuery?: boolean; apiKeyInHeader?: boolean },
+  options?: { apiKeyInQuery?: boolean; apiKeyInHeader?: boolean }
 ): Promise<ApiResponse<any>> => {
   return post("/login", { email, password }, options);
 };
@@ -550,7 +550,7 @@ export const login = async (
  * Request password reset email
  */
 export const requestPasswordReset = async (
-  email: string,
+  email: string
 ): Promise<ApiResponse<any>> => {
   return post("/password/reset", { email }, { apiKeyInHeader: true });
 };
@@ -643,7 +643,7 @@ export const getAuthUser = async (): Promise<
  * Get user by ID API function
  */
 export const getUserById = async (
-  userId: number,
+  userId: number
 ): Promise<
   ApiResponse<{
     data: {
@@ -685,7 +685,7 @@ export const updateUser = async (
     password?: string;
     phone?: string;
     roles?: number[];
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/users/${userId}`, userData);
 };
@@ -729,7 +729,7 @@ export const updateRole = async (
   roleData: {
     title: string;
     permission_ids: number[];
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   // API expects 'permissions' field instead of 'permission_ids'
   const requestData = {
@@ -762,7 +762,7 @@ export const updatePermission = async (
   permissionId: number,
   permissionData: {
     title: string;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/permissions/${permissionId}`, permissionData);
 };
@@ -771,7 +771,7 @@ export const updatePermission = async (
  * Delete permission API function
  */
 export const deletePermission = async (
-  permissionId: number,
+  permissionId: number
 ): Promise<ApiResponse<any>> => {
   return del(`/v1/permissions/${permissionId}`);
 };
@@ -781,7 +781,7 @@ export const deletePermission = async (
  */
 export const getLeaseRequests = async (
   page: number = 1,
-  perPage: number = 20,
+  perPage: number = 20
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/lease-requests", {
     params: {
@@ -796,7 +796,7 @@ export const getLeaseRequests = async (
  */
 export const uploadTempMedia = async (
   file: File,
-  meta?: { name?: string; product_types?: number[] },
+  meta?: { name?: string; product_types?: number[] }
 ): Promise<ApiResponse<any>> => {
   const formData = new FormData();
   formData.append("file", file);
@@ -805,7 +805,7 @@ export const uploadTempMedia = async (
   }
   if (meta?.product_types && Array.isArray(meta.product_types)) {
     meta.product_types.forEach((pt) =>
-      formData.append("product_types[]", String(pt)),
+      formData.append("product_types[]", String(pt))
     );
   }
 
@@ -834,7 +834,7 @@ export const uploadTempMedia = async (
  * Get lease request by ID API function
  */
 export const getLeaseRequestById = async (
-  id: number,
+  id: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/lease-requests/${id}`);
 };
@@ -844,7 +844,7 @@ export const getLeaseRequestById = async (
  * Uses /v1/lease-requests/checking/requests/:id endpoint
  */
 export const getApprovedLeaseRequestById = async (
-  id: number,
+  id: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/lease-requests/checking/requests/${id}`);
 };
@@ -862,7 +862,7 @@ export const updateApprovedLeaseRequestAttachments = async (
     name: string;
     status: "approved" | "rejected";
     note?: string;
-  }>,
+  }>
 ): Promise<ApiResponse<any>> => {
   // Build request body - only include note if status is rejected
   const attachmentsForAPI = attachments.map((att) => {
@@ -881,13 +881,15 @@ export const updateApprovedLeaseRequestAttachments = async (
 
   // Validate that all attachments have required fields
   const invalidAttachments = attachmentsForAPI.filter(
-    (att) => !att.name || !att.status,
+    (att) => !att.name || !att.status
   );
 
   if (invalidAttachments.length > 0) {
     return {
       status: 400,
-      error: `Invalid attachments in API request: ${JSON.stringify(invalidAttachments)}`,
+      error: `Invalid attachments in API request: ${JSON.stringify(
+        invalidAttachments
+      )}`,
     };
   }
 
@@ -906,7 +908,7 @@ export const updateApprovedLeaseRequestAttachments = async (
  */
 export const updateLeaseRequestStatus = async (
   id: number,
-  status: string,
+  status: string
 ): Promise<ApiResponse<any>> => {
   return post(`/v1/lease-requests/checking/requests/${id}`, { status });
 };
@@ -916,7 +918,7 @@ export const updateLeaseRequestStatus = async (
  * Uses /v1/lease-requests/:id/approve endpoint
  */
 export const approveLeaseRequest = async (
-  id: number,
+  id: number
 ): Promise<ApiResponse<any>> => {
   // Use PUT method to approve lease request
   // Send undefined instead of {} to avoid sending empty body
@@ -928,7 +930,7 @@ export const approveLeaseRequest = async (
  * Uses /v1/lease-requests/:id/reject endpoint
  */
 export const rejectLeaseRequest = async (
-  id: number,
+  id: number
 ): Promise<ApiResponse<any>> => {
   // Use PUT method to reject lease request
   // Send undefined instead of {} to avoid sending empty body
@@ -958,7 +960,7 @@ export const getProperties = async (
   orderby?: string | null,
   order?: string | null,
   relationship?: string | null,
-  relationshipId?: number | null,
+  relationshipId?: number | null
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1027,7 +1029,7 @@ export const getPropertyRelationships = async (
   search?: string | null,
   relationship?: string | null,
   page: number = 1,
-  perPage: number = 50,
+  perPage: number = 50
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1049,7 +1051,7 @@ export const getPropertyRelationships = async (
  * Get single property by ID API function
  */
 export const getProperty = async (
-  propertyId: number,
+  propertyId: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/properties/${propertyId}`);
 };
@@ -1058,7 +1060,7 @@ export const getProperty = async (
  * Get property annual rates by property ID API function
  */
 export const getPropertyAnnualRates = async (
-  propertyId: number,
+  propertyId: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/properties/${propertyId}/annual-rates`);
 };
@@ -1071,7 +1073,7 @@ export const getPropertyTypes = async (
   perPage: number = 32,
   orderby: string = "id",
   order: string = "asc",
-  q: string = "",
+  q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/properties/types", {
     params: {
@@ -1104,7 +1106,7 @@ export const updatePropertyType = async (
     name?: string;
     description?: string;
     [key: string]: any;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/property-types/${id}`, payload);
 };
@@ -1113,7 +1115,7 @@ export const updatePropertyType = async (
  * Delete property type
  */
 export const deletePropertyType = async (
-  id: number | string,
+  id: number | string
 ): Promise<ApiResponse<any>> => {
   return del(`/v1/property-types/${id}`);
 };
@@ -1126,7 +1128,7 @@ export const getProductTypes = async (
   perPage: number = 32,
   orderby: string = "id",
   order: string = "asc",
-  q: string = "",
+  q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/product-types", {
     params: {
@@ -1165,7 +1167,7 @@ export const updateProductType = async (
     category_id?: number | null;
     management_fee_rate?: number | null;
     [key: string]: any;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/product-types/${id}`, payload);
 };
@@ -1174,7 +1176,7 @@ export const updateProductType = async (
  * Delete product type
  */
 export const deleteProductType = async (
-  id: number | string,
+  id: number | string
 ): Promise<ApiResponse<any>> => {
   return del(`/v1/product-types/${id}`);
 };
@@ -1187,7 +1189,7 @@ export const getServiceCategories = async (
   perPage: number = 32,
   orderby: string = "created_at",
   order: string = "desc",
-  q: string = "",
+  q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/service-categories", {
     params: {
@@ -1222,7 +1224,7 @@ export const updateServiceCategory = async (
     description?: string;
     code?: string;
     [key: string]: any;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/service-categories/${id}`, payload);
 };
@@ -1231,7 +1233,7 @@ export const updateServiceCategory = async (
  * Delete service category
  */
 export const deleteServiceCategory = async (
-  id: number | string,
+  id: number | string
 ): Promise<ApiResponse<any>> => {
   return del(`/v1/service-categories/${id}`);
 };
@@ -1251,7 +1253,7 @@ export const getMerchants = async (
   perPage: number = 50,
   orderby: string = "name",
   order: string = "asc",
-  search?: string | null,
+  search?: string | null
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1278,7 +1280,7 @@ export const getVipClients = async (
   perPage: number = 50,
   orderby: string = "name",
   order: string = "asc",
-  search?: string | null,
+  search?: string | null
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {
     page,
@@ -1305,7 +1307,7 @@ export const getVipClients = async (
  * Get single merchant by ID API function
  */
 export const getMerchant = async (
-  merchantId: number,
+  merchantId: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/merchants/${merchantId}`);
 };
@@ -1344,7 +1346,7 @@ export const updateMerchant = async (
     address?: string;
     status?: string;
     [key: string]: any;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   return put(`/v1/merchants/${merchantId}`, merchantData);
 };
@@ -1353,7 +1355,7 @@ export const updateMerchant = async (
  * Delete merchant API function
  */
 export const deleteMerchant = async (
-  merchantId: number,
+  merchantId: number
 ): Promise<ApiResponse<any>> => {
   return del(`/v1/merchants/${merchantId}`);
 };
@@ -1370,7 +1372,7 @@ export const updatePropertyRate = async (
     start_date: string;
     end_date: string;
   },
-  productTypeId?: number | null,
+  productTypeId?: number | null
 ): Promise<ApiResponse<any>> => {
   const requestBody: any = {
     property_id: propertyId,
@@ -1402,7 +1404,7 @@ export const getAnnualRates = async (
   propertyId?: number | null,
   year?: number | null,
   page?: number | null,
-  perPage?: number | null,
+  perPage?: number | null
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {};
 
@@ -1433,7 +1435,7 @@ export const getAnnualRates = async (
 export const getNeedActionAnnualRates = async (
   year?: number | null,
   page?: number | null,
-  perPage?: number | null,
+  perPage?: number | null
 ): Promise<ApiResponse<{ data: any[] }>> => {
   const params: Record<string, string | number> = {};
 
@@ -1492,7 +1494,7 @@ export const createAnnualRate = async (rateData: {
  */
 export const approveAnnualRate = async (
   propertyId: number,
-  rateId: number,
+  rateId: number
 ): Promise<ApiResponse<any>> => {
   // Use PUT method to approve annual rate
   // Send undefined instead of {} to avoid sending empty body
@@ -1505,7 +1507,7 @@ export const approveAnnualRate = async (
  */
 export const rejectAnnualRate = async (
   propertyId: number,
-  rateId: number,
+  rateId: number
 ): Promise<ApiResponse<any>> => {
   // Reject endpoint doesn't exist, return error
   return {
@@ -1556,7 +1558,7 @@ export const updateProperty = async (
     type_id?: number | null;
     product_type_id?: number | null;
     status_id?: number | null;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   const response = await put(`/v1/properties/${propertyId}`, propertyData);
 
@@ -1571,7 +1573,7 @@ export const getContractTemplates = async (
   perPage: number = 32,
   orderby: string = "name",
   order: string = "asc",
-  q: string = "",
+  q: string = ""
 ): Promise<
   ApiResponse<{
     data: any[];
@@ -1596,7 +1598,7 @@ export const getContractTemplates = async (
  * Get contract template by ID
  */
 export const getContractTemplateById = async (
-  id: number | string,
+  id: number | string
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/contract-templates/${id}`);
 };
@@ -1625,7 +1627,7 @@ export const getBankAccountTransactions = async (
     page?: number;
     perPage?: number;
     q?: string;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   const params: Record<string, string | number | boolean> = {
     page,
@@ -1690,7 +1692,7 @@ export const updateContractTemplate = async (
     product_types?: Array<number | string>;
     type?: string;
     [key: string]: any;
-  },
+  }
 ): Promise<ApiResponse<any>> => {
   const body: any = { ...payload };
   if (payload.file_url && !body.file) body.file = payload.file_url;
@@ -1703,7 +1705,7 @@ export const updateContractTemplate = async (
  * Get single legal document by ID
  */
 export const getLegalDocument = async (
-  id: number,
+  id: number
 ): Promise<ApiResponse<any>> => {
   return get(`/v1/legal-documents/${id}`);
 };
@@ -1713,7 +1715,7 @@ export const getLegalDocument = async (
  */
 export const updateLegalDocumentContent = async (
   id: number,
-  content: any,
+  content: any
 ): Promise<ApiResponse<any>> => {
   // Backend зөвхөн PATCH дэмжиж байгаа тул PATCH ашиглана.
   return patch(`/v1/legal-documents/${id}/content`, { content });
@@ -1723,7 +1725,7 @@ export const getLegalDocuments = async (
   page: number = 1,
   perPage: number = 32,
   orderby: string = "admin_name",
-  order: string = "asc",
+  order: string = "asc"
 ): Promise<
   ApiResponse<{
     data: any[];
@@ -1759,14 +1761,55 @@ export const createLegalDocument = async (documentData: {
 /**
  * Get merchant messages from sms/blocks
  */
+export interface MerchantMessage {
+  id: number;
+  phone_number: string;
+  message: string;
+  status: string;
+  due: string;
+}
+
 export const getMerchantMessages = async (
   page: number = 1,
-  perPage: number = 50,
-): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/sms/blocks", {
+  perPage: number = 50
+): Promise<ApiResponse<{ total: number; data: MerchantMessage[] }>> => {
+  return get("/v1/sms/list", {
     params: {
       page,
       per_page: perPage,
+    },
+  });
+};
+
+export interface SendMessagePayload {
+  phone_numbers: string[];
+  message: string;
+  due_date: string; // Format: Y-m-d H:i:s
+}
+
+export const sendMessage = async (
+  payload: SendMessagePayload
+): Promise<ApiResponse<any>> => {
+  return post("/v1/sms/send", payload);
+};
+
+export interface SmsBlock {
+  id: number;
+  name: string;
+  phone_numbers?: string[];
+  merchants?: any[];
+}
+
+export const getSmsBlocks = async (): Promise<ApiResponse<SmsBlock[]>> => {
+  return get("/v1/sms/blocks");
+};
+
+export const getSmsNumbersByBlock = async (
+  blockId: number
+): Promise<ApiResponse<string[]>> => {
+  return get(`/v1/sms/numbers`, {
+    params: {
+      block_id: blockId,
     },
   });
 };
@@ -1776,7 +1819,7 @@ export const getMerchantMessages = async (
  */
 export const getNotifications = async (
   page: number = 1,
-  perPage: number = 50,
+  perPage: number = 50
 ): Promise<ApiResponse<{ data: any[] }>> => {
   return get("/v1/notifications/blocks", {
     params: {

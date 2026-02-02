@@ -2,7 +2,7 @@
 
 
 import { useRouter, useParams } from "next/navigation";
-import MerchantDetail from "@/components/admin/merchant/MerchantDetail";
+import MerchantDetail from "@/components/admin/merchant/merchant-core-components/MerchantDetail";
 
 const MerchantDetailPage = () => {
   const router = useRouter();
