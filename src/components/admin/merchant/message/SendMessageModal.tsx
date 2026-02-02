@@ -1,24 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Send, Plus, Trash2, Calendar, Users } from "lucide-react";
+import { X, Send, Plus, Users } from "lucide-react";
 import { Button } from "../../../ui/button";
-import { Input } from "../../../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../ui/select";
+import { DateTimePicker } from "../../../ui/datetime-picker";
 import { toast } from "sonner";
 import { sendMessage, getSmsBlocks, getSmsNumbersByBlock, SmsBlock } from "@/lib/api";
-import {
-  BlockLoadingSkeleton,
-  BlockEmptyState,
-  NumbersLoadingSpinner,
-  LoadingSpinner
-} from "./BlockLoadingSkeleton";
+import { LoadingSpinner } from "./BlockLoadingSkeleton";
+import { PhoneNumberInput } from "./send-message-components/PhoneNumberInput";
+import { BlockSelector } from "./send-message-components/BlockSelector";
+import { BlockNumbersList } from "./send-message-components/BlockNumbersList";
+import { AllNumbersModal } from "./send-message-components/AllNumbersModal";
 
 interface SendMessageModalProps {
   onClose: () => void;
@@ -31,10 +23,11 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
 }) => {
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([""]);
   const [message, setMessage] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [blocks, setBlocks] = useState<SmsBlock[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<string>("");
+  const [blockNumbers, setBlockNumbers] = useState<string[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(false);
   const [loadingNumbers, setLoadingNumbers] = useState(false);
   const [showAllNumbers, setShowAllNumbers] = useState(false);
@@ -63,7 +56,7 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
   const handleBlockSelect = async (blockId: string) => {
     if (!blockId) {
       setSelectedBlock("");
-      setPhoneNumbers([""]);
+      setBlockNumbers([]);
       return;
     }
 
@@ -75,7 +68,6 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
 
       if (response.error) {
         toast.error("Дугаарууд татахад алдаа гарлаа");
-        setPhoneNumbers([""]);
       } else if (response.data) {
         let numbersData: any[] = [];
 
@@ -100,20 +92,23 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
         const filteredOut = numbersData.length - cleanedNumbers.length;
 
         if (cleanedNumbers.length > 0) {
-          setPhoneNumbers(cleanedNumbers);
+          // Combine with existing blockNumbers and remove duplicates
+          const combined = [...blockNumbers, ...cleanedNumbers];
+          const unique = Array.from(new Set(combined));
+
+          setBlockNumbers(unique);
           toast.success(
             filteredOut > 0
               ? `${cleanedNumbers.length} дугаар татагдлаа (${filteredOut} буруу дугаар алгасан)`
               : `${cleanedNumbers.length} дугаар татагдлаа`
           );
         } else {
-          setPhoneNumbers([""]);
           toast.warning("Энэ блокт хүчинтэй дугаар олдсонгүй");
         }
       }
     } catch (err) {
       toast.error("Дугаарууд татахад алдаа гарлаа");
-      setPhoneNumbers([""]);
+      setBlockNumbers([]);
     } finally {
       setLoadingNumbers(false);
     }
@@ -135,34 +130,9 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
     setPhoneNumbers(newPhoneNumbers);
   };
 
-  const formatDateForAPI = (dateTimeLocal: string): string => {
-    if (!dateTimeLocal) return "";
-    // Convert from "YYYY-MM-DDTHH:mm" to "YYYY-MM-DD HH:mm:ss"
-    const date = new Date(dateTimeLocal);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = "00";
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
-  const getCurrentDateTime = (): string => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validation - Filter and clean phone numbers
-    const validPhoneNumbers = phoneNumbers
+  const handleAddToBlock = () => {
+    // Validate and clean manual phone numbers
+    const validNumbers = phoneNumbers
       .filter(phone => phone && typeof phone === 'string')
       .map(phone => phone.trim())
       .map(phone => phone.replace(/\s+/g, ''))
@@ -174,7 +144,54 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
         return true;
       });
 
-    if (validPhoneNumbers.length === 0) {
+    if (validNumbers.length === 0) {
+      toast.error("Хүчинтэй дугаар оруулна уу (7+ орон)");
+      return;
+    }
+
+    // Add to block numbers (remove duplicates)
+    const combined = [...blockNumbers, ...validNumbers];
+    const unique = Array.from(new Set(combined));
+
+    setBlockNumbers(unique);
+    setPhoneNumbers([""]); // Reset manual inputs
+
+    toast.success(`${validNumbers.length} дугаар блок жагсаалтад нэмэгдлээ`);
+  };
+
+  const formatDateForAPI = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = "00";
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Combine manual phone numbers and block numbers
+    const manualNumbers = phoneNumbers
+      .filter(phone => phone && typeof phone === 'string')
+      .map(phone => phone.trim())
+      .map(phone => phone.replace(/\s+/g, ''))
+      .filter(phone => {
+        if (!phone || phone === "") return false;
+        if (!/^[\d+]+$/.test(phone)) return false;
+        const digitCount = (phone.match(/\d/g) || []).length;
+        if (digitCount < 7) return false;
+        return true;
+      });
+
+    // Combine manual + block numbers
+    const allNumbers = [...manualNumbers, ...blockNumbers];
+
+    // Remove duplicates
+    const uniqueNumbers = Array.from(new Set(allNumbers));
+
+    if (uniqueNumbers.length === 0) {
       toast.error("Утасны дугаар оруулна уу");
       return;
     }
@@ -189,7 +206,7 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
       return;
     }
 
-    const finalPhoneNumbers = validPhoneNumbers.filter(phone => {
+    const finalPhoneNumbers = uniqueNumbers.filter(phone => {
       return phone &&
         typeof phone === 'string' &&
         phone.trim().length >= 7 &&
@@ -204,7 +221,7 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
     setLoading(true);
 
     try {
-      const formattedDate = formatDateForAPI(dueDate);
+      const formattedDate = formatDateForAPI(dueDate!);
 
       const payload = {
         phone_numbers: finalPhoneNumbers,
@@ -265,101 +282,60 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
               </div>
 
               {/* Block Selection */}
-              <div className="rounded-lg space-y-2">
-                {loadingBlocks ? (
-                  <BlockLoadingSkeleton />
-                ) : blocks.length === 0 ? (
-                  <BlockEmptyState />
-                ) : (
-                  <div className="flex gap-2">
-                    <Select
-                      value={selectedBlock}
-                      onValueChange={handleBlockSelect}
-                      disabled={loadingNumbers}
-                    >
-                      <SelectTrigger className="flex-1 text-sm border-blue-300 focus:ring-blue-500 bg-white">
-                        <SelectValue placeholder="Блок сонгож дугаар нэмэх..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white z-100">
-                        {blocks.map((block) => (
-                          <SelectItem key={block.id} value={String(block.id)}>
-                            {block.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <BlockSelector
+                blocks={blocks}
+                selectedBlock={selectedBlock}
+                loadingBlocks={loadingBlocks}
+                loadingNumbers={loadingNumbers}
+                onBlockSelect={handleBlockSelect}
+              />
 
-                    {loadingNumbers && <NumbersLoadingSpinner />}
-                  </div>
+              {/* Saved Block Numbers List */}
+              <BlockNumbersList
+                blockNumbers={blockNumbers}
+                onClear={() => setBlockNumbers([])}
+                onRemoveDuplicates={() => {
+                  const unique = Array.from(new Set(blockNumbers));
+                  setBlockNumbers(unique);
+                }}
+                onShowAll={() => setShowAllNumbers(true)}
+              />
+
+              {/* Manual Phone Number Inputs */}
+              <div className="space-y-2">
+                <PhoneNumberInput
+                  phoneNumbers={phoneNumbers}
+                  onAdd={handleAddPhoneNumber}
+                  onRemove={handleRemovePhoneNumber}
+                  onChange={handlePhoneNumberChange}
+                />
+
+                {/* Add to Block Button */}
+                {phoneNumbers.some(p => p.trim()) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddToBlock}
+                    className="w-full border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Блок жагсаалтад нэмэх ({phoneNumbers.filter(p => p.trim()).length})
+                  </Button>
                 )}
-
-                {/* Show selected numbers preview */}
-                {!loadingNumbers && selectedBlock && phoneNumbers.length > 0 && phoneNumbers[0] !== "" && (
-                  <div className="bg-white border border-blue-200 rounded-lg p-2">
-                    <div className="flex flex-wrap gap-1">
-                      {phoneNumbers.slice(0, 10).map((phone, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                        >
-                          {phone}
-                        </span>
-                      ))}
-                      {phoneNumbers.length > 10 && (
-                        <button
-                          type="button"
-                          onClick={() => setShowAllNumbers(true)}
-                          className="inline-flex items-center px-2 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs rounded font-medium transition-colors"
-                        >
-                          +{phoneNumbers.length - 10} бусад...
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <p className="text-xs text-blue-700">
-                  {selectedBlock
-                    ? `Нийт ${phoneNumbers.filter(p => p.trim()).length} дугаар сонгогдсон`
-                    : "Блок сонгосон дугаарууд доорх жагсаалтад автоматаар нэмэгдэнэ"
-                  }
-                </p>
               </div>
 
-              {/* Manual Phone Number Inputs - Only show if no block selected */}
-              {!selectedBlock && (
-                <>
-                  <div className="space-y-2">
-                    {phoneNumbers.map((phone, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <Input
-                          type="text"
-                          placeholder="Утасны дугаар (жишээ: 99123456)"
-                          value={phone}
-                          onChange={(e) => handlePhoneNumberChange(index, e.target.value)}
-                          className="flex-1"
-                        />
-                        {phoneNumbers.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemovePhoneNumber(index)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Нийт: {phoneNumbers.filter(p => p.trim()).length} дугаар</span>
-                    <span>Гараар нэмэх эсвэл блокоор сонгох</span>
-                  </div>
-                </>
-              )}
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>
+                  Гараар: {phoneNumbers.filter(p => p.trim()).length} дугаар
+                  {blockNumbers.length > 0 && (
+                    <span className="text-blue-600 ml-1">
+                      | Блок: {blockNumbers.length} дугаар
+                    </span>
+                  )}
+                </span>
+                <span>Гараар нэмэх эсвэл блокоор сонгох</span>
+              </div>
             </div>
 
             {/* Message */}
@@ -386,16 +362,12 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
                 Илгээх хугацаа
                 <span className="text-red-500 ml-1">*</span>
               </label>
-              <div className="relative">
-                <Input
-                  type="datetime-local"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  min={getCurrentDateTime()}
-                  className="w-full"
-                />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-              </div>
+              <DateTimePicker
+                value={dueDate}
+                onChange={setDueDate}
+                minDate={new Date()}
+                placeholder="Огноо цаг сонгох"
+              />
               <p className="text-xs text-slate-500">
                 Мэссэж хэзээ илгээгдэх огноо, цаг
               </p>
@@ -432,57 +404,11 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
       </div>
 
       {/* Show All Numbers Modal */}
-      {showAllNumbers && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setShowAllNumbers(false)}
-        >
-          <div
-            className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800">
-                  Сонгогдсон дугаарууд
-                </h3>
-                <p className="text-sm text-slate-500 mt-1">
-                  Нийт {phoneNumbers.filter(p => p.trim()).length} дугаар
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAllNumbers(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {phoneNumbers.filter(p => p.trim()).map((phone, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-center px-3 py-2 bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded"
-                  >
-                    {phone}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => setShowAllNumbers(false)}
-              >
-                Хаах
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AllNumbersModal
+        isOpen={showAllNumbers}
+        blockNumbers={blockNumbers}
+        onClose={() => setShowAllNumbers(false)}
+      />
     </div>
   );
 };
