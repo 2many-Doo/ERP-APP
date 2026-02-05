@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { Loader2, RefreshCw, Search, Plus, Pencil, Trash2 } from "lucide-react";
@@ -152,6 +152,19 @@ const ServiceCategoryList: React.FC = () => {
             <Button variant="outline" size="sm" onClick={handleSearch} disabled={loading}>
               Хайх
             </Button>
+            {search && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  fetchCategories(1, "");
+                }}
+                disabled={loading}
+              >
+                Цэвэрлэх
+              </Button>
+            )}
           </div>
           <CreateServiceCategoryDialog
             onCreated={() => fetchCategories(1)}

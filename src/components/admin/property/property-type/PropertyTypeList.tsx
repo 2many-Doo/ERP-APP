@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { Loader2, Search, Plus, Pencil, Trash2 } from "lucide-react";
@@ -152,6 +152,19 @@ const PropertyTypeList: React.FC = () => {
             <Button variant="outline" size="sm" onClick={handleSearch} disabled={loading}>
               Хайх
             </Button>
+            {search && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  fetchTypes(1, "");
+                }}
+                disabled={loading}
+              >
+                Цэвэрлэх
+              </Button>
+            )}
           </div>
           <CreatePropertyTypeDialog
             onCreated={() => fetchTypes(1)}

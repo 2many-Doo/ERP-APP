@@ -1075,15 +1075,19 @@ export const getPropertyTypes = async (
   order: string = "asc",
   q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/properties/types", {
-    params: {
-      page,
-      per_page: perPage,
-      orderby,
-      order,
-      q,
-    },
-  });
+  const params: any = {
+    page,
+    per_page: perPage,
+    orderby,
+    order,
+  };
+
+  // Only add 'q' if it has a value
+  if (q && q.trim()) {
+    params.q = q.trim();
+  }
+
+  return get("/v1/properties/types", { params });
 };
 
 /**
@@ -1130,15 +1134,19 @@ export const getProductTypes = async (
   order: string = "asc",
   q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/product-types", {
-    params: {
-      page,
-      per_page: perPage,
-      orderby,
-      order,
-      q,
-    },
-  });
+  const params: any = {
+    page,
+    per_page: perPage,
+    orderby,
+    order,
+  };
+
+  // Only add 'q' if it has a value
+  if (q && q.trim()) {
+    params.q = q.trim();
+  }
+
+  return get("/v1/product-types", { params });
 };
 
 /**
@@ -1191,15 +1199,19 @@ export const getServiceCategories = async (
   order: string = "desc",
   q: string = ""
 ): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/service-categories", {
-    params: {
-      page,
-      per_page: perPage,
-      orderby,
-      order,
-      q,
-    },
-  });
+  const params: any = {
+    page,
+    per_page: perPage,
+    orderby,
+    order,
+  };
+
+  // Only add 'q' if it has a value
+  if (q && q.trim()) {
+    params.q = q.trim();
+  }
+
+  return get("/v1/service-categories", { params });
 };
 
 /**

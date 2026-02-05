@@ -23,7 +23,7 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
 }) => {
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([""]);
   const [message, setMessage] = useState("");
-  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [dueDate, setDueDate] = useState<Date | undefined>(new Date());
   const [loading, setLoading] = useState(false);
   const [blocks, setBlocks] = useState<SmsBlock[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<string>("");
@@ -299,6 +299,9 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
                   setBlockNumbers(unique);
                 }}
                 onShowAll={() => setShowAllNumbers(true)}
+                onRemoveNumber={(phone) => {
+                  setBlockNumbers(blockNumbers.filter(num => num !== phone));
+                }}
               />
 
               {/* Manual Phone Number Inputs */}
@@ -408,6 +411,10 @@ export const SendMessageModal: React.FC<SendMessageModalProps> = ({
         isOpen={showAllNumbers}
         blockNumbers={blockNumbers}
         onClose={() => setShowAllNumbers(false)}
+        onRemoveNumber={(phone) => {
+          setBlockNumbers(blockNumbers.filter(num => num !== phone));
+          toast.success("Дугаар хасагдлаа");
+        }}
       />
     </div>
   );

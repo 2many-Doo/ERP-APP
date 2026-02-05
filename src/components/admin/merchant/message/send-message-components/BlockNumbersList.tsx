@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Users } from "lucide-react";
+import { Users, X } from "lucide-react";
 import { Button } from "../../../../ui/button";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ interface BlockNumbersListProps {
   onClear: () => void;
   onRemoveDuplicates: () => void;
   onShowAll: () => void;
+  onRemoveNumber: (phone: string) => void;
 }
 
 export const BlockNumbersList: React.FC<BlockNumbersListProps> = ({
@@ -17,6 +18,7 @@ export const BlockNumbersList: React.FC<BlockNumbersListProps> = ({
   onClear,
   onRemoveDuplicates,
   onShowAll,
+  onRemoveNumber,
 }) => {
   if (blockNumbers.length === 0) return null;
 
@@ -60,9 +62,16 @@ export const BlockNumbersList: React.FC<BlockNumbersListProps> = ({
         {blockNumbers.map((phone, idx) => (
           <span
             key={idx}
-            className="inline-flex items-center px-2 py-1 bg-blue-50 border border-blue-300 text-blue-800 text-xs rounded shadow-sm"
+            className="relative group inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-300 text-blue-800 text-xs rounded shadow-sm"
           >
             {phone}
+            <button
+              onClick={() => onRemoveNumber(phone)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-600"
+              title="Хасах"
+            >
+              <X className="h-3 w-3" />
+            </button>
           </span>
         ))}
       </div>
