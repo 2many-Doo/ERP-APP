@@ -6,6 +6,7 @@ import {
   DollarSign,
   MoreHorizontal,
   type LucideIcon,
+  FileText,
 } from "lucide-react";
 
 export type NavItem = {
@@ -199,6 +200,27 @@ export const sidebarSections: NavSection[] = [
         label: "Эрхийн удирдлага",
         componentKey: "permission-management",
         permission: "role_show",
+      },
+    ],
+  },
+  {
+    title: "Файл сан",
+    icon: FileText,
+    items: [
+      {
+        id: "Tag-management",
+        label: "Тaaг",
+        componentKey: "Tag-management",
+      },
+      {
+        id: "Category-management",
+        label: "Ангилал",
+        componentKey: "Category-management",
+      },
+      {
+        id: "Photo-management",
+        label: "Зураг",
+        componentKey: "Photo-management",
       },
     ],
   },

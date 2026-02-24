@@ -1,4 +1,4 @@
-"use client";1
+"use client"; 1
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { NavItem } from "@/utils/sidebarSections";
@@ -106,6 +106,12 @@ export function MainLayoutProvider({
         return "property-rate-update";
       case "property-rate-history":
         return "property-rate-history";
+      case "Tag-management":
+        return "Tag-management";
+      case "Category-management":
+        return "Category-management";
+      case "Photo-management":
+        return "Photo-management";
       default:
         return null;
     }

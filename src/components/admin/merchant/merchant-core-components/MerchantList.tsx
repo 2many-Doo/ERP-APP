@@ -82,7 +82,7 @@ const MerchantList = ({ onMerchantClick, variant = "default" }: MerchantListProp
         <div className="flex items-center gap-3">
           <Store className="h-8 w-8 text-gray-600" />
           <h1 className="text-3xl font-bold text-slate-800">
-            {isVip ? "ВИП мерчант жагсаалт" : "Мерчант жагсаалт"}
+            {isVip ? "VIP мерчант жагсаалт" : "Мерчант жагсаалт"}
           </h1>
         </div>
         {!isVip && (

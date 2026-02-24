@@ -1,0 +1,359 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { getCategoryById, updateCategory } from "@/lib/api";
+import { ArrowLeft, FolderOpen, Calendar, Image as ImageIcon, Edit, X, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
+
+interface FileLibrary {
+    id: number;
+    title: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user_id: number | null;
+    image: {
+        id: number;
+        url: string;
+        thumbnail: string;
+        preview: string;
+        original_url: string;
+        preview_url: string;
+        file_name: string;
+        mime_type: string;
+        size: number;
+    };
+}
+
+interface CategoryDetail {
+    id: number;
+    name: string;
+    description: string;
+    created_at: string | null;
+    updated_at: string;
+    deleted_at: string | null;
+    category_file_libraries: FileLibrary[];
+}
+
+const CategoryDetailPage = () => {
+    const params = useParams();
+    const router = useRouter();
+    const categoryId = params?.id;
+
+    const [category, setCategory] = useState<CategoryDetail | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Edit modal states
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editCategoryName, setEditCategoryName] = useState("");
+    const [editCategoryDescription, setEditCategoryDescription] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (categoryId) {
+            fetchCategoryDetail(Number(categoryId));
+        }
+    }, [categoryId]);
+
+    const fetchCategoryDetail = async (id: number) => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await getCategoryById(id);
+
+            if (response.status === 200 && response.data) {
+                setCategory(response.data);
+            } else {
+                setError(response.error || "Категори олдсонгүй");
+                toast.error("Категори татахад алдаа гарлаа");
+            }
+        } catch (err: any) {
+            console.error("Error fetching category:", err);
+            setError(err.message || "Алдаа гарлаа");
+            toast.error("Категори татахад алдаа гарлаа");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return "—";
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        return `${year}.${month}.${day} ${hours}:${minutes}`;
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    };
+
+    const handleEditClick = () => {
+        if (category) {
+            setEditCategoryName(category.name);
+            setEditCategoryDescription(category.description);
+            setIsEditModalOpen(true);
+        }
+    };
+
+    const handleUpdateCategory = async () => {
+        if (!editCategoryName.trim()) {
+            toast.error("Категори нэр оруулна уу");
+            return;
+        }
+
+        if (!category) return;
+
+        try {
+            setIsSubmitting(true);
+            const response = await updateCategory(category.id, {
+                name: editCategoryName.trim(),
+                description: editCategoryDescription.trim(),
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                toast.success("Категори амжилттай засагдлаа");
+                setIsEditModalOpen(false);
+                fetchCategoryDetail(category.id); // Refresh data
+            } else {
+                toast.error(response.error || "Категори засахад алдаа гарлаа");
+            }
+        } catch (err: any) {
+            console.error("Error updating category:", err);
+            toast.error(err.message || "Категори засахад алдаа гарлаа");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleModalClose = () => {
+        setIsEditModalOpen(false);
+        setEditCategoryName("");
+        setEditCategoryDescription("");
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-slate-600">Уншиж байна...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !category) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">{error || "Категори олдсонгүй"}</p>
+                    <Button onClick={() => router.back()}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Буцах
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.back()}
+                        className="flex items-center gap-2"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Буцах
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <FolderOpen className="h-8 w-8 text-blue-600" />
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-800">
+                                {category.name}
+                            </h1>
+                            <p className="text-sm text-slate-500">Категори #{category.id}</p>
+                        </div>
+                    </div>
+                </div>
+                <Button
+                    onClick={handleEditClick}
+                    className="flex items-center gap-2"
+                >
+                    <Edit className="h-4 w-4" />
+                    Засах
+                </Button>
+            </div>
+
+            {/* Category Info */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">
+                    Мэдээлэл
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                        <FileText className="h-5 w-5 text-slate-400 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Тайлбар</p>
+                            <p className="text-sm text-slate-600">{category.description || "—"}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <ImageIcon className="h-5 w-5 text-slate-400 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Зургийн тоо</p>
+                            <p className="text-sm text-slate-600">
+                                {category.category_file_libraries?.length || 0} зураг
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-slate-400 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Үүсгэсэн огноо</p>
+                            <p className="text-sm text-slate-600">{formatDate(category.created_at)}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-slate-400 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Зассан огноо</p>
+                            <p className="text-sm text-slate-600">{formatDate(category.updated_at)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Images Grid */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">
+                    Холбогдох зургууд ({category.category_file_libraries?.length || 0})
+                </h2>
+
+                {category.category_file_libraries && category.category_file_libraries.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {category.category_file_libraries.map((fileLibrary) => (
+                            <div
+                                key={fileLibrary.id}
+                                className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200"
+                            >
+                                {/* Image */}
+                                <div className="relative aspect-square bg-slate-100">
+                                    <Image
+                                        src={fileLibrary.image.preview || fileLibrary.image.url}
+                                        alt={fileLibrary.title}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    />
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <ImageIcon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-slate-500">Энэ категорид холбогдох зураг байхгүй байна</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Edit Category Modal */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                            <h2 className="text-xl font-semibold text-slate-800">
+                                Категори засах
+                            </h2>
+                            <button
+                                onClick={handleModalClose}
+                                className="text-slate-400 hover:text-slate-600 transition-colors"
+                                disabled={isSubmitting}
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label htmlFor="editCategoryName" className="block text-sm font-medium text-slate-700 mb-2">
+                                    Категори нэр
+                                </label>
+                                <Input
+                                    id="editCategoryName"
+                                    type="text"
+                                    value={editCategoryName}
+                                    onChange={(e) => setEditCategoryName(e.target.value)}
+                                    placeholder="Категори нэр оруулах..."
+                                    className="w-full"
+                                    disabled={isSubmitting}
+                                    autoFocus
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="editCategoryDescription" className="block text-sm font-medium text-slate-700 mb-2">
+                                    Тайлбар
+                                </label>
+                                <Textarea
+                                    id="editCategoryDescription"
+                                    value={editCategoryDescription}
+                                    onChange={(e) => setEditCategoryDescription(e.target.value)}
+                                    placeholder="Тайлбар оруулах..."
+                                    className="w-full"
+                                    rows={3}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleModalClose}
+                                disabled={isSubmitting}
+                            >
+                                Цуцлах
+                            </Button>
+                            <Button
+                                type="submit"
+                                onClick={handleUpdateCategory}
+                                disabled={isSubmitting || !editCategoryName.trim()}
+                                className="text-white"
+                            >
+                                {isSubmitting ? "Засаж байна..." : "Засах"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default CategoryDetailPage;

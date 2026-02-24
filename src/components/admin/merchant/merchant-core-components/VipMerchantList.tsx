@@ -51,14 +51,14 @@ const VipMerchantList = ({ onMerchantClick }: VipMerchantListProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Store className="h-8 w-8 text-gray-600" />
-          <h1 className="text-3xl font-bold text-slate-800">ВИП мерчант жагсаалт</h1>
+          <h1 className="text-3xl font-bold text-slate-800">VIP мерчант жагсаалт</h1>
         </div>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <p className="text-sm text-slate-600 mb-2">Нийт ВИП мерчант</p>
+          <p className="text-sm text-slate-600 mb-2">Нийт VIP мерчант</p>
           <p className="text-3xl font-bold text-slate-800">{loading ? "..." : totalItems}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -78,7 +78,7 @@ const VipMerchantList = ({ onMerchantClick }: VipMerchantListProps) => {
             <Search className="h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="ВИП мерчант хайх..."
+              placeholder="VIP мерчант хайх..."
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyDown={(e) => {

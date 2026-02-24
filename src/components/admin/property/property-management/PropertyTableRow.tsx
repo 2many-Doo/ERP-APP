@@ -13,7 +13,6 @@ interface PropertyTableRowProps {
 const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
   property,
   getPropertyTypeName,
-  onRateClick,
   onDetailClick,
 }) => {
   const handleRowClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
@@ -26,7 +25,7 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
   };
 
   return (
-    <tr 
+    <tr
       className="hover:bg-slate-50 transition-colors cursor-pointer"
       onClick={handleRowClick}
     >
@@ -113,8 +112,7 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
           if (property.status) {
             return (
               <span
-                className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
-                  (() => {
+                className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${(() => {
                     const statusText = (property.status?.description || property.status?.name || "").toLowerCase();
                     if (statusText.includes('идэвхтэй')) {
                       return "bg-green-100 text-green-800";
@@ -133,7 +131,7 @@ const PropertyTableRow: React.FC<PropertyTableRowProps> = ({
                     }
                     return "bg-blue-100 text-blue-800";
                   })()
-                }`}
+                  }`}
               >
                 {property.status.description || property.status.name || "-"}
               </span>

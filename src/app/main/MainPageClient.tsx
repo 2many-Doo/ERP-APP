@@ -25,6 +25,9 @@ import PropertyTypeList from "@/components/admin/property/property-type/Property
 import ProductTypeList from "@/components/admin/property/product-type/ProductTypeList";
 import MerchantMessage from "@/components/admin/merchant/message/MerchantMessage";
 import MerchantNotification from "@/components/admin/merchant/notification/MerchantNotification";
+import TagManagement from "@/components/admin/file/tag/TagManagement";
+import CategoryManagement from "@/components/admin/file/category/CategoryManagement";
+import PhotoManagement from "@/components/admin/file/photo/PhotoManagement";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -266,6 +269,12 @@ const MainPageClient = () => {
         return <MerchantMessage />;
       case "notification":
         return <MerchantNotification />;
+      case "Tag-management":
+        return <TagManagement />;
+      case "Category-management":
+        return <CategoryManagement />;
+      case "Photo-management":
+        return <PhotoManagement />;
       default:
         return <UserManagement />;
     }

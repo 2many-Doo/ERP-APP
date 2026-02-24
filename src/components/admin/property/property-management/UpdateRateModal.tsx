@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { X, CheckCircle } from "lucide-react";
+import { X, } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,12 +21,10 @@ interface UpdateRateModalProps {
   onSuccess: () => void;
   onUpdateRate: (propertyId: number, rateData: RateData) => Promise<void>;
 }
-
 interface RateData {
   rate: number;
   fee: number;
 }
-
 export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
   property,
   onClose,
@@ -94,7 +92,7 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
         rate: Number(formData.rate),
         fee,
       };
-      
+
       await onUpdateRate(property.id, rateDataToSend);
       toast.success("Үнэлгээ амжилттай илгээгдлээы");
       // Call onSuccess before closing to ensure data is refreshed
@@ -190,7 +188,7 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-2 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-       
+
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -215,53 +213,53 @@ export const UpdateRateModal: React.FC<UpdateRateModalProps> = ({
               />
             </div>
             <div className="w-full">
-            <label className="block text-sm font-medium text-slate-700 mb-2">Менежментийн хувь (%) </label>                
-            <Select
-                  value={feePercent.toString()}
-                  onValueChange={(value) => {
-                    const selected = Number(value);
-                    setFeePercent(selected);
-                    setFormData((prev) => ({
-                      ...prev,
-                      fee: computeFee(prev.rate, selected),
-                    }));
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Төлбөрийн хувь" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[120] bg-white">
-                    {FEE_PERCENT_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option.toString()}>
-                        {option}%
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Менежментийн хувь (%) </label>
+              <Select
+                value={feePercent.toString()}
+                onValueChange={(value) => {
+                  const selected = Number(value);
+                  setFeePercent(selected);
+                  setFormData((prev) => ({
+                    ...prev,
+                    fee: computeFee(prev.rate, selected),
+                  }));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Төлбөрийн хувь" />
+                </SelectTrigger>
+                <SelectContent className="z-[120] bg-white">
+                  {FEE_PERCENT_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option.toString()}>
+                      {option}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Менежментийн төлбөр (₮)
               </label>
-            <div className="flex gap-3">
-              <Input
-                type="number"
-                value={formData.fee || ""}
-                tabIndex={-1}
-                className="w-full"
-                readOnly
-                disabled={true}
-                placeholder="Жишээ: 120000"
-                required
-                min="0"
-                step="1000"
-              />
-            </div>
-            
+              <div className="flex gap-3">
+                <Input
+                  type="number"
+                  value={formData.fee || ""}
+                  tabIndex={-1}
+                  className="w-full"
+                  readOnly
+                  disabled={true}
+                  placeholder="Жишээ: 120000"
+                  required
+                  min="0"
+                  step="1000"
+                />
+              </div>
+
             </div>
 
-          
-          
+
+
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">

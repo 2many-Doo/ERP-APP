@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "file.sutainbuyant.com",
       },
+      {
+        protocol: "https",
+        hostname: "test.img.sutainbuyant.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.sutainbuyant.com",
+      },
     ],
   },
 };
