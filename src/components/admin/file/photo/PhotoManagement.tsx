@@ -1,17 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Image as ImageIcon, Plus, Search, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateImageModal from "./CreateImageModal";
+import { searchImages } from "@/lib/api";
 
 interface Photo {
     id: number;
     title: string;
     description: string;
-    url: string;
-    thumbnail: string;
+    url?: string;
+    thumbnail?: string;
+    preview?: string;
+    image?: {
+        url?: string;
+        thumbnail?: string;
+        preview?: string;
+        original_url?: string;
+    };
 }
 
 const PhotoManagement = () => {
@@ -21,15 +29,51 @@ const PhotoManagement = () => {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    const fetchPhotos = async () => {
+    const pickImageUrl = (photo: Photo) =>
+        photo.thumbnail ||
+        photo.preview ||
+        photo.url ||
+        photo.image?.thumbnail ||
+        photo.image?.preview ||
+        photo.image?.url ||
+        photo.image?.original_url ||
+        "";
+
+    const parsePhotos = (raw: any): Photo[] => {
+        const collection = Array.isArray(raw)
+            ? raw
+            : Array.isArray(raw?.data)
+                ? raw.data
+                : Array.isArray(raw?.data?.data)
+                    ? raw.data.data
+                    : [];
+
+        return collection
+            .filter((item: any) => item && typeof item === "object")
+            .map((item: any) => ({
+                id:
+                    Number(item.id ?? item.image_id ?? item?.image?.id) ||
+                    Date.now() + Math.random(),
+                title: item.title ?? item.name ?? "No title",
+                description: item.description ?? item.alt ?? "",
+                url: item.url ?? item.file_url,
+                thumbnail: item.thumbnail ?? item.thumb,
+                preview: item.preview ?? item.preview_url,
+                image: item.image,
+            }));
+    };
+
+    const fetchPhotos = async (term?: string) => {
+        const query = term ?? localSearch;
         try {
             setLoading(true);
-            // TODO: Implement API call
-            // const response = await getPhotos();
-            // setPhotos(response.data);
-
-            // Temporary empty state
-            setPhotos([]);
+            const response = await searchImages({ q: query || undefined });
+            if (response.status === 200 || response.status === 201) {
+                const parsed = parsePhotos(response.data);
+                setPhotos(parsed);
+            } else {
+                toast.error(response.error || "Зураг татахад алдаа гарлаа");
+            }
         } catch (err: any) {
             console.error("Error fetching photos:", err);
             toast.error("Зураг татахад алдаа гарлаа");
@@ -39,13 +83,59 @@ const PhotoManagement = () => {
     };
 
     useEffect(() => {
-        fetchPhotos();
+        fetchPhotos("");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        const handle = setTimeout(() => {
+            fetchPhotos(localSearch.trim());
+        }, 400);
+        return () => clearTimeout(handle);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localSearch]);
 
     const handleCreateSuccess = () => {
         setIsCreateModalOpen(false);
         fetchPhotos(); // Refresh list
     };
+
+    const photoCards = useMemo(
+        () =>
+            photos.map((photo) => {
+                const src = pickImageUrl(photo);
+                return (
+                    <div
+                        key={photo.id}
+                        className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200"
+                    >
+                        <div className="relative aspect-square bg-slate-100">
+                            {src ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={src}
+                                    alt={photo.title}
+                                    className="object-cover w-full h-full"
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-slate-400">
+                                    <ImageIcon className="h-8 w-8" />
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-3 space-y-1">
+                            <p className="text-sm font-semibold text-slate-800 line-clamp-1">
+                                {photo.title || "Гарчиггүй"}
+                            </p>
+                            <p className="text-xs text-slate-500 line-clamp-2">
+                                {photo.description || "Тайлбар алга"}
+                            </p>
+                        </div>
+                    </div>
+                );
+            }),
+        [photos]
+    );
 
     return (
         <div className="space-y-6">
@@ -81,6 +171,15 @@ const PhotoManagement = () => {
                             className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                         />
                     </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fetchPhotos(localSearch.trim())}
+                        disabled={loading}
+                    >
+                        Хайх
+                    </Button>
                     <div className="flex items-center gap-2">
                         <Button
                             type="button"
@@ -127,11 +226,49 @@ const PhotoManagement = () => {
                         </Button> */}
                     </div>
                 ) : (
-                    <div className={viewMode === "grid"
-                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                        : "space-y-4"
-                    }>
-                        {/* TODO: Render photos */}
+                    <div
+                        className={
+                            viewMode === "grid"
+                                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                                : "space-y-4"
+                        }
+                    >
+                        {viewMode === "grid" ? (
+                            photoCards
+                        ) : (
+                            photos.map((photo) => {
+                                const src = pickImageUrl(photo);
+                                return (
+                                    <div
+                                        key={photo.id}
+                                        className="flex items-center gap-4 p-3 rounded-lg border border-slate-200 hover:bg-slate-50"
+                                    >
+                                        <div className="relative h-16 w-16 rounded-md overflow-hidden bg-slate-100 border border-slate-200">
+                                            {src ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={src}
+                                                    alt={photo.title}
+                                                    className="object-cover h-full w-full"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full text-slate-400">
+                                                    <ImageIcon className="h-6 w-6" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-semibold text-slate-800 line-clamp-1">
+                                                {photo.title || "Гарчиггүй"}
+                                            </p>
+                                            <p className="text-xs text-slate-500 line-clamp-2">
+                                                {photo.description || "Тайлбар алга"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 )}
             </div>

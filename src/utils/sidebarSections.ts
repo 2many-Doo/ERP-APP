@@ -204,7 +204,7 @@ export const sidebarSections: NavSection[] = [
     ],
   },
   {
-    title: "Файл сан",
+    title: "Зурагын сан",
     icon: FileText,
     items: [
       {

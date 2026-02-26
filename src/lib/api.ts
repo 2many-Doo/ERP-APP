@@ -1907,6 +1907,36 @@ export const getTagById = async (id: number): Promise<ApiResponse<any>> => {
 };
 
 /**
+ * Search images in the media library
+ */
+export const searchImages = async (payload?: {
+  q?: string;
+  tags?: number[];
+  categories?: number[];
+  page?: number;
+  per_page?: number;
+}): Promise<ApiResponse<any>> => {
+  const body: Record<string, any> = {};
+
+  if (payload?.q && payload.q.trim()) {
+    body.q = payload.q.trim();
+  }
+  if (payload?.tags?.length) {
+    body.tags = payload.tags;
+  }
+  if (payload?.categories?.length) {
+    body.categories = payload.categories;
+  }
+  if (payload?.page) {
+    body.page = payload.page;
+  }
+  if (payload?.per_page) {
+    body.per_page = payload.per_page;
+  }
+
+  return post("/v1/img/search", body);
+};
+/**
  * Create image with filenames (not files)
  */
 export const createImage = async (data: {
