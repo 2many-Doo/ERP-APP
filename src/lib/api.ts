@@ -1831,14 +1831,23 @@ export const getSmsNumbersByBlock = async (
  */
 export const getNotifications = async (
   page: number = 1,
-  perPage: number = 50,
+  perPage: number = 32,
 ): Promise<ApiResponse<{ data: any[] }>> => {
-  return get("/v1/notifications/blocks", {
+  return get("/v1/notifications", {
     params: {
       page,
       per_page: perPage,
     },
   });
+};
+
+/**
+ * Get single notification detail
+ */
+export const getNotificationById = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
+  return get(`/v1/notifications/${id}`);
 };
 
 // Бодит API хариуны бүтэц

@@ -55,6 +55,7 @@ const CategoryDetailPage = () => {
     const [editCategoryName, setEditCategoryName] = useState("");
     const [editCategoryDescription, setEditCategoryDescription] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<{ src: string; title?: string } | null>(null);
 
     useEffect(() => {
         if (categoryId) {
@@ -255,7 +256,13 @@ const CategoryDetailPage = () => {
                         {category.category_file_libraries.map((fileLibrary) => (
                             <div
                                 key={fileLibrary.id}
-                                className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200"
+                                className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 cursor-pointer hover:shadow-md transition"
+                                onClick={() =>
+                                    setSelectedImage({
+                                        src: fileLibrary.image.preview || fileLibrary.image.url,
+                                        title: fileLibrary.title,
+                                    })
+                                }
                             >
                                 {/* Image */}
                                 <div className="relative aspect-square bg-slate-100">
@@ -349,6 +356,38 @@ const CategoryDetailPage = () => {
                                 {isSubmitting ? "Засаж байна..." : "Засах"}
                             </Button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Image Lightbox */}
+            {selectedImage && (
+                <div className="fixed inset-0 z-[12000] bg-black/70 flex items-center justify-center px-4">
+                    <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl">
+                        <button
+                            onClick={() => setSelectedImage(null)}
+                            className="absolute top-3 right-3 z-[12010] rounded-full bg-black/60 text-white p-2 hover:bg-black/80 transition"
+                            aria-label="Close"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                        <div className="relative w-full h-[70vh] bg-white">
+                            <Image
+                                src={selectedImage.src}
+                                alt={selectedImage.title || "preview"}
+                                fill
+                                className="object-contain"
+                                sizes="100vw"
+                                priority
+                            />
+                        </div>
+                        {selectedImage.title && (
+                            <div className="p-4 border-t border-slate-200">
+                                <p className="text-sm font-semibold text-slate-800 line-clamp-2">
+                                    {selectedImage.title}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
