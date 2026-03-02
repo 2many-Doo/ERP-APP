@@ -20,6 +20,12 @@ interface Photo {
         preview?: string;
         original_url?: string;
     };
+    images?: Array<{
+        id?: number;
+        url?: string;
+        thumbnail?: string;
+        preview?: string;
+    }>;
 }
 
 const PhotoManagement = () => {
@@ -28,16 +34,24 @@ const PhotoManagement = () => {
     const [localSearch, setLocalSearch] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<{ src: string; title?: string; description?: string } | null>(null);
 
-    const pickImageUrl = (photo: Photo) =>
-        photo.thumbnail ||
-        photo.preview ||
-        photo.url ||
-        photo.image?.thumbnail ||
-        photo.image?.preview ||
-        photo.image?.url ||
-        photo.image?.original_url ||
-        "";
+    const pickImageUrl = (photo: Photo) => {
+        const fromImages = photo.images && photo.images.length > 0 ? photo.images[0] : undefined;
+        return (
+            photo.thumbnail ||
+            photo.preview ||
+            photo.url ||
+            photo.image?.thumbnail ||
+            photo.image?.preview ||
+            photo.image?.url ||
+            photo.image?.original_url ||
+            fromImages?.preview ||
+            fromImages?.thumbnail ||
+            fromImages?.url ||
+            ""
+        );
+    };
 
     const parsePhotos = (raw: any): Photo[] => {
         const collection = Array.isArray(raw)
@@ -60,6 +74,7 @@ const PhotoManagement = () => {
                 thumbnail: item.thumbnail ?? item.thumb,
                 preview: item.preview ?? item.preview_url,
                 image: item.image,
+                images: item.images,
             }));
     };
 
@@ -83,13 +98,13 @@ const PhotoManagement = () => {
     };
 
     useEffect(() => {
-        fetchPhotos("");
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
         const handle = setTimeout(() => {
-            fetchPhotos(localSearch.trim());
+            const term = localSearch.trim();
+            if (!term) {
+                setPhotos([]);
+                return;
+            }
+            fetchPhotos(term);
         }, 400);
         return () => clearTimeout(handle);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,7 +122,15 @@ const PhotoManagement = () => {
                 return (
                     <div
                         key={photo.id}
-                        className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200"
+                        className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 cursor-pointer hover:shadow-md transition"
+                        onClick={() =>
+                            src &&
+                            setSelectedPhoto({
+                                src,
+                                title: photo.title,
+                                description: photo.description,
+                            })
+                        }
                     >
                         <div className="relative aspect-square bg-slate-100">
                             {src ? (
@@ -175,7 +198,14 @@ const PhotoManagement = () => {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => fetchPhotos(localSearch.trim())}
+                        onClick={() => {
+                            const term = localSearch.trim();
+                            if (!term) {
+                                toast.error("Хайх утга оруулна уу");
+                                return;
+                            }
+                            fetchPhotos(term);
+                        }}
                         disabled={loading}
                     >
                         Хайх
@@ -241,7 +271,15 @@ const PhotoManagement = () => {
                                 return (
                                     <div
                                         key={photo.id}
-                                        className="flex items-center gap-4 p-3 rounded-lg border border-slate-200 hover:bg-slate-50"
+                                        className="flex items-center gap-4 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                                        onClick={() =>
+                                            src &&
+                                            setSelectedPhoto({
+                                                src,
+                                                title: photo.title,
+                                                description: photo.description,
+                                            })
+                                        }
                                     >
                                         <div className="relative h-16 w-16 rounded-md overflow-hidden bg-slate-100 border border-slate-200">
                                             {src ? (
@@ -272,13 +310,48 @@ const PhotoManagement = () => {
                     </div>
                 )}
             </div>
-
             {/* Create Image Modal */}
             <CreateImageModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onSuccess={handleCreateSuccess}
             />
+
+            {/* Lightbox */}
+            {selectedPhoto && (
+                <div className="fixed inset-0 z-[13000] bg-black/75 flex items-center justify-center px-4">
+                    <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl">
+                        <button
+                            onClick={() => setSelectedPhoto(null)}
+                            className="absolute top-3 right-3 z-[13010] rounded-full bg-black/60 text-white p-2 hover:bg-black/80 transition"
+                            aria-label="Close"
+                        >
+                            <ImageIcon className="hidden" />
+                            <span className="text-sm font-semibold">✕</span>
+                        </button>
+                        <div className="relative w-full h-[75vh] bg-white">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={selectedPhoto.src}
+                                alt={selectedPhoto.title || "preview"}
+                                className="object-contain w-full h-full"
+                            />
+                        </div>
+                        {(selectedPhoto.title || selectedPhoto.description) && (
+                            <div className="p-4 border-t border-slate-200 bg-white">
+                                <p className="text-sm font-semibold text-slate-900 line-clamp-2">
+                                    {selectedPhoto.title || "Гарчиггүй"}
+                                </p>
+                                {selectedPhoto.description && (
+                                    <p className="text-xs text-slate-600 mt-1 line-clamp-3">
+                                        {selectedPhoto.description}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
