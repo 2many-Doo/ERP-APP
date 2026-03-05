@@ -172,6 +172,12 @@ export const sidebarSections: NavSection[] = [
         componentKey: "legal-documents",
       },
       {
+        id: "task-management",
+        label: "Ажлын бүртгэл",
+        componentKey: "task-management",
+        href: "#other-help",
+      },
+      {
         id: "other-settings",
         label: "Системийн тохиргоо",
         href: "#other-settings",

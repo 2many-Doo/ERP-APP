@@ -1827,6 +1827,101 @@ export const getSmsNumbersByBlock = async (
 };
 
 /**
+ * Tasks list
+ */
+export const getTasks = async (
+  page: number = 1,
+  perpage: number = 32,
+): Promise<ApiResponse<any>> => {
+  return get("/v1/tasks", {
+    params: { page, perpage },
+  });
+};
+
+/**
+ * Task detail
+ */
+export const getTaskById = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
+  return get(`/v1/tasks/${id}`);
+};
+
+/**
+ * Create task
+ */
+export const createTask = async (
+  payload: {
+    title: string;
+    name?: string;
+    description?: string;
+    due_date?: string;
+    status?: string;
+    [key: string]: any;
+  },
+): Promise<ApiResponse<any>> => {
+  return post("/v1/tasks", payload);
+};
+
+/**
+ * Update task
+ */
+export const updateTask = async (
+  taskId: number,
+  payload: {
+    title?: string;
+    name?: string;
+    description?: string;
+    due_date?: string;
+    status?: string;
+    [key: string]: any;
+  },
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/tasks/${taskId}`, payload);
+};
+
+/**
+ * Create task comment
+ */
+export const createTaskComment = async (
+  taskId: number | string,
+  payload: { comment: string },
+): Promise<ApiResponse<any>> => {
+  return post(`/v1/tasks/${taskId}/comments`, payload);
+};
+
+/**
+ * Create task tag
+ */
+export const createTaskTag = async (payload: { name: string }): Promise<ApiResponse<any>> => {
+  return post("/v1/task-tags", payload);
+};
+
+/**
+ * Update task tag
+ */
+export const updateTaskTag = async (
+  tagId: number,
+  payload: { name: string },
+): Promise<ApiResponse<any>> => {
+  return put(`/v1/task-tags/${tagId}`, payload);
+};
+
+/**
+ * Delete task tag
+ */
+export const deleteTaskTag = async (tagId: number): Promise<ApiResponse<any>> => {
+  return del(`/v1/task-tags/${tagId}`);
+};
+
+/**
+ * Task tags list
+ */
+export const getTaskTags = async (): Promise<ApiResponse<any>> => {
+  return get("/v1/task-tags");
+};
+
+/**
  * Get notifications from notifications/blocks
  */
 export const getNotifications = async (

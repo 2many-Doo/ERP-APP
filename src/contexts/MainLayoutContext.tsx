@@ -112,6 +112,8 @@ export function MainLayoutProvider({
         return "Category-management";
       case "Photo-management":
         return "Photo-management";
+      case "task-management":
+        return "task-management";
       default:
         return null;
     }
