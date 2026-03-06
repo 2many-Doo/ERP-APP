@@ -41,6 +41,7 @@ const TaskManagement: React.FC = () => {
   const today = new Date().toISOString().slice(0, 10);
   const [dueDate, setDueDate] = useState(today);
   const [status, setStatus] = useState("new");
+  const [urlsInput, setUrlsInput] = useState("");
 
   const [tags, setTags] = useState<{ id: number; name: string }[]>([]);
   const [users, setUsers] = useState<{ id: number; name: string }[]>([]);
@@ -182,6 +183,7 @@ const TaskManagement: React.FC = () => {
           setAttachmentName(undefined);
           setDescription("");
           setTitle("");
+          setUrlsInput("");
           fetchMeta();
           setIsCreateOpen(true);
         }}
@@ -214,6 +216,7 @@ const TaskManagement: React.FC = () => {
               setDescription(task.description ?? "");
               setDueDate(task.created_at ? String(task.created_at).slice(0, 10) : today);
               setStatus(task.status ?? "new");
+              setUrlsInput("");
               const needMeta = tags.length === 0 || users.length === 0;
               const metaPromise = needMeta ? fetchMeta() : Promise.resolve();
               const [_, res] = await Promise.all([metaPromise, getTaskById(task.id)]);
@@ -223,6 +226,15 @@ const TaskManagement: React.FC = () => {
                 setDescription(data.description ?? "");
                 if (data.due_date) setDueDate(String(data.due_date).slice(0, 10));
                 if (data.status) setStatus(String(data.status));
+              if (data.status_label && !data.status) setStatus(String(data.status_label));
+                const urlsRaw =
+                  (Array.isArray(data.urls) && data.urls) ||
+                  (Array.isArray(data.urls?.data) && data.urls.data) ||
+                  (data.urls && typeof data.urls === "object" ? Object.values(data.urls) : []);
+                const urlsParsed: string[] = Array.isArray(urlsRaw)
+                  ? urlsRaw.filter((u: any) => typeof u === "string" && u.trim().length > 0)
+                  : [];
+                setUrlsInput(urlsParsed.join("\n"));
                 const tagIds =
                   Array.isArray(data.tags) && data.tags.length
                     ? data.tags.map((t: any) => Number(t.id)).filter((v: any) => Number.isInteger(v))
@@ -281,16 +293,21 @@ const TaskManagement: React.FC = () => {
         title={title}
         description={description}
         dueDate={dueDate}
+        status={status}
         tags={tags}
         users={users}
         selectedTags={selectedTags}
         selectedParticipants={selectedParticipants}
         attachmentName={attachmentName}
         uploading={uploading}
+        urlsValue={urlsInput}
+        showStatusSelect={isEdit}
         onClose={() => setIsCreateOpen(false)}
         onChangeTitle={setTitle}
         onChangeDescription={setDescription}
         onChangeDueDate={setDueDate}
+        onChangeStatus={setStatus}
+        onChangeUrls={setUrlsInput}
         onSelectTag={(id: number) => !selectedTags.includes(id) && setSelectedTags((prev) => [...prev, id])}
         onRemoveTag={(id: number) => setSelectedTags((prev) => prev.filter((tid) => tid !== id))}
         onSelectParticipant={(id: number) =>
@@ -333,6 +350,11 @@ const TaskManagement: React.FC = () => {
             if (validTags.length) payload.tags = validTags;
             if (validParticipants.length) payload.participants = validParticipants;
             payload.attachment = attachmentName?.trim() || "";
+            const urlsList = urlsInput
+              .split(/\r?\n/)
+              .map((u) => u.trim())
+              .filter((u) => u.length > 0);
+            if (urlsList.length) payload.urls = urlsList;
             const res = isEdit && editingId ? await updateTask(editingId, payload) : await createTask(payload);
             const okStatuses = [200, 201, 202, 204];
             if (okStatuses.includes(res.status)) {

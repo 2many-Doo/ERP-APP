@@ -23,10 +23,15 @@ interface Props {
   selectedParticipants: number[];
   attachmentName?: string;
   uploading: boolean;
+  status: string;
+  urlsValue: string;
+  showStatusSelect?: boolean;
   onClose: () => void;
   onChangeTitle: (v: string) => void;
   onChangeDescription: (v: string) => void;
   onChangeDueDate: (v: string) => void;
+  onChangeStatus: (v: string) => void;
+  onChangeUrls: (v: string) => void;
   onSelectTag: (id: number) => void;
   onRemoveTag: (id: number) => void;
   onSelectParticipant: (id: number) => void;
@@ -50,10 +55,15 @@ const CreateTaskModal: React.FC<Props> = ({
   selectedParticipants,
   attachmentName,
   uploading,
+  status,
+  urlsValue,
+  showStatusSelect = true,
   onClose,
   onChangeTitle,
   onChangeDescription,
   onChangeDueDate,
+  onChangeStatus,
+  onChangeUrls,
   onSelectTag,
   onRemoveTag,
   onSelectParticipant,
@@ -100,6 +110,21 @@ const CreateTaskModal: React.FC<Props> = ({
               <label className="text-sm font-medium text-slate-700">Дуусах огноо</label>
               <Input type="date" value={dueDate} onChange={(e) => onChangeDueDate(e.target.value)} />
             </div>
+            {showStatusSelect && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Төлөв</label>
+                <Select value={status} onValueChange={(v) => onChangeStatus(v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Төлөв сонгох" />
+                  </SelectTrigger>
+                  <SelectContent className="z-100 bg-white">
+                    <SelectItem value="new">Шинэ</SelectItem>
+                    <SelectItem value="in_progress">Явагдаж байна</SelectItem>
+                    <SelectItem value="done">Дууссан</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -109,6 +134,16 @@ const CreateTaskModal: React.FC<Props> = ({
               placeholder="Тайлбар оруулах..."
               value={description}
               onChange={(e) => onChangeDescription(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Холбоосууд (newline-ээр)</label>
+            <Textarea
+              rows={3}
+              placeholder="https://example.com\nhttps://another.com"
+              value={urlsValue}
+              onChange={(e) => onChangeUrls(e.target.value)}
             />
           </div>
 

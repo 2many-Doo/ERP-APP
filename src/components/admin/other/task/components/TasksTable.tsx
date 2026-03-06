@@ -46,7 +46,13 @@ const TasksTable: React.FC<Props> = ({ tasks, loading, onRowClick, onEdit }) => 
             <div className="col-span-2">
               {(task.status_label || task.status) ? (
                 <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                  {task.status_label || task.status}
+                  {task.status_label || (task.status === "new"
+                    ? "Шинэ"
+                    : task.status === "in_progress"
+                      ? "Явагдаж байна"
+                      : task.status === "done"
+                        ? "Дууссан"
+                        : task.status)}
                 </span>
               ) : (
                 "—"

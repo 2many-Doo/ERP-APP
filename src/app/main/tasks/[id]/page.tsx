@@ -18,6 +18,14 @@ interface ParticipantItem {
   name: string;
 }
 
+interface AttachmentItem {
+  id?: number;
+  name?: string;
+  url?: string;
+  mime_type?: string;
+  size?: number;
+}
+
 interface CommentItem {
   id: number;
   comment: string;
@@ -37,7 +45,9 @@ interface TaskDetail {
   creator_name?: string;
   tags?: TagItem[];
   participants?: ParticipantItem[];
+  attachment?: AttachmentItem | null;
   comments?: CommentItem[];
+  urls?: string[];
 }
 
 const formatDate = (date?: string) => {
@@ -61,6 +71,18 @@ const TaskDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+
+  const buildTmpMediaUrl = (fileName?: string) => {
+    if (!fileName) return "";
+    const rawBaseUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_PRODUCTION_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL_TEST ||
+      "";
+    const base = rawBaseUrl.trim().replace(/\/+$/, "");
+    if (!base) return "";
+    return `${base}/tmp/media/${fileName}`;
+  };
 
   useEffect(() => {
     if (taskId) {
@@ -113,6 +135,22 @@ const TaskDetailPage = () => {
               created_at: c.created_at,
             }))
           : [];
+        const urlsRaw =
+          (Array.isArray(data.urls) && data.urls) ||
+          (Array.isArray(data.urls?.data) && data.urls.data) ||
+          (data.urls && typeof data.urls === "object" ? Object.values(data.urls) : []);
+        const urls: string[] = Array.isArray(urlsRaw)
+          ? urlsRaw.filter((u: any) => typeof u === "string" && u.trim().length > 0)
+          : [];
+        const attachment: AttachmentItem | null = data.attachment
+          ? {
+            id: Number(data.attachment.id),
+            name: data.attachment.name,
+            url: data.attachment.url,
+            mime_type: data.attachment.mime_type,
+            size: data.attachment.size,
+          }
+          : null;
         setTask({
           id: Number(data.id),
           title: data.title ?? data.name ?? "No title",
@@ -125,7 +163,9 @@ const TaskDetailPage = () => {
           creator_name: data.creator?.name ?? "",
           tags,
           participants,
+          attachment,
           comments,
+          urls,
         });
       } else {
         setError(response.error || "Даалгавар олдсонгүй");
@@ -242,6 +282,76 @@ const TaskDetailPage = () => {
             <div className="flex items-start gap-3">
               <span className="font-semibold text-slate-900">Үүсгэсэн хүн:</span>
               <span>{task.creator_name}</span>
+            </div>
+          )}
+          {task.attachment && (() => {
+            const mime = task.attachment?.mime_type?.toLowerCase() || "";
+            const url = task.attachment?.url || buildTmpMediaUrl(task.attachment?.name);
+            const looksImage = mime.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(url);
+            if (looksImage) {
+              return (
+                <div className="flex flex-col gap-2">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="text-xs font-semibold text-slate-700">Хавсралт</p>
+                      <span className="text-[11px] text-slate-500">
+                        {task.attachment.mime_type || "image"}{" "}
+                        {task.attachment.size ? `• ${(task.attachment.size / 1024).toFixed(1)} KB` : ""}
+                      </span>
+                    </div>
+                    <a href={url} target="_blank" rel="noreferrer" className="block">
+                      <img
+                        src={url}
+                        alt={task.attachment?.name || "attachment"}
+                        className="max-h-[360px] w-full rounded-md object-contain bg-white"
+                      />
+                    </a>
+                    {task.attachment.name && (
+                      <p className="mt-2 text-xs text-slate-600 break-all">{task.attachment.name}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            // Non-image: fallback to link + meta
+            return (
+              <div className="flex items-start gap-3">
+                <span className="font-semibold text-slate-900">Хавсралт:</span>
+                <div className="flex flex-col gap-1">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {task.attachment.name || "Файл татах"}
+                  </a>
+                  <span className="text-xs text-slate-500">
+                    {task.attachment.mime_type || "mime/type"}{" "}
+                    {task.attachment.size ? `• ${(task.attachment.size / 1024).toFixed(1)} KB` : ""}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {task.urls && task.urls.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-slate-800">Холбоосууд</p>
+              <div className="flex flex-col gap-2">
+                {task.urls.map((url, idx) => (
+                  <a
+                    key={`${url}-${idx}`}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 hover:underline break-all text-sm"
+                  >
+                    {idx + 1}. {url}
+                  </a>
+                ))}
+              </div>
             </div>
           )}
         </div>
