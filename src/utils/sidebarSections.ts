@@ -82,6 +82,12 @@ export const sidebarSections: NavSection[] = [
     permission: "contract_menu_show",
     items: [
       {
+        id: "contract-new",
+        label: "Түрээсийн Гэрээ",
+        componentKey: "contract-new",
+        permission: "lease_agreement_show",
+      },
+      {
         id: "agreement-layout",
         label: "Түрээсийн хүсэлтүүд",
         componentKey: "tenant-list",
@@ -109,12 +115,6 @@ export const sidebarSections: NavSection[] = [
         id: "components",
         label: "Даатгалын мэдээлэл",
         componentKey: "insurance-management",
-        permission: "lease_agreement_show",
-      },
-      {
-        id: "contract-new",
-        label: "Түрээсийн Гэрээ",
-        componentKey: "contract-new",
         permission: "lease_agreement_show",
       },
     ],
