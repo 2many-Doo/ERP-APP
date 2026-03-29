@@ -114,6 +114,12 @@ export function MainLayoutProvider({
         return "Photo-management";
       case "task-management":
         return "task-management";
+      case "shop-list":
+        return "shop-list";
+      case "shop-detail":
+        return "shop-detail";
+      case "contract-new":
+        return "contract-new";
       default:
         return null;
     }

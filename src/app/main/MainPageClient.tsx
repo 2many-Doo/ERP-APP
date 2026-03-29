@@ -29,6 +29,8 @@ import TagManagement from "@/components/admin/file/tag/TagManagement";
 import CategoryManagement from "@/components/admin/file/category/CategoryManagement";
 import PhotoManagement from "@/components/admin/file/photo/PhotoManagement";
 import TaskManagement from "@/components/admin/other/task/TaskManagement";
+import ShopList from "@/components/admin/shop/ShopList";
+import ContractNew from "@/components/admin/contract/ContractNew";
 
 const MainPageClient = () => {
   const { activeComponent } = useMainLayout();
@@ -278,6 +280,10 @@ const MainPageClient = () => {
         return <PhotoManagement />;
       case "task-management":
         return <TaskManagement />;
+      case "shop-list":
+        return <ShopList />;
+      case "contract-new":
+        return <ContractNew />;
       default:
         return <UserManagement />;
     }

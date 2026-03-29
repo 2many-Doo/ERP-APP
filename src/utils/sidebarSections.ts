@@ -7,6 +7,7 @@ import {
   MoreHorizontal,
   type LucideIcon,
   FileText,
+  User,
 } from "lucide-react";
 
 export type NavItem = {
@@ -33,7 +34,7 @@ export type NavSection = {
 export const sidebarSections: NavSection[] = [
   {
     title: "Мерчант цэс",
-    icon: Store,
+    icon: User,
     permission: "merchant_menu_show",
     items: [
       {
@@ -59,6 +60,19 @@ export const sidebarSections: NavSection[] = [
         label: "Мэдэгдэл",
         componentKey: "notification",
         permission: "merchant_menu_show",
+      },
+    ],
+  },
+  {
+    title: "Дэлгүүр",
+    icon: Store,
+    permission: "shop_menu_show",
+    items: [
+      {
+        id: "shop-list",
+        label: "Дэлгүүр жагсаалт",
+        componentKey: "shop-list",
+        permission: "shop_menu_show",
       },
     ],
   },
@@ -95,6 +109,12 @@ export const sidebarSections: NavSection[] = [
         id: "components",
         label: "Даатгалын мэдээлэл",
         componentKey: "insurance-management",
+        permission: "lease_agreement_show",
+      },
+      {
+        id: "contract-new",
+        label: "Түрээсийн Гэрээ",
+        componentKey: "contract-new",
         permission: "lease_agreement_show",
       },
     ],

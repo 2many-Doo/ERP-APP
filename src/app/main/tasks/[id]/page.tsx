@@ -2,9 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createTaskComment, getTaskById } from "@/lib/api";
+import { createTaskComment, getTaskById, updateTask } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, ClipboardList, AlertCircle } from "lucide-react";
 
@@ -71,6 +78,8 @@ const TaskDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+  const [statusValue, setStatusValue] = useState<string>("");
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const buildTmpMediaUrl = (fileName?: string) => {
     if (!fileName) return "";
@@ -82,6 +91,89 @@ const TaskDetailPage = () => {
     const base = rawBaseUrl.trim().replace(/\/+$/, "");
     if (!base) return "";
     return `${base}/tmp/media/${fileName}`;
+  };
+
+  const statuses = [
+    { value: "new", label: "Шинэ" },
+    { value: "in_progress", label: "Явагдаж байна" },
+    { value: "done", label: "Дууссан" },
+  ];
+
+  const handleChangeStatus = async (nextStatus: string) => {
+    if (!task?.id || !nextStatus || statusUpdating) return;
+    try {
+      setStatusUpdating(true);
+      // Fetch latest detail to avoid missing/undefined fields on backend
+      const latest = await getTaskById(task.id);
+      const okDetail = [200, 201, 202].includes(latest.status);
+      const data = okDetail ? latest.data?.data ?? latest.data ?? {} : {};
+      const safeTitle = (data.title ?? data.name ?? task.title ?? "").toString().trim() || "No title";
+
+      const tagsRaw =
+        (Array.isArray(data.tags) && data.tags) ||
+        (Array.isArray(data.tags?.data) && data.tags.data) ||
+        (data.tags && typeof data.tags === "object" ? Object.values(data.tags) : []);
+      const tagIds =
+        Array.isArray(tagsRaw)
+          ? tagsRaw
+            .map((t: any) => Number(t?.id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+          : [];
+
+      const participantsRaw =
+        (Array.isArray(data.participants) && data.participants) ||
+        (Array.isArray(data.participants?.data) && data.participants.data) ||
+        (data.participants && typeof data.participants === "object" ? Object.values(data.participants) : []);
+      const participantIds =
+        Array.isArray(participantsRaw)
+          ? participantsRaw
+            .map((p: any) => Number(p?.id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+          : [];
+
+      const urlsRaw =
+        (Array.isArray(data.urls) && data.urls) ||
+        (Array.isArray(data.urls?.data) && data.urls.data) ||
+        (data.urls && typeof data.urls === "object" ? Object.values(data.urls) : []);
+      const urls =
+        Array.isArray(urlsRaw) ? urlsRaw.filter((u: any) => typeof u === "string" && u.trim().length > 0) : [];
+
+      const payload: any = {
+        status: nextStatus,
+        name: safeTitle,
+        title: safeTitle,
+        description: (data.description ?? task.description ?? "").toString(),
+      };
+      const due = data.due_date ?? task.due_date;
+      if (due) payload.due_date = due;
+      const attachmentName = data.attachment?.name ?? task.attachment?.name;
+      if (attachmentName) payload.attachment = attachmentName;
+      if (tagIds.length) payload.tags = tagIds;
+      if (participantIds.length) payload.participants = participantIds;
+      if (urls.length) payload.urls = urls;
+
+      const res = await updateTask(task.id, payload);
+      const ok = [200, 201, 202, 204].includes(res.status);
+      if (ok) {
+        toast.success("Төлөв шинэчлэгдлээ");
+        setStatusValue(nextStatus);
+        setTask((prev) =>
+          prev
+            ? {
+              ...prev,
+              status: nextStatus,
+              status_label: statuses.find((s) => s.value === nextStatus)?.label ?? nextStatus,
+            }
+            : prev,
+        );
+      } else {
+        toast.error(res.error || res.message || "Төлөв шинэчлэхэд алдаа гарлаа");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Төлөв шинэчлэхэд алдаа гарлаа");
+    } finally {
+      setStatusUpdating(false);
+    }
   };
 
   useEffect(() => {
@@ -167,6 +259,7 @@ const TaskDetailPage = () => {
           comments,
           urls,
         });
+        setStatusValue(data.status ?? data.state ?? "");
       } else {
         setError(response.error || "Даалгавар олдсонгүй");
       }
@@ -253,9 +346,29 @@ const TaskDetailPage = () => {
           </div>
         </div>
         {(task.status_label || task.status) && (
-          <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-            {task.status_label || task.status}
-          </span>
+          <Select
+            value={statusValue || task.status || ""}
+            onValueChange={(v) => handleChangeStatus(v)}
+            disabled={statusUpdating}
+          >
+            <SelectTrigger className="inline-flex h-auto items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+              <SelectValue
+                placeholder={task.status_label || task.status}
+                defaultValue={statusValue || task.status}
+              >
+                {statuses.find((s) => s.value === (statusValue || task.status))?.label ||
+                  task.status_label ||
+                  task.status}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end" className="z-100 bg-white">
+              {statuses.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       </div>
 

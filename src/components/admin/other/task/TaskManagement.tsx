@@ -349,7 +349,10 @@ const TaskManagement: React.FC = () => {
             );
             if (validTags.length) payload.tags = validTags;
             if (validParticipants.length) payload.participants = validParticipants;
-            payload.attachment = attachmentName?.trim() || "";
+            const attachmentTrimmed = attachmentName?.trim();
+            if (attachmentTrimmed) {
+              payload.attachment = attachmentTrimmed;
+            }
             const urlsList = urlsInput
               .split(/\r?\n/)
               .map((u) => u.trim())

@@ -198,7 +198,7 @@ function SidebarLink({
     "group flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200";
   const isActive = item.id === activeItemId || item.active;
   const activeClasses = isActive
-    ? "bg-white text-black scale-110 md:w-50"
+    ? "bg-white text-black scale-110 md:w-50 shadow-md rounded-md"
     : "hover:bg-slate-100 hover:text-slate-800 md:w-50";
 
   if (item.children?.length) {
@@ -234,8 +234,8 @@ function SidebarLink({
       <span>{item.label}</span>
       <ChevronRight
         className={`h-4 w-4 ${isActive
-            ? "text-blue-500"
-            : "text-slate-300 group-hover:text-slate-500"
+          ? "text-blue-500"
+          : "text-slate-300 group-hover:text-slate-500"
           }`}
       />
     </Link>

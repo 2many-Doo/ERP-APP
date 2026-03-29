@@ -68,61 +68,62 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1 || loading}
-          className="flex items-center gap-1"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Өмнөх
-        </Button>
-        <div className="flex items-center gap-1">
-          {pageNumbers.map((page, index) => {
-            if (page === "...") {
+    <div className="flex flex-col items-center justify-between w-full px-4 py-3 border-t border-slate-200 bg-white rounded-lg">
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center w-full justify-between gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1 || loading}
+            className="flex items-center gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Өмнөх
+          </Button>
+          <div className="flex items-center gap-1">
+            {pageNumbers.map((page, index) => {
+              if (page === "...") {
+                return (
+                  <span key={`ellipsis-${index}`} className="px-2 text-slate-500">
+                    ...
+                  </span>
+                );
+              }
+
+              const pageNum = page as number;
+              const isActive = pageNum === currentPage;
+
               return (
-                <span key={`ellipsis-${index}`} className="px-2 text-slate-500">
-                  ...
-                </span>
-              );
-            }
-
-            const pageNum = page as number;
-            const isActive = pageNum === currentPage;
-
-            return (
-              <Button
-                key={pageNum}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => onPageChange(pageNum)}
-                disabled={loading}
-                className={`min-w-[2.5rem] ${
-                  isActive
+                <Button
+                  key={pageNum}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPageChange(pageNum)}
+                  disabled={loading}
+                  className={`min-w-[2.5rem] ${isActive
                     ? "bg-slate-800 text-white hover:opacity-80"
                     : "hover:bg-slate-50"
-                }`}
-              >
-                {pageNum}
-              </Button>
-            );
-          })}
+                    }`}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || loading}
+            className="flex items-center gap-1"
+          >
+            Дараах
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || loading}
-          className="flex items-center gap-1"
-        >
-          Дараах
-          <ChevronRight className="h-4 w-4" />
-        </Button>
       </div>
-      <div className="text-sm text-slate-500">
+      <div className="text-sm text-slate-500 ">
         Хуудас {currentPage} / {totalPages}
       </div>
     </div>

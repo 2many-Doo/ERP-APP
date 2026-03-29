@@ -1850,16 +1850,14 @@ export const getTaskById = async (
 /**
  * Create task
  */
-export const createTask = async (
-  payload: {
-    title: string;
-    name?: string;
-    description?: string;
-    due_date?: string;
-    status?: string;
-    [key: string]: any;
-  },
-): Promise<ApiResponse<any>> => {
+export const createTask = async (payload: {
+  title: string;
+  name?: string;
+  description?: string;
+  due_date?: string;
+  status?: string;
+  [key: string]: any;
+}): Promise<ApiResponse<any>> => {
   return post("/v1/tasks", payload);
 };
 
@@ -1893,7 +1891,9 @@ export const createTaskComment = async (
 /**
  * Create task tag
  */
-export const createTaskTag = async (payload: { name: string }): Promise<ApiResponse<any>> => {
+export const createTaskTag = async (payload: {
+  name: string;
+}): Promise<ApiResponse<any>> => {
   return post("/v1/task-tags", payload);
 };
 
@@ -1910,7 +1910,9 @@ export const updateTaskTag = async (
 /**
  * Delete task tag
  */
-export const deleteTaskTag = async (tagId: number): Promise<ApiResponse<any>> => {
+export const deleteTaskTag = async (
+  tagId: number,
+): Promise<ApiResponse<any>> => {
   return del(`/v1/task-tags/${tagId}`);
 };
 
@@ -2051,4 +2053,92 @@ export const createImage = async (data: {
   categories: number[];
 }): Promise<ApiResponse<any>> => {
   return post("/v1/img/store", data);
+};
+
+export const getShops = async (
+  page: number = 1,
+  perPage: number = 32,
+  orderby: string = "name",
+  order: string = "asc",
+): Promise<ApiResponse<any>> => {
+  return get("/v1/parts-management/shops", {
+    params: {
+      page,
+      per_page: perPage,
+      orderby: orderby,
+      order: order,
+    },
+  });
+};
+
+/**
+ * Shop detail
+ */
+export const getShopById = async (id: number | string): Promise<ApiResponse<any>> => {
+  return get(`/v1/parts-management/shops-${id}`);
+};
+
+/**
+ * Contract detail
+ */
+export const getContractById = async (id: number | string): Promise<ApiResponse<any>> => {
+  return get(`/geree2026/list/${id}`);
+};
+
+/**
+ * Create contract (geree) for a property
+ */
+export const createGeree = async (id: number | string, data: any): Promise<ApiResponse<any>> => {
+  return post(`/geree2026/list/${id}/geree`, data);
+};
+
+/**
+ * Create & download contract file (binary docx)
+ */
+export const downloadGeree = async (
+  id: number | string,
+  data: any = {},
+): Promise<{ blob?: Blob; filename?: string | null; status: number; error?: string }> => {
+  try {
+    const url = buildUrl(`/geree2026/list/${id}/geree`);
+    const headers = getDefaultHeaders();
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    const status = response.status;
+    if (!response.ok) {
+      let errorMsg: string | undefined;
+      try {
+        const json = await response.json();
+        errorMsg = (json as any)?.message || (json as any)?.error;
+      } catch {
+        // fallback to text
+      }
+      if (!errorMsg) {
+        const text = await response.text();
+        errorMsg = text || response.statusText;
+      }
+      return { error: errorMsg, status };
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("content-disposition");
+    let filename: string | null = null;
+    if (disposition) {
+      const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)/i);
+      if (match && match[1]) {
+        filename = decodeURIComponent(match[1].replace(/"/g, ""));
+      }
+    }
+
+    return { blob, filename, status };
+  } catch (error: any) {
+    return {
+      status: 0,
+      error: error?.message || "Гэрээ татахад алдаа гарлаа",
+    };
+  }
 };

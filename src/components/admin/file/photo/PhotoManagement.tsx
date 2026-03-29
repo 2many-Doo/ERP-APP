@@ -242,7 +242,7 @@ const PhotoManagement = () => {
                     <div className="text-center py-12">
                         <ImageIcon className="h-16 w-16 text-slate-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-slate-700 mb-2">
-                            Зураг байхгүй байна
+                            Зурагаа хайна уу?
                         </h3>
                         {/* <p className="text-slate-500 mb-4">
                             Эхний зургаа нэмэхийн тулд дээрх товчийг дарна уу
