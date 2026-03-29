@@ -2,16 +2,26 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { get } from "@/lib/api";
+import { downloadGeree, get } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter } from "lucide-react";
 import ShopListSkeleton from "../../core-components/ListSkeleton";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 
 type Contract = {
     id: number | string;
     name?: string;
+    block_id?: number | string;
     block_name?: string;
     tenant_name?: string;
     tenant_phone?: string;
@@ -34,7 +44,9 @@ const ContractNew: React.FC = () => {
     const [orderby, setOrderby] = useState<string>("name");
     const [order, setOrder] = useState<"asc" | "desc">("asc");
     const [search, setSearch] = useState("");
+    const [blockFilter, setBlockFilter] = useState<string>("all");
     const perPage = 32;
+    const [downloadingId, setDownloadingId] = useState<number | string | null>(null);
 
     const fetchContracts = async () => {
         try {
@@ -61,6 +73,7 @@ const ContractNew: React.FC = () => {
             const parsed: Contract[] = list.map((c: any) => ({
                 id: c.id,
                 name: c.name ?? c.title ?? "Нэргүй",
+                block_id: c.block_id ?? c.block?.id,
                 block_name: c.block?.name ?? "",
                 tenant_name: c.tenant?.name ?? "",
                 tenant_phone: c.tenant?.phone ?? "",
@@ -87,13 +100,18 @@ const ContractNew: React.FC = () => {
     }, [currentPage, orderby, order]);
 
     const filtered = useMemo(() => {
-        const list = !search.trim()
+        const byBlock = blockFilter === "all"
             ? contracts
-            : contracts.filter((c) =>
-                  [c.name, c.tenant_name, c.block_name, c.product_type_name]
-                      .filter(Boolean)
-                      .some((f) => String(f).toLowerCase().includes(search.trim().toLowerCase())),
-              );
+            : contracts.filter((c) => String(c.block_id) === blockFilter);
+
+        const term = search.trim().toLowerCase();
+        const list = !term
+            ? byBlock
+            : byBlock.filter((c) =>
+                [c.name, c.tenant_name]
+                    .filter(Boolean)
+                    .some((f) => String(f).toLowerCase().includes(term)),
+            );
 
         const sorted = [...list].sort((a, b) => {
             const dir = order === "asc" ? 1 : -1;
@@ -118,19 +136,48 @@ const ContractNew: React.FC = () => {
         });
 
         return sorted;
-    }, [contracts, search, orderby, order]);
+    }, [contracts, search, orderby, order, blockFilter]);
+
+    const blockOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        contracts.forEach((c) => {
+            const id = c.block_id;
+            const name = c.block_name ?? "";
+            if (id !== undefined && id !== null) {
+                map.set(String(id), name || `Блок #${id}`);
+            }
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    }, [contracts]);
 
     const sortIcon = (field: string) => {
         if (orderby !== field) return <ArrowUpDown className="h-3 w-3 opacity-60" />;
         return order === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
     };
 
-    const toggleSort = (field: string) => {
-        if (orderby === field) {
-            setOrder(order === "asc" ? "desc" : "asc");
-        } else {
-            setOrderby(field);
-            setOrder("asc");
+    const handleDownload = async (e: React.MouseEvent, id: number | string) => {
+        e.stopPropagation();
+        try {
+            setDownloadingId(id);
+            const res = await downloadGeree(id, {});
+            if (res.error || !res.blob) {
+                toast.error(res.error || "Файл татахад алдаа гарлаа");
+                return;
+            }
+            const filename = res.filename || `geree-${id}.docx`;
+            const url = URL.createObjectURL(res.blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            toast.success("Файл татаж эхэллээ");
+        } catch (err: any) {
+            toast.error(err?.message || "Файл татахад алдаа гарлаа");
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -153,15 +200,61 @@ const ContractNew: React.FC = () => {
                 </div>
             </div>
 
-            <div className="relative bg-white rounded-xl border border-slate-200 p-4">
-                <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                    type="text"
-                    placeholder="Гэрээ хайх..."
-                    value={search}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-                    className="w-full pl-10 bg-white text-sm text-slate-700 placeholder:text-slate-400"
-                />
+            <div className="flex flex-col md:flex-row md:items-center md:gap-3 gap-3">
+                <div className="relative flex items-center gap-2 w-full bg-white rounded-xl border border-slate-200 p-4">
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                        type="text"
+                        placeholder="Гэрээ хайх..."
+                        value={search}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                        className="w-full pl-10 bg-white text-sm text-slate-700 placeholder:text-slate-400"
+                    />
+                    <div className="flex items-center gap-2">
+                        <Select
+                            value={blockFilter}
+                            onValueChange={(v) => {
+                                setBlockFilter(v);
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="w-[160px] border-slate-200 py-5">
+                                <Filter className="h-4 w-4 text-slate-400" />
+                                <SelectValue placeholder="Блок шүүлтүүр" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                                <SelectItem className="cursor-pointer bg-white" value="all">Бүх блок</SelectItem>
+                                {blockOptions.map((b) => (
+                                    <SelectItem key={b.id} value={b.id} className="cursor-pointer bg-white ">
+                                        {b.name || `Блок #${b.id}`}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            onValueChange={(v) => {
+                                if (v === "all") {
+                                    setOrderby("name");
+                                    setOrder("asc");
+                                } else {
+                                    setOrderby("rate_amount");
+                                    setOrder(v as "asc" | "desc");
+                                }
+                            }}
+                            defaultValue="all"
+                        >
+                            <SelectTrigger className="w-[160px] border-slate-200 py-5">
+                                <Filter className="h-4 w-4 text-slate-400" />
+                                <SelectValue placeholder="Талбайн үнэлгээ" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                                <SelectItem value="all">Бүх</SelectItem>
+                                <SelectItem value="asc">Өсөх</SelectItem>
+                                <SelectItem value="desc">Буурах</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
             </div>
 
             {error && (
@@ -182,25 +275,16 @@ const ContractNew: React.FC = () => {
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
                                         Павилион
                                     </th>
-                                    <th
-                                        className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide cursor-pointer select-none"
-                                        onClick={() => toggleSort("block_name")}
-                                    >
-                                        <span className="inline-flex items-center gap-1">
-                                            Блок {sortIcon("block_name")}
-                                        </span>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                                        Блок
                                     </th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Түрээслэгч</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Бүтээгдэхүүн</th>
-                                    <th
-                                        className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide cursor-pointer select-none"
-                                        onClick={() => toggleSort("rate_amount")}
-                                    >
-                                        <span className="inline-flex items-center gap-1">
-                                            Талбайн үнэлгээ {sortIcon("rate_amount")}
-                                        </span>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                                        Талбайн үнэлгээ
                                     </th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Менежментийн төлбөр</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Үйлдэл</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-200">
@@ -225,6 +309,16 @@ const ContractNew: React.FC = () => {
                                         </td>
                                         <td className="px-4 py-3 text-sm text-slate-700">
                                             {contract.rate_fee ? `${contract.rate_fee.toLocaleString()}₮` : "-"}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-slate-700">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => handleDownload(e, contract.id)}
+                                                disabled={downloadingId === contract.id}
+                                            >
+                                                <Download className="h-4 w-4" />
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}

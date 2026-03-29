@@ -272,7 +272,7 @@ export default function ContractDetailPage() {
                             <span className="text-slate-500">И-мэйл:</span> {contract.tenant?.email || "—"}
                         </p>
                         <p>
-                            <span className="text-slate-500">Статус:</span> {contract.tenant?.status || "—"}
+                            <span className="text-slate-500">Статус:</span> {formatStatusLabel(contract.tenant?.status)}
                         </p>
                     </div>
                 </div>
@@ -294,7 +294,7 @@ export default function ContractDetailPage() {
                             <span className="text-slate-500">Дуусах:</span> {formatDate(contract.rate?.end_date)}
                         </p>
                         <p>
-                            <span className="text-slate-500">Статус:</span> {contract.rate?.status || "—"}
+                            <span className="text-slate-500">Статус:</span> {formatStatusLabel(contract.rate?.status)}
                         </p>
                     </div>
                 </div>

@@ -2074,21 +2074,28 @@ export const getShops = async (
 /**
  * Shop detail
  */
-export const getShopById = async (id: number | string): Promise<ApiResponse<any>> => {
+export const getShopById = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return get(`/v1/parts-management/shops-${id}`);
 };
 
 /**
  * Contract detail
  */
-export const getContractById = async (id: number | string): Promise<ApiResponse<any>> => {
+export const getContractById = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
   return get(`/geree2026/list/${id}`);
 };
 
 /**
  * Create contract (geree) for a property
  */
-export const createGeree = async (id: number | string, data: any): Promise<ApiResponse<any>> => {
+export const createGeree = async (
+  id: number | string,
+  data: any,
+): Promise<ApiResponse<any>> => {
   return post(`/geree2026/list/${id}/geree`, data);
 };
 
@@ -2098,7 +2105,12 @@ export const createGeree = async (id: number | string, data: any): Promise<ApiRe
 export const downloadGeree = async (
   id: number | string,
   data: any = {},
-): Promise<{ blob?: Blob; filename?: string | null; status: number; error?: string }> => {
+): Promise<{
+  blob?: Blob;
+  filename?: string | null;
+  status: number;
+  error?: string;
+}> => {
   try {
     const url = buildUrl(`/geree2026/list/${id}/geree`);
     const headers = getDefaultHeaders();

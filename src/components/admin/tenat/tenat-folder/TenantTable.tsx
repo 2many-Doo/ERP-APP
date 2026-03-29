@@ -22,7 +22,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
   // If all tenants have propertyId, show "Лангуу", otherwise show "Үйл ажиллагааны төрөл"
   const isRenewal = tenants.length > 0 && tenants.every((tenant) => tenant.propertyId !== null && tenant.propertyId !== undefined);
   const colSpan = showActions ? 7 : 6;
-  
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -33,7 +33,7 @@ export const TenantTable: React.FC<TenantTableProps> = ({ tenants, loading, stat
                 ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
-                {isRenewal ? "Павилион" : "Үйл ажиллагааны төрөл"}
+                {isRenewal ? "Павильон" : "Үйл ажиллагааны төрөл"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Харилцагчийн нэр</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">Утасны дугаар</th>
