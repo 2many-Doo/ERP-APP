@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../ui/dialog";
 import type { LegalDocument } from "./LegalDocuments";
-import { LegalDocumentDetailSkeleton } from "@/components/skeletons";
+import { LegalDocumentDetailSkeleton } from "@/constants/skeletons";
 import { LegalDocumentInfoButton, LegalDocumentInfoModal } from "./LegalDocumentInfo";
 
 type LegalDocumentDetailProps = {
@@ -43,8 +43,8 @@ const renderContent = (content: any) => {
           typeof value === "string" || typeof value === "number" || typeof value === "boolean"
             ? String(value)
             : Array.isArray(value)
-            ? value.map((v) => String(v)).join(", ")
-            : "[object]";
+              ? value.map((v) => String(v)).join(", ")
+              : "[object]";
         return (
           <div key={key} className="rounded-lg px-3 py-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
@@ -180,10 +180,10 @@ const LegalDocumentDetail: React.FC<LegalDocumentDetailProps> = ({
     return (
       <div className="space-y-4 rounded-xl border border-slate-200 bg-white px-4 py-5 shadow-sm">
         <div className="space-y-1 flex items-center justify-between">
-         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <p className="text-sm text-slate-500">#{document?.id ?? "ID байхгүй"}</p>
             <h2 className="text-xl font-semibold tex-black">{document?.admin_name || document?.title || "Үйлчилгээний нөхцөл"}</h2>
-         </div>
+          </div>
           <LegalDocumentInfoButton document={document} onOpen={() => setInfoOpen(true)} className="w-full md:w-auto" />
         </div>
         <DetailBody document={document} loading={loading} onOpenInfo={() => setInfoOpen(true)} />

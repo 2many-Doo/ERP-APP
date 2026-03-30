@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination } from "@/components/ui/pagination";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import ShopListSkeleton from "../../core-components/ListSkeleton";
+import ShopListSkeleton from "../../../constants/skeletons/ListSkeleton";
 import { Input } from "@/components/ui/input";
 
 type Shop = {

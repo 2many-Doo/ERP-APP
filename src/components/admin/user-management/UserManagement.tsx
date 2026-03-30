@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Users, Plus, Edit, Trash2, Mail, Phone, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import UserManagementTableSkeleton from "@/components/skeletons/UserManagementTableSkeleton";
+import UserManagementTableSkeleton from "@/constants/skeletons/UserManagementTableSkeleton";
 import { useUserManagement, type User } from "@/hooks/useUserManagement";
 import UserManagementSearchAndFilter from "./UserManagementSearchAndFilter";
 import { CreateUserModal } from "./CreateUserModal";
@@ -191,17 +191,17 @@ const UserManagement = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 w-8 p-0"
                             onClick={() => setEditingUser(user)}
                           >
                             <Edit className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 w-8 p-0"
                             onClick={() => {
                               if (window.confirm("Энэ хэрэглэгчийг устгахдаа итгэлтэй байна уу?")) {

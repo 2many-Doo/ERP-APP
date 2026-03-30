@@ -6,7 +6,7 @@ import { downloadGeree, get } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter } from "lucide-react";
-import ShopListSkeleton from "../../core-components/ListSkeleton";
+import ShopListSkeleton from "../../../constants/skeletons/ListSkeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
