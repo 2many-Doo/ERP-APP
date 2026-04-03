@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { downloadGeree, getContractById } from "@/lib/api";
+import { downloadGeree, downloadGereePdf, getContractById } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, ArrowLeft, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
+import ContractPdfModal from "@/components/admin/contract/ContractPdfModal";
 
 interface AnnualRate {
     id: number | string;
@@ -92,6 +93,9 @@ export default function ContractDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [downloading, setDownloading] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string>("");
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [pdfOpen, setPdfOpen] = useState(false);
     const [startDate, setStartDate] = useState<string>("");
 
     const fetchDetail = async (id: number, start?: string) => {
@@ -131,6 +135,12 @@ export default function ContractDetailPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numericId, startDate]);
 
+    useEffect(() => {
+        return () => {
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        };
+    }, [pdfUrl]);
+
     const handleDownloadGeree = async () => {
         if (!Number.isFinite(numericId)) return;
         try {
@@ -156,6 +166,29 @@ export default function ContractDetailPage() {
             toast.error(e?.message || "Гэрээ татахад алдаа гарлаа");
         } finally {
             setDownloading(false);
+        }
+    };
+
+    const handleViewPdf = async () => {
+        if (!Number.isFinite(numericId)) return;
+        try {
+            setPdfLoading(true);
+            if (pdfUrl) {
+                URL.revokeObjectURL(pdfUrl);
+                setPdfUrl("");
+            }
+            const res = await downloadGereePdf(numericId as number, { start_date: startDate || "" });
+            if (res.error || !res.blob) {
+                toast.error(res.error || "PDF татахад алдаа гарлаа");
+                return;
+            }
+            const url = URL.createObjectURL(res.blob);
+            setPdfUrl(url);
+            setPdfOpen(true);
+        } catch (e: any) {
+            toast.error(e?.message || "PDF татахад алдаа гарлаа");
+        } finally {
+            setPdfLoading(false);
         }
     };
 
@@ -218,6 +251,9 @@ export default function ContractDetailPage() {
                     <Button variant="outline" size="sm" onClick={handleDownloadGeree} disabled={downloading}>
                         <Download className="h-4 w-4" />
                         {downloading ? "Татаж байна..." : "Гэрээ татах"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleViewPdf} disabled={pdfLoading}>
+                        {pdfLoading ? "PDF ачааллаж..." : "PDF харах"}
                     </Button>
                 </div>
             </div>
@@ -348,6 +384,20 @@ export default function ContractDetailPage() {
                     </table>
                 </div>
             </div>
+
+        <ContractPdfModal
+            open={pdfOpen}
+            onOpenChange={(open) => {
+                setPdfOpen(open);
+                if (!open && pdfUrl) {
+                    URL.revokeObjectURL(pdfUrl);
+                    setPdfUrl("");
+                }
+            }}
+            url={pdfUrl}
+            loading={pdfLoading}
+            filename={contract?.name || contract?.number || ""}
+        />
         </div>
     );
 }

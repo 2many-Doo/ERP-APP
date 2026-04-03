@@ -2181,3 +2181,66 @@ export const downloadGeree = async (
     };
   }
 };
+
+/**
+ * Download contract PDF (binary)
+ */
+export const downloadGereePdf = async (
+  id: number | string,
+  data: { start_date?: string | null } = {},
+): Promise<{
+  blob?: Blob;
+  filename?: string | null;
+  status: number;
+  error?: string;
+}> => {
+  try {
+    const url = buildUrl(`/geree2026/list/${id}/geree/pdf`);
+    const headers = getDefaultHeaders();
+    const bodyPayload =
+      data && Object.prototype.hasOwnProperty.call(data, "start_date")
+        ? { start_date: data.start_date ?? "" }
+        : data && Object.keys(data).length
+          ? data
+          : { start_date: "" };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(bodyPayload),
+    });
+
+    const status = response.status;
+    if (!response.ok) {
+      let errorMsg: string | undefined;
+      const text = await response.text();
+      try {
+        const json = JSON.parse(text);
+        errorMsg = (json as any)?.message || (json as any)?.error;
+      } catch {
+        // ignore parse error
+      }
+      if (!errorMsg) {
+        errorMsg = text || response.statusText;
+      }
+      return { error: errorMsg, status };
+    }
+
+    const blob = await response.blob();
+    const disposition = response.headers.get("content-disposition");
+    let filename: string | null = null;
+    if (disposition) {
+      const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)/i);
+      if (match && match[1]) {
+        filename = decodeURIComponent(match[1].replace(/"/g, ""));
+      }
+    }
+
+    return { blob, filename, status };
+  } catch (error: any) {
+    return {
+      status: 0,
+      error: error?.message || "Гэрээ PDF татахад алдаа гарлаа",
+    };
+  }
+};
