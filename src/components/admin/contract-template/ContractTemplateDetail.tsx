@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Download, Loader2, Pencil } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Pencil, Trash, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
-import { getContractTemplateById } from "@/lib/api";
+import { getContractTemplateById, deleteContractTemplate } from "@/lib/api";
 import EditContractTemplateDialog from "./EditContractTemplateDialog";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -44,6 +44,7 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
   const extractFileUrlFromMedia = (media?: any[]) => {
@@ -201,6 +202,26 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
     }
   };
 
+  const handleDelete = async () => {
+    if (!template?.id) return;
+    const ok = window.confirm("Энэ гэрээний загварыг устгах уу?");
+    if (!ok) return;
+    try {
+      setDeleting(true);
+      const res = await deleteContractTemplate(template.id);
+      if (res.error || ![200, 201, 202, 204].includes(res.status)) {
+        toast.error(res.error || "Устгах үед алдаа гарлаа.");
+        return;
+      }
+      toast.success("Загвар амжилттай устлаа.");
+      router.push("/main/contract-templates");
+    } catch (err) {
+      toast.error("Устгах үед алдаа гарлаа.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const fetchTemplate = async () => {
     setLoading(true);
     setError(null);
@@ -324,7 +345,7 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
             <h1 className="text-2xl font-bold text-slate-900">{template.name || "-"}</h1>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
@@ -347,6 +368,17 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
               </Button>
             }
           />
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-2"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            <Trash2 className="h-4 w-4" />
+            Устгах
+          </Button>
         </div>
       </div>
 

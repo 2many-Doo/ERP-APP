@@ -1714,6 +1714,15 @@ export const updateContractTemplate = async (
 };
 
 /**
+ * Delete contract template by ID
+ */
+export const deleteContractTemplate = async (
+  id: number | string,
+): Promise<ApiResponse<any>> => {
+  return del(`/v1/contract-templates/${id}`);
+};
+
+/**
  * Get single legal document by ID
  */
 export const getLegalDocument = async (

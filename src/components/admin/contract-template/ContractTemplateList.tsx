@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Loader2, Plus, Search, Pencil } from "lucide-react";
+import { Loader2, Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
-import { getContractTemplates, getContractTemplateCreateMeta } from "@/lib/api";
+import { getContractTemplates, getContractTemplateCreateMeta, deleteContractTemplate } from "@/lib/api";
 import CreateContractTemplateDialog from "./CreateContractTemplateDialog";
 import EditContractTemplateDialog from "./EditContractTemplateDialog";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type ContractTemplate = {
   id?: number;
@@ -39,6 +40,7 @@ const ContractTemplateList: React.FC = () => {
   const [editOpenId, setEditOpenId] = useState<number | null>(null);
   const [typeMap, setTypeMap] = useState<Record<string, string>>({});
   const [propertyTypeMap, setPropertyTypeMap] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const router = useRouter();
 
   const fetchTemplates = async (page: number = 1, query: string = appliedSearch) => {
@@ -158,9 +160,9 @@ const ContractTemplateList: React.FC = () => {
 
     const style =
       normalized === "active" ||
-      normalized === "approved" ||
-      normalized === "published" ||
-      normalized === "enabled"
+        normalized === "approved" ||
+        normalized === "published" ||
+        normalized === "enabled"
         ? "border-green-500 text-green-700 bg-green-50"
         : normalized === "inactive" ||
           normalized === "disabled" ||
@@ -168,10 +170,10 @@ const ContractTemplateList: React.FC = () => {
           normalized === "archived" ||
           normalized === "archive" ||
           normalized === "rejected"
-        ? "border-red-500 text-red-700 bg-red-50"
-        : normalized === "draft" || normalized === "pending" || normalized === "waiting" || normalized === "processing"
-        ? "border-amber-400 text-amber-700 bg-amber-50"
-        : "border-green-500 text-green-700 bg-green-50";
+          ? "border-red-500 text-red-700 bg-red-50"
+          : normalized === "draft" || normalized === "pending" || normalized === "waiting" || normalized === "processing"
+            ? "border-amber-400 text-amber-700 bg-amber-50"
+            : "border-green-500 text-green-700 bg-green-50";
 
     return (
       <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${style}`}>
@@ -231,6 +233,26 @@ const ContractTemplateList: React.FC = () => {
     return propertyTypeMap[key] || key || "-";
   };
 
+  const handleDelete = async (id?: number) => {
+    if (!id) return;
+    const ok = window.confirm("Энэ гэрээний загварыг устгах уу?");
+    if (!ok) return;
+    try {
+      setDeletingId(id);
+      const res = await deleteContractTemplate(id);
+      if (res.error || ![200, 201, 202, 204].includes(res.status)) {
+        toast.error(res.error || "Устгах үед алдаа гарлаа.");
+        return;
+      }
+      toast.success("Загвар устгагдлаа.");
+      fetchTemplates(1, appliedSearch);
+    } catch (err) {
+      toast.error("Устгах үед алдаа гарлаа.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -258,7 +280,7 @@ const ContractTemplateList: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        
+
 
         {error && <div className="px-6 py-4 text-sm text-red-600">{error}</div>}
 
@@ -283,6 +305,9 @@ const ContractTemplateList: React.FC = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
                   Шинэчлэгдсэн
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase">
+                  Үйлдэл
                 </th>
               </tr>
             </thead>
@@ -315,6 +340,24 @@ const ContractTemplateList: React.FC = () => {
                     <td className="px-6 py-4 text-sm text-slate-700">{renderPropertyType(template)}</td>
                     <td className="px-6 py-4 text-sm text-slate-700">{renderStatus(template)}</td>
                     <td className="px-6 py-4 text-sm text-slate-500">{renderUpdatedAt(template)}</td>
+                    <td className="px-6 py-4 text-sm text-slate-700">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1 text-red-600 bg-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(template.id);
+                        }}
+                        disabled={deletingId === template.id}
+                      >
+                        {deletingId === template.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </td>
                   </tr>
                 ))
               )}
