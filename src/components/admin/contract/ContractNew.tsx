@@ -361,9 +361,6 @@ const ContractNew: React.FC = () => {
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Гэрээ татах</DialogTitle>
-                        <DialogDescription>
-                            Эхлэх огноо (Y-M-D) оруулаад татна.
-                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2">
                         <label className="text-sm text-slate-600">Эхлэх огноо</label>
