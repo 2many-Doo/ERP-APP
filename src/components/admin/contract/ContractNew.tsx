@@ -155,16 +155,18 @@ const ContractNew: React.FC = () => {
         return order === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
     };
 
-    const handleDownload = async (e: React.MouseEvent, id: number | string) => {
+    const handleDownload = async (e: React.MouseEvent, contract: Contract) => {
         e.stopPropagation();
         try {
-            setDownloadingId(id);
-            const res = await downloadGeree(id, {});
+            setDownloadingId(contract.id);
+            const res = await downloadGeree(contract.id, {});
             if (res.error || !res.blob) {
                 toast.error(res.error || "Файл татахад алдаа гарлаа");
                 return;
             }
-            const filename = res.filename || `geree-${id}.docx`;
+            const baseName = contract.name || `geree-${contract.id}`;
+            const safeName = `${baseName}`.replace(/\s+/g, "_");
+            const filename = res.filename || `${safeName}.docx`;
             const url = URL.createObjectURL(res.blob);
             const link = document.createElement("a");
             link.href = url;
@@ -314,8 +316,8 @@ const ContractNew: React.FC = () => {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={(e) => handleDownload(e, contract.id)}
-                                                disabled={downloadingId === contract.id}
+                                                    onClick={(e) => handleDownload(e, contract)}
+                                                    disabled={downloadingId === contract.id}
                                             >
                                                 <Download className="h-4 w-4" />
                                             </Button>

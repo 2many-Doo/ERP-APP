@@ -87,7 +87,6 @@ export default function ContractDetailPage() {
     const router = useRouter();
     const contractId = params?.id;
     const numericId = Array.isArray(contractId) ? Number(contractId[0]) : Number(contractId);
-
     const [contract, setContract] = useState<ContractDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -139,7 +138,9 @@ export default function ContractDetailPage() {
                 toast.error(res.error || "Гэрээ татахад алдаа гарлаа");
                 return;
             }
-            const filename = res.filename || `geree-${numericId}.docx`;
+            const baseName = contract?.name || contract?.number || `geree-${numericId}`;
+            const safeName = `${baseName}`.replace(/\s+/g, "_");
+            const filename = res.filename || `${safeName}.docx`;
             const url = URL.createObjectURL(res.blob);
             const link = document.createElement("a");
             link.href = url;
@@ -301,7 +302,7 @@ export default function ContractDetailPage() {
             </div>
 
             <div className="rounded-lg border-slate-200 border bg-white p-4 shadow-sm">
-                <h2 className="text-lg font-semibold mb-3">Жилийн тарифууд</h2>
+                <h2 className="text-lg font-semibold mb-3">Тайлбайн тариф(жилээр)</h2>
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-slate-200">
                         <thead className="bg-slate-50">

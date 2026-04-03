@@ -6,6 +6,7 @@ import { Button } from "../../ui/button";
 import { getContractTemplateById } from "@/lib/api";
 import EditContractTemplateDialog from "./EditContractTemplateDialog";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type ContractTemplate = {
   id?: number;
@@ -29,7 +30,7 @@ type ContractTemplate = {
   file_url?: string;
   template_file?: string;
   file_name?: string;
-  [key: string]: any;                                                          
+  [key: string]: any;
 };
 
 interface ContractTemplateDetailProps {
@@ -150,17 +151,12 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
   };
 
   const downloadUrl = resolveFileUrl(extractFileUrlFromTemplate(template));
-  if (process.env.NODE_ENV === "development") {
-    // Helpful during integration issues
-    // eslint-disable-next-line no-console
-    console.debug("Contract template download URL:", downloadUrl, template);
-  }
 
   const handleDownloadFile = async () => {
     const url = downloadUrl;
 
     if (!url) {
-      window.alert("Татах файл олдсонгүй.");
+      toast.error("Татах файл олдсонгүй.");
       return;
     }
 
@@ -199,8 +195,7 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.error(err);
-      window.alert("Файл татахад алдаа гарлаа. Дахин оролдоно уу.");
+      toast.error("Файл татахад алдаа гарлаа. Дахин оролдоно уу.");
     } finally {
       setDownloading(false);
     }
@@ -367,10 +362,10 @@ const ContractTemplateDetail: React.FC<ContractTemplateDetailProps> = ({ templat
               {propertyTypesMap[
                 String(
                   template.property_type_id ??
-                    template.propertyTypeId ??
-                    template.property_type ??
-                    template.propertyType ??
-                    ""
+                  template.propertyTypeId ??
+                  template.property_type ??
+                  template.propertyType ??
+                  ""
                 )
               ] ||
                 template.property_type?.name ||
