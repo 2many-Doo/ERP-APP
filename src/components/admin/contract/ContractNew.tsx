@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { downloadGeree, getContracts } from "@/lib/api";
+import { downloadGeree, downloadGereePdf, getContracts } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter, File } from "lucide-react";
 import ShopListSkeleton from "../../../constants/skeletons/ListSkeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import ContractPdfModal from "./ContractPdfModal";
 
 type Contract = {
     id: number | string;
@@ -59,6 +60,9 @@ const ContractNew: React.FC = () => {
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
     const [startDate, setStartDate] = useState<string>("");
+    const [pdfModalOpen, setPdfModalOpen] = useState(false);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string>("");
 
     const fetchContracts = async () => {
         try {
@@ -108,6 +112,12 @@ const ContractNew: React.FC = () => {
         fetchContracts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, orderby, order]);
+
+    useEffect(() => {
+        return () => {
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        };
+    }, [pdfUrl]);
 
     const filtered = useMemo(() => {
         const byBlock = blockFilter === "all"
@@ -198,6 +208,30 @@ const ContractNew: React.FC = () => {
             toast.error(err?.message || "Файл татахад алдаа гарлаа");
         } finally {
             setDownloadingId(null);
+        }
+    };
+
+    const openPdfModal = async (e: React.MouseEvent, contract: Contract) => {
+        e.stopPropagation();
+        try {
+            setPdfLoading(true);
+            setSelectedContract(contract);
+            if (pdfUrl) {
+                URL.revokeObjectURL(pdfUrl);
+                setPdfUrl("");
+            }
+            const res = await downloadGereePdf(contract.id, { start_date: startDate || "" });
+            if (res.error || !res.blob) {
+                toast.error(res.error || "PDF татахад алдаа гарлаа");
+                return;
+            }
+            const url = URL.createObjectURL(res.blob);
+            setPdfUrl(url);
+            setPdfModalOpen(true);
+        } catch (err: any) {
+            toast.error(err?.message || "PDF татахад алдаа гарлаа");
+        } finally {
+            setPdfLoading(false);
         }
     };
 
@@ -330,14 +364,32 @@ const ContractNew: React.FC = () => {
                                         <td className="px-4 py-3 text-sm text-slate-700">
                                             {contract.rate_fee ? `${contract.rate_fee.toLocaleString()}₮` : "-"}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-slate-700">
+                                        <td className=" flex items-center gap-2 px-4 py-3 text-sm text-slate-700">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={(e) => openDownloadModal(e, contract)}
                                                 disabled={downloadingId === contract.id}
+                                                title="DOCX татах (огноо сонгоно)"
                                             >
-                                                <Download className="h-4 w-4" />
+                                                {downloadingId === contract.id ? (
+                                                    <div className="h-4 w-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <Download className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => openPdfModal(e, contract)}
+                                                disabled={pdfLoading && selectedContract?.id === contract.id}
+                                                title="PDF харах"
+                                            >
+                                                {pdfLoading && selectedContract?.id === contract.id ? (
+                                                    <div className="h-4 w-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <File className="h-4 w-4" />
+                                                )}
                                             </Button>
                                         </td>
                                     </tr>
@@ -393,6 +445,20 @@ const ContractNew: React.FC = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ContractPdfModal
+                open={pdfModalOpen}
+                onOpenChange={(open) => {
+                    setPdfModalOpen(open);
+                    if (!open && pdfUrl) {
+                        URL.revokeObjectURL(pdfUrl);
+                        setPdfUrl("");
+                    }
+                }}
+                url={pdfUrl}
+                loading={pdfLoading}
+                filename={selectedContract?.name || `geree-${selectedContract?.id ?? ""}`}
+            />
         </div>
     );
 };

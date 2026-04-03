@@ -222,11 +222,19 @@ export default function ContractDetailPage() {
 
     const annualRates = contract.property_annual_rates ?? [];
 
+    const handleBack = () => {
+        if (typeof window !== "undefined" && window.history.length > 1) {
+            router.back();
+        } else {
+            router.push("/main/contract");
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
             <div className="flex items-center">
                 <div className="flex items-center gap-2">
-                    <Button variant="back" size="sm" onClick={() => router.back()}>
+                    <Button variant="back" size="sm" onClick={handleBack}>
                         <ArrowLeft className="h-4 w-4" />
                         Буцах
                     </Button>

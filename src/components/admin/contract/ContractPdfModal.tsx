@@ -18,7 +18,7 @@ type Props = {
 const ContractPdfModal: React.FC<Props> = ({ open, onOpenChange, url, loading = false, filename }) => {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-5xl">
+            <DialogContent className="max-w-7xl">
                 <DialogHeader>
                     <DialogTitle>Гэрээ PDF</DialogTitle>
                     <DialogDescription>{filename || "PDF үзэх"}</DialogDescription>
