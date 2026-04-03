@@ -2094,18 +2094,29 @@ export const getShopById = async (
  */
 export const getContractById = async (
   id: number | string,
+  start_date?: string | null,
 ): Promise<ApiResponse<any>> => {
-  return get(`/geree2026/list/${id}`);
+  const params = start_date ? { start_date } : undefined;
+  return get(`/geree2026/list/${id}`, { params });
 };
 
 /**
- * Create contract (geree) for a property
+ * Contract list with pagination
  */
-export const createGeree = async (
-  id: number | string,
-  data: any,
-): Promise<ApiResponse<any>> => {
-  return post(`/geree2026/list/${id}/geree`, data);
+export const getContracts = async ({
+  page = 1,
+  per_page = 32,
+  orderby = "name",
+  order = "asc",
+}: {
+  page?: number;
+  per_page?: number;
+  orderby?: string;
+  order?: string;
+} = {}): Promise<ApiResponse<any>> => {
+  return get("/geree2026/list", {
+    params: { page, per_page, orderby, order },
+  });
 };
 
 /**
@@ -2113,7 +2124,7 @@ export const createGeree = async (
  */
 export const downloadGeree = async (
   id: number | string,
-  data: any = {},
+  data: { start_date?: string | null } = {},
 ): Promise<{
   blob?: Blob;
   filename?: string | null;
@@ -2123,23 +2134,30 @@ export const downloadGeree = async (
   try {
     const url = buildUrl(`/geree2026/list/${id}/geree`);
     const headers = getDefaultHeaders();
+    const bodyPayload =
+      data && Object.prototype.hasOwnProperty.call(data, "start_date")
+        ? { start_date: data.start_date ?? "" }
+        : data && Object.keys(data).length
+          ? data
+          : { start_date: "" };
+
     const response = await fetch(url, {
       method: "POST",
       headers,
-      body: data ? JSON.stringify(data) : undefined,
+      body: JSON.stringify(bodyPayload),
     });
 
     const status = response.status;
     if (!response.ok) {
       let errorMsg: string | undefined;
+      const text = await response.text();
       try {
-        const json = await response.json();
+        const json = JSON.parse(text);
         errorMsg = (json as any)?.message || (json as any)?.error;
       } catch {
-        // fallback to text
+        // ignore parse error
       }
       if (!errorMsg) {
-        const text = await response.text();
         errorMsg = text || response.statusText;
       }
       return { error: errorMsg, status };

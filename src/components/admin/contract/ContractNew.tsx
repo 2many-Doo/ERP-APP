@@ -1,8 +1,7 @@
 "use client";
-
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { downloadGeree, get } from "@/lib/api";
+import { downloadGeree, getContracts } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter } from "lucide-react";
@@ -16,7 +15,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 type Contract = {
     id: number | string;
@@ -47,14 +56,15 @@ const ContractNew: React.FC = () => {
     const [blockFilter, setBlockFilter] = useState<string>("all");
     const perPage = 32;
     const [downloadingId, setDownloadingId] = useState<number | string | null>(null);
+    const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+    const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+    const [startDate, setStartDate] = useState<string>("");
 
     const fetchContracts = async () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await get("/geree2026/list", {
-                params: { page: currentPage, per_page: perPage, orderby, order },
-            });
+            const res = await getContracts({ page: currentPage, per_page: perPage, orderby, order });
             if (![200, 201, 202].includes(res.status) || !res.data) {
                 setError(res.error || "Гэрээний мэдээлэл татахад алдаа гарлаа");
                 setContracts([]);
@@ -155,16 +165,23 @@ const ContractNew: React.FC = () => {
         return order === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
     };
 
-    const handleDownload = async (e: React.MouseEvent, contract: Contract) => {
+    const openDownloadModal = (e: React.MouseEvent, contract: Contract) => {
         e.stopPropagation();
+        setSelectedContract(contract);
+        setStartDate("");
+        setDownloadModalOpen(true);
+    };
+
+    const handleConfirmDownload = async () => {
+        if (!selectedContract) return;
         try {
-            setDownloadingId(contract.id);
-            const res = await downloadGeree(contract.id, {});
+            setDownloadingId(selectedContract.id);
+            const res = await downloadGeree(selectedContract.id, { start_date: startDate || "" });
             if (res.error || !res.blob) {
                 toast.error(res.error || "Файл татахад алдаа гарлаа");
                 return;
             }
-            const baseName = contract.name || `geree-${contract.id}`;
+            const baseName = selectedContract.name || `geree-${selectedContract.id}`;
             const safeName = `${baseName}`.replace(/\s+/g, "_");
             const filename = res.filename || `${safeName}.docx`;
             const url = URL.createObjectURL(res.blob);
@@ -176,6 +193,7 @@ const ContractNew: React.FC = () => {
             link.remove();
             URL.revokeObjectURL(url);
             toast.success("Файл татаж эхэллээ");
+            setDownloadModalOpen(false);
         } catch (err: any) {
             toast.error(err?.message || "Файл татахад алдаа гарлаа");
         } finally {
@@ -316,8 +334,8 @@ const ContractNew: React.FC = () => {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                    onClick={(e) => handleDownload(e, contract)}
-                                                    disabled={downloadingId === contract.id}
+                                                onClick={(e) => openDownloadModal(e, contract)}
+                                                disabled={downloadingId === contract.id}
                                             >
                                                 <Download className="h-4 w-4" />
                                             </Button>
@@ -338,6 +356,46 @@ const ContractNew: React.FC = () => {
                     loading={loading}
                 />
             </div>
+
+            <Dialog open={downloadModalOpen} onOpenChange={setDownloadModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Гэрээ татах</DialogTitle>
+                        <DialogDescription>
+                            Эхлэх огноо (Y-M-D) оруулаад татна.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                        <label className="text-sm text-slate-600">Эхлэх огноо</label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                >
+                                    {startDate ? startDate : "Огноо сонгох"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 bg-white border-slate-200 flex justify-center items-center">
+                                <Calendar
+                                    mode="single"
+                                    selected={startDate ? new Date(startDate) : undefined}
+                                    onSelect={(date) => setStartDate(date ? format(date, "yyyy-MM-dd") : "")}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" onClick={() => setDownloadModalOpen(false)}>
+                            Болих
+                        </Button>
+                        <Button onClick={handleConfirmDownload} disabled={downloadingId !== null}>
+                            {downloadingId !== null ? "Татаж байна..." : "Татах"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { downloadGeree, getContractById } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { AlertCircle, ArrowLeft, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 
@@ -91,12 +92,13 @@ export default function ContractDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [downloading, setDownloading] = useState(false);
+    const [startDate, setStartDate] = useState<string>("");
 
-    const fetchDetail = async (id: number) => {
+    const fetchDetail = async (id: number, start?: string) => {
         try {
             setLoading(true);
             setError(null);
-            const res = await getContractById(id);
+            const res = await getContractById(id, start || undefined);
             if ([200, 201, 202].includes(res.status) && res.data) {
                 const data = res.data?.data ?? res.data;
                 setContract({
@@ -125,15 +127,15 @@ export default function ContractDetailPage() {
     };
 
     useEffect(() => {
-        if (Number.isFinite(numericId)) fetchDetail(numericId);
+        if (Number.isFinite(numericId)) fetchDetail(numericId, startDate);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [numericId]);
+    }, [numericId, startDate]);
 
     const handleDownloadGeree = async () => {
         if (!Number.isFinite(numericId)) return;
         try {
             setDownloading(true);
-            const res = await downloadGeree(numericId as number, {});
+            const res = await downloadGeree(numericId as number, { start_date: startDate || "" });
             if (res.error || !res.blob) {
                 toast.error(res.error || "Гэрээ татахад алдаа гарлаа");
                 return;
@@ -204,6 +206,15 @@ export default function ContractDetailPage() {
                     </div>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-slate-600">Эхлэх огноо:</label>
+                        <Input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="h-9"
+                        />
+                    </div>
                     <Button variant="outline" size="sm" onClick={handleDownloadGeree} disabled={downloading}>
                         <Download className="h-4 w-4" />
                         {downloading ? "Татаж байна..." : "Гэрээ татах"}
