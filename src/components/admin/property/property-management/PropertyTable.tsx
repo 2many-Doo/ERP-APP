@@ -28,9 +28,9 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   onRateClick,
   onDetailClick,
 }) => {
-  const hasActiveFilters = 
-    selectedTypeId !== null || 
-    selectedProductTypeId !== null || 
+  const hasActiveFilters =
+    selectedTypeId !== null ||
+    selectedProductTypeId !== null ||
     searchQuery.trim() !== "";
 
   const getTypeName = (typeId: number | null) => {
@@ -51,7 +51,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
         <div className="px-6 py-3 bg-slate-50 border-b border-slate-200">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-medium text-slate-700">Идэвхтэй шүүлт:</span>
-            
+
             {searchQuery.trim() !== "" && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-md">
                 Хайлт: "{searchQuery}"
@@ -64,7 +64,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
                 </button>
               </span>
             )}
-            
+
             {selectedTypeId !== null && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-md">
                 Төрөл: {getTypeName(selectedTypeId)}
@@ -77,7 +77,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
                 </button>
               </span>
             )}
-            
+
             {selectedProductTypeId !== null && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-md">
                 Барааны төрөл: {getProductTypeName(selectedProductTypeId, productTypes)}
@@ -90,7 +90,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
                 </button>
               </span>
             )}
-            
+
             <button
               onClick={() => {
                 onClearFilter('type');
@@ -104,7 +104,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
           </div>
         </div>
       )}
-      
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-50 border-b border-slate-200">

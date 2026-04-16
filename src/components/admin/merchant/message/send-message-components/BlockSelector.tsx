@@ -1,35 +1,37 @@
 "use client";
 
-import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../../ui/select";
+import React, { useMemo } from "react";
+import { Button } from "../../../../ui/button";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { SmsBlock } from "@/lib/api";
 import {
   BlockLoadingSkeleton,
   BlockEmptyState,
-  NumbersLoadingSpinner,
 } from "../BlockLoadingSkeleton";
+import { Download } from "lucide-react";
 
 interface BlockSelectorProps {
   blocks: SmsBlock[];
-  selectedBlock: string;
+  selectedBlockIds: number[];
+  onSelectedChange: (ids: number[]) => void;
   loadingBlocks: boolean;
   loadingNumbers: boolean;
-  onBlockSelect: (blockId: string) => void;
+  onFetchSelected: () => void;
 }
 
 export const BlockSelector: React.FC<BlockSelectorProps> = ({
   blocks,
-  selectedBlock,
+  selectedBlockIds,
+  onSelectedChange,
   loadingBlocks,
   loadingNumbers,
-  onBlockSelect,
+  onFetchSelected,
 }) => {
+  const options = useMemo(
+    () => blocks.map((b) => ({ value: b.id, label: b.name })),
+    [blocks],
+  );
+
   return (
     <div className="rounded-lg space-y-2">
       {loadingBlocks ? (
@@ -37,25 +39,46 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
       ) : blocks.length === 0 ? (
         <BlockEmptyState />
       ) : (
-        <div className="flex gap-2">
-          <Select
-            value={selectedBlock}
-            onValueChange={onBlockSelect}
-            disabled={loadingNumbers}
-          >
-            <SelectTrigger className="flex-1 text-sm border-blue-300 focus:ring-blue-500 bg-white">
-              <SelectValue placeholder="Блок сонгож дугаар нэмэх..." />
-            </SelectTrigger>
-            <SelectContent className="bg-white z-100">
-              {blocks.map((block) => (
-                <SelectItem key={block.id} value={String(block.id)}>
-                  {block.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {loadingNumbers && <NumbersLoadingSpinner />}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-3">
+          <div className="flex min-h-9 w-4/5">
+            <MultiSelect
+              options={options}
+              selected={selectedBlockIds}
+              onChange={onSelectedChange}
+              disabled={loadingNumbers}
+              placeholder="Блок сонгох..."
+              className="w-full min-h-9 text-sm bg-white"
+            />
+          </div>
+          <div className="flex w-1/5 gap-2 sm:max-w-xs sm:shrink-0 sm:items-stretch">
+            <Button
+              type="button"
+              variant="default"
+              disabled={loadingNumbers || selectedBlockIds.length === 0}
+              onClick={onFetchSelected}
+              className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 px-3 text-sm"
+            >
+              {loadingNumbers ? (
+                <>
+                  <span
+                    className="h-4 w-4 shrink-0 rounded-full border-2 border-white/70 border-t-transparent animate-spin"
+                    aria-hidden
+                  />
+                  <span className="truncate text-[10px] text-center">Татаж байна...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    татах
+                    {selectedBlockIds.length > 0
+                      ? ` (${selectedBlockIds.length})`
+                      : ""}
+                  </span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       )}
     </div>

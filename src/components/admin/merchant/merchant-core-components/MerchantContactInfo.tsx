@@ -49,7 +49,7 @@ export const MerchantContactInfo: React.FC<MerchantContactInfoProps> = ({ mercha
           <div className="flex items-center gap-3 md:col-span-2">
             <MapPin className="h-5 w-5 text-slate-400" />
             <div>
-              <p className="text-sm text-slate-500">Хаягын дэлгэрэнгүй</p>
+              <p className="text-sm text-slate-500">Хаягын тайлбар</p>
               <p className="text-sm font-medium text-slate-900">{merchant.address_description}</p>
             </div>
           </div>
@@ -58,4 +58,3 @@ export const MerchantContactInfo: React.FC<MerchantContactInfoProps> = ({ mercha
     </div>
   );
 };
-

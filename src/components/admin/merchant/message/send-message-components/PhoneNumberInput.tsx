@@ -7,24 +7,22 @@ import { Input } from "../../../../ui/input";
 
 interface PhoneNumberInputProps {
   phoneNumbers: string[];
-  onAdd: () => void;
   onRemove: (index: number) => void;
   onChange: (index: number, value: string) => void;
 }
 
 export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   phoneNumbers,
-  onAdd,
   onRemove,
   onChange,
 }) => {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 pt-2 w-full">
       {phoneNumbers.map((phone, index) => (
         <div key={index} className="flex items-center gap-2">
           <Input
             type="tel"
-            placeholder="Утасны дугаар (жишээ: 99123456)"
+            placeholder="Гараар оруулах (жишээ: 99123456)"
             value={phone}
             onChange={(e) => {
               const value = e.target.value.replace(/[^\d]/g, '');

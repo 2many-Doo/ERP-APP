@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X, Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,8 @@ interface MultiSelectProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  /** e.g. z-[110] when used inside a modal (z-100) so the list stays on top */
+  popoverContentClassName?: string;
 }
 
 export function MultiSelect({
@@ -26,6 +28,7 @@ export function MultiSelect({
   placeholder = "Сонгох...",
   disabled = false,
   className,
+  popoverContentClassName,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -36,14 +39,7 @@ export function MultiSelect({
     onChange(newSelected);
   };
 
-  const handleRemove = (value: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange(selected.filter((item) => item !== value));
-  };
-
-  const selectedLabels = options
-    .filter((opt) => selected.includes(opt.value))
-    .map((opt) => opt.label);
+  const selectedOptions = options.filter((opt) => selected.includes(opt.value));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -54,38 +50,23 @@ export function MultiSelect({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-between h-auto min-h-9 py-2",
+            "justify-between h-auto min-h-9 py-2",
             className
           )}
         >
           <div className="flex flex-wrap gap-1 flex-1">
-            {selected.length > 0 ? (
-              selectedLabels.map((label, index) => {
-                const value = selected[index];
-                return (
-                  <span
-                    key={value}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-md"
-                  >
-                    {label}
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemove(value, e)}
-                      className="hover:bg-blue-200 rounded-sm"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                );
-              })
-            ) : (
-              <span className="text-muted-foreground text-sm">{placeholder}</span>
-            )}
+            <span className="text-muted-foreground text-sm">{placeholder}</span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent
+        className={cn(
+          "p-0 z-[110] bg-white w-[var(--radix-popper-anchor-width)] min-w-[var(--radix-popper-anchor-width)] max-w-[var(--radix-popper-available-width)]",
+          popoverContentClassName,
+        )}
+        align="start"
+      >
         <div className="max-h-64 overflow-y-auto p-1">
           {options.length === 0 ? (
             <div className="py-6 text-center text-sm text-muted-foreground">

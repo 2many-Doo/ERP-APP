@@ -29,6 +29,7 @@ interface ContractDetail {
     tenant?: {
         id: number | string;
         name?: string;
+        type?: string | null;
         rd?: string | null;
         phone?: string | null;
         email?: string | null;
@@ -82,6 +83,18 @@ const formatStatusLabel = (status?: string | null) => {
         closed: "Хаалттай",
     };
     return map[status] || status;
+};
+
+const formatTenantType = (type?: string | null) => {
+    if (!type) return "—";
+    const key = type.toString().toLowerCase();
+    const map: Record<string, string> = {
+        organization: "Байгууллага",
+        individual: "Хувь хүн",
+        company: "Байгууллага",
+        person: "Хувь хүн",
+    };
+    return map[key] || type;
 };
 
 export default function ContractDetailPage() {
@@ -319,6 +332,9 @@ export default function ContractDetailPage() {
                             <span className="text-slate-500">Нэр:</span> {contract.tenant?.name || "—"}
                         </p>
                         <p>
+                            <span className="text-slate-500">Төрөл:</span> {formatTenantType(contract.tenant?.type)}
+                        </p>
+                        <p>
                             <span className="text-slate-500">РД:</span> {contract.tenant?.rd || "—"}
                         </p>
                         <p>
@@ -393,19 +409,19 @@ export default function ContractDetailPage() {
                 </div>
             </div>
 
-        <ContractPdfModal
-            open={pdfOpen}
-            onOpenChange={(open) => {
-                setPdfOpen(open);
-                if (!open && pdfUrl) {
-                    URL.revokeObjectURL(pdfUrl);
-                    setPdfUrl("");
-                }
-            }}
-            url={pdfUrl}
-            loading={pdfLoading}
-            filename={contract?.name || contract?.number || ""}
-        />
+            <ContractPdfModal
+                open={pdfOpen}
+                onOpenChange={(open) => {
+                    setPdfOpen(open);
+                    if (!open && pdfUrl) {
+                        URL.revokeObjectURL(pdfUrl);
+                        setPdfUrl("");
+                    }
+                }}
+                url={pdfUrl}
+                loading={pdfLoading}
+                filename={contract?.name || contract?.number || ""}
+            />
         </div>
     );
 }

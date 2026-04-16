@@ -89,6 +89,15 @@ export function DateTimePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 z-100 bg-white" align="start">
+        <div className="border-b p-3">
+          <label className="mb-2 block text-sm font-medium">Цаг</label>
+          <Input
+            type="time"
+            value={timeValue}
+            onChange={handleTimeChange}
+            className="w-full"
+          />
+        </div>
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -99,15 +108,6 @@ export function DateTimePicker({
           }}
           initialFocus
         />
-        <div className="p-3 border-t">
-          <label className="text-sm font-medium mb-2 block">Цаг</label>
-          <Input
-            type="time"
-            value={timeValue}
-            onChange={handleTimeChange}
-            className="w-full"
-          />
-        </div>
       </PopoverContent>
     </Popover>
   );

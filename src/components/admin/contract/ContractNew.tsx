@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { downloadGeree, downloadGereePdf, getContracts } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye, Download, Filter, File } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Download, Filter, File } from "lucide-react";
 import ShopListSkeleton from "../../../constants/skeletons/ListSkeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -18,7 +18,6 @@ import {
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -55,6 +54,7 @@ const ContractNew: React.FC = () => {
     const [order, setOrder] = useState<"asc" | "desc">("asc");
     const [search, setSearch] = useState("");
     const [blockFilter, setBlockFilter] = useState<string>("all");
+    const [tenantTypeFilter, setTenantTypeFilter] = useState<string>("all");
     const perPage = 32;
     const [downloadingId, setDownloadingId] = useState<number | string | null>(null);
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
@@ -120,9 +120,18 @@ const ContractNew: React.FC = () => {
     }, [pdfUrl]);
 
     const filtered = useMemo(() => {
-        const byBlock = blockFilter === "all"
-            ? contracts
-            : contracts.filter((c) => String(c.block_id) === blockFilter);
+        const byTenantType =
+            tenantTypeFilter === "all"
+                ? contracts
+                : contracts.filter((c) => {
+                    const type = (c as any)?.tenant?.type || (c as any)?.tenant_type || "";
+                    return type && type.toString().toLowerCase() === tenantTypeFilter;
+                });
+
+        const byBlock =
+            blockFilter === "all"
+                ? byTenantType
+                : byTenantType.filter((c) => String(c.block_id) === blockFilter);
 
         const term = search.trim().toLowerCase();
         const list = !term
@@ -156,7 +165,7 @@ const ContractNew: React.FC = () => {
         });
 
         return sorted;
-    }, [contracts, search, orderby, order, blockFilter]);
+    }, [contracts, search, orderby, order, blockFilter, tenantTypeFilter]);
 
     const blockOptions = useMemo(() => {
         const map = new Map<string, string>();
@@ -265,6 +274,29 @@ const ContractNew: React.FC = () => {
                         className="w-full pl-10 bg-white text-sm text-slate-700 placeholder:text-slate-400"
                     />
                     <div className="flex items-center gap-2">
+                        <Select
+                            value={tenantTypeFilter}
+                            onValueChange={(v) => {
+                                setTenantTypeFilter(v);
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="w-[180px] border-slate-200 py-5 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none">
+                                <Filter className="h-4 w-4 text-slate-400" />
+                                <SelectValue placeholder="Түрээслэгчийн төрөл" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                                <SelectItem value="all" className="cursor-pointer bg-white">
+                                    Бүгд
+                                </SelectItem>
+                                <SelectItem value="organization" className="cursor-pointer bg-white">
+                                    Байгууллага
+                                </SelectItem>
+                                <SelectItem value="individual" className="cursor-pointer bg-white">
+                                    Хувь хүн
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                         <Select
                             value={blockFilter}
                             onValueChange={(v) => {
